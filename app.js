@@ -44,6 +44,7 @@ function menuPanel(){show(panelHead("GLASS","Control center","Everything in one 
  ["⌗","Tabs","Manage open tabs","tabs"],["◈","Spaces","Switch browsing spaces","spaces"],["◷","History","Recently visited pages","history"],["☆","Saved","Bookmarks and reading list","saved"],["▤","Library","Your browsing collection","library"],["⚙","Settings","Appearance and preferences","settings"]
  ].map(x=>'<button class="panel-row" data-panel="'+x[3]+'"><span class="row-icon">'+x[0]+'</span><span class="row-main"><strong>'+x[1]+'</strong><small>'+x[2]+'</small></span><span class="row-trail">›</span></button>').join("")+'</div>')}
 function listPanel(type){
+ if(type==="tabs"){tabsPanel();return}
  const data=read("glass-"+type,[]);
  const title=type==="history"?"History":type==="saved"?"Saved pages":type==="tabs"?"Tabs":"Library";
  const kicker=type==="history"?"YOUR ACTIVITY":type==="saved"?"BOOKMARKS":type==="tabs"?"BROWSING":"COLLECTION";
@@ -51,6 +52,28 @@ function listPanel(type){
  show(panelHead(kicker,title,"A consistent place for your browsing data.")+'<div class="panel-list">'+rows+'</div>'+(data.length?action("Clear all","clearList"):""));
  $("#clearList")?.addEventListener("click",()=>{write("glass-"+type,[]);listPanel(type)});
  content.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>{data.splice(Number(b.dataset.remove),1);write("glass-"+type,data);listPanel(type)}));
+}
+function tabsPanel(filter=""){
+ const tabs=read("glass-tabs",[]);
+ const query=filter.trim().toLowerCase();
+ const visible=tabs.filter(t=>(!query||((t.title||"")+" "+(t.url||"")+" "+(t.space||"")).toLowerCase().includes(query)));
+ const spaces=["Personal","Gaming","Work","Shopping"];
+ const cards=spaces.map(space=>{
+  const group=visible.filter(t=>t.space===space);
+  if(!group.length)return "";
+  return '<section class="tab-group"><div class="tab-group-head"><div><p class="eyebrow">SPACE</p><h3>'+safe(space)+'</h3></div><span class="tab-count">'+group.length+'</span></div><div class="tab-card-list">'+group.map(t=>'<article class="tab-card"><div class="tab-favicon">'+safe((new URL(t.url)).hostname.replace(/^www\\./,"").slice(0,1).toUpperCase())+'</div><div class="tab-card-main"><strong>'+safe(t.title||t.url)+'</strong><small>'+safe(t.url)+'</small><select class="tab-move" data-move="'+safe(t.id)+'" aria-label="Move tab to space">'+spaces.map(n=>'<option '+(n===t.space?"selected":"")+'>'+n+'</option>').join("")+'</select></div><div class="tab-card-actions"><button class="tab-open" data-open="'+safe(t.id)+'" aria-label="Open tab">↗</button><button class="tab-close" data-close="'+safe(t.id)+'" aria-label="Close tab">×</button></div></article>').join("")+'</div></section>';
+ }).join("");
+ show(panelHead("YOUR BROWSING","Tabs",tabs.length+" saved tab entries · grouped by space")+
+ '<input class="dialog-input tab-search" id="tabFilter" placeholder="Search tabs and websites…" value="'+safe(filter)+'">'+
+ '<div class="tab-add-row"><input class="dialog-input" id="newTabUrl" placeholder="Paste a website address"><button class="dialog-action" id="addTab">＋ Add</button></div>'+
+ (cards||'<div class="empty-panel"><span>⌗</span><strong>'+(tabs.length?"No matching tabs":"No saved tabs yet")+'</strong><small>Add a website or search from the home screen.</small></div>')+
+ (tabs.length?action("Close all tabs","closeAllTabs"):""));
+ $("#tabFilter").addEventListener("input",e=>{const pos=e.target.selectionStart;tabsPanel(e.target.value);const el=$("#tabFilter");el.focus();el.setSelectionRange(pos,pos)});
+ $("#addTab").addEventListener("click",()=>{const raw=$("#newTabUrl").value.trim();if(!raw)return;const url=normalizeUrl(raw);if(!/^https?:\\/\\//i.test(url))return;tabs.unshift({id:"t"+Date.now(),title:new URL(url).hostname,url,space:activeSpace,created:Date.now()});write("glass-tabs",tabs);tabsPanel(filter)});
+ content.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{const t=tabs.find(x=>x.id===b.dataset.open);if(t)window.location.assign(t.url)}));
+ content.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>{write("glass-tabs",tabs.filter(x=>x.id!==b.dataset.close));tabsPanel(filter)}));
+ content.querySelectorAll("[data-move]").forEach(b=>b.addEventListener("change",()=>{const t=tabs.find(x=>x.id===b.dataset.move);if(t)t.space=b.value;write("glass-tabs",tabs);tabsPanel(filter)}));
+ $("#closeAllTabs")?.addEventListener("click",()=>{write("glass-tabs",[]);tabsPanel()});
 }
 function settingsPanel(){show(panelHead("PREFERENCES","Settings","Tune the browser without leaving its visual system.")+
  '<div class="panel-list"><button class="panel-row" id="settingsAppearance"><span class="row-icon">◐</span><span class="row-main"><strong>Appearance</strong><small>Theme, blur, transparency and shape</small></span><span class="row-trail">›</span></button><div class="panel-row static-row"><span class="row-icon">☼</span><span class="row-main"><strong>Reduce motion</strong><small>Respect device accessibility setting</small></span><span class="row-trail">Auto</span></div><div class="panel-row static-row"><span class="row-icon">☁</span><span class="row-main"><strong>Sync</strong><small>Cloud sync will be connected later</small></span><span class="row-trail">Soon</span></div></div>')}
@@ -75,7 +98,7 @@ $("#dialogContent").addEventListener("click",e=>{
 });
 document.querySelectorAll(".space-card").forEach(card=>card.addEventListener("click",()=>{setSpace(card.dataset.space);listPanel("tabs")}));
 function normalizeUrl(q){return /^https?:\/\//i.test(q)?q:/^[\w-]+\.[a-z]{2,}(\/.*)?$/i.test(q)?"https://"+q:"https://www.google.com/search?q="+encodeURIComponent(q)}
-function search(q){q=q.trim();if(!q)return;const url=normalizeUrl(q);const data=read("glass-history",[]);data.unshift({title:q,url,at:Date.now()});write("glass-history",data.slice(0,100));window.location.assign(url)}
+function search(q){q=q.trim();if(!q)return;const url=normalizeUrl(q);const data=read("glass-history",[]);data.unshift({title:q,url,at:Date.now()});write("glass-history",data.slice(0,100));const tabs=read("glass-tabs",[]);tabs.unshift({id:"t"+Date.now(),title:q,url,space:activeSpace,created:Date.now()});write("glass-tabs",tabs.slice(0,100));window.location.assign(url)}
 $("#searchForm").addEventListener("submit",e=>{e.preventDefault();search($("#searchInput").value)});
 $("#askButton").addEventListener("click",()=>{const input=$("#searchInput");input.placeholder="Ask anything…";input.focus();if(input.value.trim())search(input.value)});
 function voice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){show(panelHead("VOICE INPUT","Unavailable","Speech recognition is not supported by this browser. Use the search field instead."));return}const r=new SR();r.lang="ru-RU";r.onresult=e=>{const q=e.results[0][0].transcript;$("#searchInput").value=q;search(q)};r.start()}
