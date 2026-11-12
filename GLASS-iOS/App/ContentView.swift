@@ -782,8 +782,12 @@ struct ContentView: View {
                                         .foregroundStyle(GlassAppearance.accent(for: themePreset))
                                         .frame(width: 30, height: 30)
                                         .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: RoundedRectangle(cornerRadius: 10))
-                                    Text(group.title)
-                                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(group.title)
+                                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                                        Text(group.subtitle)
+                                            .font(.system(size: 9)).foregroundStyle(GlassPalette.secondary)
+                                    }
                                     Text("\(group.tabs.count)")
                                         .font(.system(size: 10, weight: .bold, design: .rounded))
                                         .foregroundStyle(GlassPalette.secondary)
