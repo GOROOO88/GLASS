@@ -1,12 +1,12 @@
 import Foundation
 
 enum GlassSearchEngine: String, CaseIterable, Codable, Identifiable {
-    case google, bing, duckDuckGo, brave, yahoo
+    case google, yandex, bing, duckDuckGo, brave, yahoo
 
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .google: return "Google"
+        case .google: return "Google"\n        case .yandex: return "Яндекс"
         case .bing: return "Bing"
         case .duckDuckGo: return "DuckDuckGo"
         case .brave: return "Brave Search"
@@ -17,7 +17,7 @@ enum GlassSearchEngine: String, CaseIterable, Codable, Identifiable {
     func searchURL(for query: String) -> URL? {
         var components: URLComponents?
         switch self {
-        case .google: components = URLComponents(string: "https://www.google.com/search")
+        case .google: components = URLComponents(string: "https://www.google.com/search")\n        case .yandex: components = URLComponents(string: "https://yandex.ru/search/")
         case .bing: components = URLComponents(string: "https://www.bing.com/search")
         case .duckDuckGo: components = URLComponents(string: "https://duckduckgo.com/")
         case .brave: components = URLComponents(string: "https://search.brave.com/search")
