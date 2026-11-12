@@ -110,10 +110,6 @@ struct ContentView: View {
             VStack(spacing: 12) {
                 header
                 addressBar
-                if addressFocused && !addressText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    addressSuggestionsPanel
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
                 spacesBar
                 tabStrip
 
@@ -319,7 +315,7 @@ struct ContentView: View {
     }
 
     private var addressSuggestions: [AddressSuggestion] {
-        let query = addressText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let query = tabsSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return [] }
         var results: [AddressSuggestion] = []
         for bookmark in browser.bookmarks {
@@ -348,8 +344,18 @@ struct ContentView: View {
         return Array(results.prefix(5))
     }
 
-    private var addressSuggestionsPanel: some View {
-        VStack(spacing: 0) {
+    private var tabManagerSuggestionsPanel: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 7) {
+                Image(systemName: "bookmark")
+                Text("СОВПАДЕНИЯ В ЗАКЛАДКАХ И ИСТОРИИ")
+            }
+            .font(.system(size: 9, weight: .bold))
+            .tracking(1)
+            .foregroundStyle(GlassPalette.secondary)
+            .padding(.horizontal, 13)
+            .padding(.top, 12)
+
             ForEach(addressSuggestions) { suggestion in
                 Button {
                     openSuggestion(suggestion.url)
@@ -381,23 +387,6 @@ struct ContentView: View {
                 }
                 .buttonStyle(.plain)
             }
-            Button {
-                openAddress()
-            } label: {
-                HStack(spacing: 9) {
-                    Image(systemName: "magnifyingglass").foregroundStyle(activeAccent)
-                    Text("Искать в интернете: \(addressText)")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                    Spacer(minLength: 0)
-                    Image(systemName: "arrow.up.right").foregroundStyle(activeAccent)
-                }
-                .padding(.horizontal, 13)
-                .padding(.vertical, 11)
-                .background(Color.white.opacity(0.045))
-            }
-            .buttonStyle(.plain)
         }
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.white.opacity(0.12)))
@@ -409,6 +398,8 @@ struct ContentView: View {
         guard let url = URL(string: value), let tab = browser.activeTab else { return }
         tab.load(url)
         addressText = value
+        tabsSearchText = ""
+        showTabs = false
         addressFocused = false
         hideKeyboard()
     }
@@ -1062,6 +1053,11 @@ struct ContentView: View {
                     .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(themeCardOpacity)))
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.10)))
+
+                    if !tabsSearchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !addressSuggestions.isEmpty {
+                        tabManagerSuggestionsPanel
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
 
                     ForEach(automaticTabGroups) { group in
                         VStack(alignment: .leading, spacing: 10) {
