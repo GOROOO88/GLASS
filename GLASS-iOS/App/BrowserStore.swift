@@ -1,5 +1,6 @@
 import Foundation
-import Combine\nimport WebKit
+import Combine
+import WebKit
 
 struct BrowserBookmark: Codable, Identifiable, Equatable {
     var id: String { url }
@@ -249,8 +250,42 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
-    func closeAllPrivateTabs() {\n        let privateTabs = tabs.filter { $0.isPrivate }\n        privateTabs.forEach { close($0) }\n    }\n\n    func searchURL(for query: String) -> URL? {\n        settings.searchEngine.searchURL(for: query)\n    }\n\n    func updateSetting<Value>(_ keyPath: WritableKeyPath<GlassBrowserSettings, Value>, value: Value) {\n        settings[keyPath: keyPath] = value\n        saveSettings()\n        tabs.forEach { $0.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled) }\n    }\n\n    func updateCustomStartPage(_ value: String) {\n        settings.customStartPageURL = value\n        saveSettings()\n    }\n\n    var resolvedStartPageURL: URL? {\n        guard settings.startPage == "custom" else { return nil }\n        let value = settings.customStartPageURL.trimmingCharacters(in: .whitespacesAndNewlines)\n        guard !value.isEmpty else { return nil }\n        if let url = URL(string: value), ["http", "https"].contains(url.scheme?.lowercased() ?? "") { return url }\n        return URL(string: "https://" + value)\n    }\n\n    private func saveSettings() {\n        guard let data = try? JSONEncoder().encode(settings) else { return }\n        UserDefaults.standard.set(data, forKey: settingsKey)\n    }\n\n    private func makeTab(id: UUID = UUID(), spaceID: String, isPrivate: Bool = false) -> BrowserTab {
-        let tab = BrowserTab(id: id, spaceID: spaceID, isPrivate: isPrivate)\n        tab.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled)
+    func closeAllPrivateTabs() {
+        let privateTabs = tabs.filter { $0.isPrivate }
+        privateTabs.forEach { close($0) }
+    }
+
+    func searchURL(for query: String) -> URL? {
+        settings.searchEngine.searchURL(for: query)
+    }
+
+    func updateSetting<Value>(_ keyPath: WritableKeyPath<GlassBrowserSettings, Value>, value: Value) {
+        settings[keyPath: keyPath] = value
+        saveSettings()
+        tabs.forEach { $0.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled) }
+    }
+
+    func updateCustomStartPage(_ value: String) {
+        settings.customStartPageURL = value
+        saveSettings()
+    }
+
+    var resolvedStartPageURL: URL? {
+        guard settings.startPage == "custom" else { return nil }
+        let value = settings.customStartPageURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return nil }
+        if let url = URL(string: value), ["http", "https"].contains(url.scheme?.lowercased() ?? "") { return url }
+        return URL(string: "https://" + value)
+    }
+
+    private func saveSettings() {
+        guard let data = try? JSONEncoder().encode(settings) else { return }
+        UserDefaults.standard.set(data, forKey: settingsKey)
+    }
+
+    private func makeTab(id: UUID = UUID(), spaceID: String, isPrivate: Bool = false) -> BrowserTab {
+        let tab = BrowserTab(id: id, spaceID: spaceID, isPrivate: isPrivate)
+        tab.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled)
         if !isPrivate {
             tab.onVisit = { [weak self] url, title in
                 self?.recordVisit(url, title: title)
