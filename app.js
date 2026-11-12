@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s);
 const dialog=$("#appDialog"),content=$("#dialogContent");
-const themes={Violet:["#a78bfa","167,139,250"],Ocean:["#78b9e8","120,185,232"],Emerald:["#77d7b0","119,215,176"],Rose:["#e6a0bd","230,160,189"]};
+const themes={Violet:["#a94bff","169,75,255"],Ocean:["#32aaff","50,170,255"],Emerald:["#28c987","40,201,135"],Rose:["#f044c7","240,68,199"]};
 const defaults={theme:"Violet",opacity:7.5,blur:24,radius:24};
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
 const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
