@@ -41,7 +41,7 @@ struct ContentView: View {
     @State private var collapsedTabGroups: Set<String> = []
     @State private var tabsSearchText = ""
     @State private var confirmCloseSpaceTabs = false
-    @State private var privacyTransitionOpacity = 0.0
+    @State private var screenFadeOpacity = 0.0
 
     private var isPrivateMode: Bool { browser.activeTab?.isPrivate == true }
     private var activeAccent: Color {
@@ -126,22 +126,25 @@ struct ContentView: View {
 
             Color.black
                 .ignoresSafeArea()
-                .opacity(privacyTransitionOpacity)
-                .allowsHitTesting(privacyTransitionOpacity > 0.02)
+                .opacity(screenFadeOpacity)
+                .allowsHitTesting(screenFadeOpacity > 0.02)
+                .accessibilityHidden(true)
         }
         .animation(.easeInOut(duration: 0.08 + themeMotion * 0.42), value: themePreset)
         .onChange(of: isPrivateMode) { _, _ in
-            withAnimation(.easeInOut(duration: 0.22)) {
-                privacyTransitionOpacity = 1
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
-                withAnimation(.easeInOut(duration: 0.38)) {
-                    privacyTransitionOpacity = 0
-                }
-            }
+            playScreenFade()
         }
         .onChange(of: browser.activeTabID) { _, _ in
             addressText = browser.activeTab?.address ?? ""
+            playScreenFade()
+        }
+        .onChange(of: browser.activeSpaceID) { _, _ in
+            playScreenFade()
+        }
+        .onChange(of: browser.activeTab?.isLoading) { _, isLoading in
+            if isLoading == true {
+                playScreenFade()
+            }
         }
         .onChange(of: browser.activeTab?.address) { _, value in
             if let value { addressText = value }
@@ -193,6 +196,18 @@ struct ContentView: View {
             Button("OK") { privacyActionMessage = "" }
         } message: {
             Text(privacyActionMessage)
+        }
+    }
+
+    private func playScreenFade() {
+        guard themeMotion > 0.02 else { return }
+        withAnimation(.easeIn(duration: 0.13)) {
+            screenFadeOpacity = 0.88
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) {
+            withAnimation(.easeOut(duration: 0.34 + themeMotion * 0.18)) {
+                screenFadeOpacity = 0
+            }
         }
     }
 
