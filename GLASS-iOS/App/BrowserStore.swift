@@ -22,6 +22,7 @@ struct RecentlyClosedTab: Codable, Identifiable, Equatable {
     let groupDetail: String
     let closedAt: Date
 
+    @MainActor
     init(tab: BrowserTab) {
         id = UUID()
         title = tab.title.isEmpty ? (URL(string: tab.address)?.host ?? "Closed tab") : tab.title
