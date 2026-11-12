@@ -1,7 +1,15 @@
 import SwiftUI
 import UIKit
 
-private struct AutomaticTabGroup: Identifiable {\n    let id: String\n    let title: String\n    let symbol: String\n    let tabs: [BrowserTab]\n}\n\nprivate enum GlassPalette {
+private struct AutomaticTabGroup: Identifiable {
+    let id: String
+    let title: String
+    let symbol: String
+    let subtitle: String
+    let tabs: [BrowserTab]
+}
+
+private enum GlassPalette {
     static let background = Color(red: 0.035, green: 0.035, blue: 0.065)
     static let line = Color.white.opacity(0.12)
     static let secondary = Color.white.opacity(0.58)
@@ -331,7 +339,8 @@ struct ContentView: View {
                                     .font(.system(size: 9, weight: .bold)).tracking(1.6)
                                     .foregroundStyle(GlassPalette.secondary)
                             }
-                            Text("A quieter corner\nof the web.")
+                            Text("A quieter corner
+of the web.")
                                 .font(.system(size: 34, weight: .semibold, design: .rounded))
                                 .tracking(-0.8).foregroundStyle(.white)
                                 .fixedSize(horizontal: false, vertical: true)
