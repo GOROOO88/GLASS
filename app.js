@@ -1,34 +1,87 @@
-const $=s=>document.querySelector(s);const dialog=$("#appDialog");const content=$("#dialogContent");const themes={Violet:["#a78bfa","167,139,250"],Ocean:["#78b9e8","120,185,232"],Emerald:["#77d7b0","119,215,176"],Rose:["#e6a0bd","230,160,189"]};function openDialog(html){content.innerHTML=html;dialog.showModal()}function closeDialog(){dialog.close()}$("#closeDialog").addEventListener("click",closeDialog);dialog.addEventListener("click",e=>{if(e.target===dialog)closeDialog()});function applyTheme(name){const [color,rgb]=themes[name]||themes.Violet;document.documentElement.style.setProperty("--accent",color);document.documentElement.style.setProperty("--accent-rgb",rgb);localStorage.setItem("glass-theme",name)}const saved=localStorage.getItem("glass-theme");if(saved)applyTheme(saved);function themePanel(){openDialog('<p class="eyebrow">PERSONALIZE YOUR SPACE</p><h2 class="dialog-title">Appearance</h2><p class="dialog-copy">Choose an accent, then tune the glass to your taste.</p><div class="theme-row">'+Object.entries(themes).map(([n,[c]])=>'<button class="theme-swatch" data-theme="'+n+'" title="'+n+'" style="background:'+c+'"></button>').join("")+'</div><label class="setting">Glass opacity <input id="opacityControl" type="range" min="3" max="18" value="'+Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--opacity"))*100)+'"></label><label class="setting">Blur <input id="blurControl" type="range" min="8" max="40" value="24"></label><label class="setting">Corner radius <input id="radiusControl" type="range" min="12" max="34" value="24"></label>');content.querySelectorAll("[data-theme]").forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.theme)));$("#opacityControl").addEventListener("input",e=>document.documentElement.style.setProperty("--opacity",e.target.value/100));$("#blurControl").addEventListener("input",e=>document.documentElement.style.setProperty("--blur",e.target.value+"px"));$("#radiusControl").addEventListener("input",e=>document.documentElement.style.setProperty("--radius",e.target.value+"px"))}$("#menuButton").addEventListener("click",()=>openDialog('<h2 class="dialog-title">GLASS menu</h2><p class="dialog-copy">Your browser space. Settings and appearance controls are being built.</p><button class="dialog-action" id="openAppearance">Appearance settings</button>'));$("#dialogContent").addEventListener("click",e=>{if(e.target.id==="openAppearance")themePanel()});$("#spaceButton").addEventListener("click",()=>openDialog('<h2 class="dialog-title">Spaces</h2><p class="dialog-copy">Switch between your browsing spaces.</p><button class="dialog-action" data-pick="Personal">Personal</button> <button class="dialog-action" data-pick="Gaming">Gaming</button> <button class="dialog-action" data-pick="Work">Work</button>'));$("#dialogContent").addEventListener("click",e=>{if(e.target.dataset.pick){$("#spaceButton").innerHTML='<span class="space-dot"></span><span>'+e.target.dataset.pick+'</span><span class="chevron">⌄</span>';closeDialog()}});document.querySelectorAll(".space-card").forEach(card=>card.addEventListener("click",()=>{const n=card.dataset.space;$("#spaceButton").innerHTML='<span class="space-dot"></span><span>'+n+'</span><span class="chevron">⌄</span>';openDialog('<h2 class="dialog-title">'+n+'</h2><p class="dialog-copy">This space is ready for its own tabs and groups. Browser tab management will be connected in the next build stage.</p>')}));function search(q){if(!q.trim())return;const url=/^https?:\/\//i.test(q)?q:/^[\w-]+\.[a-z]{2,}(\/.*)?$/i.test(q)?"https://"+q:"https://www.google.com/search?q="+encodeURIComponent(q);window.location.href=url}$("#searchForm").addEventListener("submit",e=>{e.preventDefault();search($("#searchInput").value)});$("#askButton").addEventListener("click",()=>{const q=$("#searchInput").value.trim();if(q)search(q);else{ $("#searchInput").focus();$("#searchInput").placeholder="Ask anything…"}});$("#addShortcut").addEventListener("click",()=>openDialog('<h2 class="dialog-title">Add shortcut</h2><input class="dialog-input" id="shortcutName" placeholder="Name"><input class="dialog-input" id="shortcutUrl" placeholder="https://example.com"><button class="dialog-action" id="saveShortcut">Add shortcut</button>'));$("#dialogContent").addEventListener("click",e=>{if(e.target.id==="saveShortcut"){const name=$("#shortcutName").value.trim(),url=$("#shortcutUrl").value.trim();if(!name||!url)return;let href=url.match(/^https?:\/\//)?url:"https://"+url;const a=document.createElement("a");a.className="quick-link";a.href=href;a.innerHTML='<span class="quick-icon">↗</span><span></span>';a.lastElementChild.textContent=name;$("#quickLinks").insertBefore(a,$("#addShortcut"));closeDialog()}});function voice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){openDialog('<h2 class="dialog-title">Voice search unavailable</h2><p class="dialog-copy">This browser does not expose speech recognition here.</p>');return}const r=new SR();r.lang="ru-RU";r.onresult=e=>{const v=e.results[0][0].transcript;$("#searchInput").value=v;search(v)};r.start()}$("#voiceButton").addEventListener("click",voice);$("#searchVoice").addEventListener("click",voice);$("#manageSpaces").addEventListener("click",()=>$("#spaceButton").click());$("#clearRecent").addEventListener("click",()=>{$("#recentList").innerHTML='<span class="empty-symbol">◷</span><span>Your recently closed tabs will appear here.</span>'});$("#libraryButton").addEventListener("click",()=>openDialog('<h2 class="dialog-title">Library</h2><p class="dialog-copy">Bookmarks, reading list and saved pages will live here.</p>'));$("#bookmarksButton").addEventListener("click",()=>openDialog('<h2 class="dialog-title">Saved</h2><p class="dialog-copy">Your saved pages will appear here.</p>'));$("#historyButton").addEventListener("click",()=>openDialog('<h2 class="dialog-title">History</h2><p class="dialog-copy">Your browsing history will appear here.</p>'));$("#backButton").addEventListener("click",()=>history.back());$("#forwardButton").addEventListener("click",()=>history.forward());if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
-
-// Persist the complete appearance profile, not just the accent preset.
-const appearanceDefaults={theme:"Violet",opacity:7.5,blur:24,radius:24};
-function readAppearance(){
-  try{return {...appearanceDefaults,...JSON.parse(localStorage.getItem("glass-appearance")||"{}")}}
-  catch{return {...appearanceDefaults}}
+const $=s=>document.querySelector(s);
+const dialog=$("#appDialog"),content=$("#dialogContent");
+const themes={Violet:["#a78bfa","167,139,250"],Ocean:["#78b9e8","120,185,232"],Emerald:["#77d7b0","119,215,176"],Rose:["#e6a0bd","230,160,189"]};
+const defaults={theme:"Violet",opacity:7.5,blur:24,radius:24};
+const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+let appearance={...defaults,...read("glass-appearance",{})};
+let activeSpace=localStorage.getItem("glass-space")||"Personal";
+let activeSection="home";
+const safe=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function applyAppearance(patch={}){
+ appearance={...appearance,...patch};write("glass-appearance",appearance);
+ const [color,rgb]=themes[appearance.theme]||themes.Violet,root=document.documentElement;
+ root.style.setProperty("--accent",color);root.style.setProperty("--accent-rgb",rgb);
+ root.style.setProperty("--opacity",appearance.opacity/100);root.style.setProperty("--blur",appearance.blur+"px");root.style.setProperty("--radius",appearance.radius+"px");
 }
-function saveAppearance(next){
-  const value={...readAppearance(),...next};
-  localStorage.setItem("glass-appearance",JSON.stringify(value));
-  return value;
+applyAppearance();
+function show(html){content.innerHTML=html;if(!dialog.open)dialog.showModal()}
+function close(){if(dialog.open)dialog.close()}
+$("#closeDialog").addEventListener("click",close);
+dialog.addEventListener("click",e=>{if(e.target===dialog)close()});
+function panelHead(kicker,title,copy=""){return '<p class="eyebrow">'+kicker+'</p><h2 class="dialog-title">'+title+'</h2>'+(copy?'<p class="dialog-copy">'+copy+'</p>':"")}
+function action(label,id,extra=""){return '<button class="dialog-action" id="'+id+'" '+extra+'>'+label+'</button>'}
+function setSpace(name){activeSpace=name;localStorage.setItem("glass-space",name);$("#spaceButton").innerHTML='<span class="space-dot"></span><span>'+safe(name)+'</span><span class="chevron">⌄</span>';close()}
+$("#spaceButton").innerHTML='<span class="space-dot"></span><span>'+safe(activeSpace)+'</span><span class="chevron">⌄</span>';
+function spacesPanel(){
+ const spaces=["Personal","Gaming","Work","Shopping"];
+ show(panelHead("YOUR WORKSPACES","Spaces","Each space keeps its own browsing context.")+'<div class="panel-list">'+spaces.map((n,i)=>'<button class="panel-row" data-space="'+n+'"><span class="row-icon">'+["◈","⌁","▤","◇"][i]+'</span><span class="row-main"><strong>'+n+'</strong><small>'+(n===activeSpace?"Currently active":"Switch workspace")+'</small></span><span class="row-trail">'+(n===activeSpace?"✓":"›")+'</span></button>').join("")+'</div>'+action("Manage spaces","manageSpaceInfo"));
 }
-function setAppearance(values){
-  const v=saveAppearance(values);
-  const [color,rgb]=themes[v.theme]||themes.Violet;
-  const root=document.documentElement;
-  root.style.setProperty("--accent",color);
-  root.style.setProperty("--accent-rgb",rgb);
-  root.style.setProperty("--opacity",String(v.opacity/100));
-  root.style.setProperty("--blur",v.blur+"px");
-  root.style.setProperty("--radius",v.radius+"px");
-  localStorage.setItem("glass-theme",v.theme);
+function appearancePanel(){
+ const p=appearance;
+ show(panelHead("GLASS DESIGN SYSTEM","Appearance","One profile controls the visual language across every screen.")+
+ '<div class="theme-grid">'+Object.entries(themes).map(([n,v])=>'<button class="theme-choice '+(p.theme===n?"selected":"")+'" data-theme="'+n+'"><i style="--swatch:'+v[0]+'"></i><span>'+n+'</span></button>').join("")+'</div>'+
+ '<label class="setting">Glass opacity <output id="opacityValue">'+p.opacity+'%</output><input id="opacityControl" type="range" min="3" max="18" step=".5" value="'+p.opacity+'"></label>'+
+ '<label class="setting">Background blur <output id="blurValue">'+p.blur+' px</output><input id="blurControl" type="range" min="8" max="40" value="'+p.blur+'"></label>'+
+ '<label class="setting">Corner radius <output id="radiusValue">'+p.radius+' px</output><input id="radiusControl" type="range" min="12" max="34" value="'+p.radius+'"></label>'+
+ '<div class="panel-preview"><span class="preview-dot"></span><div><strong>Live preview</strong><small>Buttons · Cards · Panels · Menus</small></div><button class="preview-chip">GLASS</button></div>'+action("Done","doneAppearance"));
+ content.querySelectorAll("[data-theme]").forEach(b=>b.addEventListener("click",()=>{applyAppearance({theme:b.dataset.theme});appearancePanel()}));
+ [["opacityControl","opacity","opacityValue","%"],["blurControl","blur","blurValue"," px"],["radiusControl","radius","radiusValue"," px"]].forEach(([id,key,out,suffix])=>$("#"+id).addEventListener("input",e=>{const val=Number(e.target.value);applyAppearance({[key]:val});$("#"+out).textContent=val+suffix}));
+ $("#doneAppearance").addEventListener("click",close);
 }
-function applyTheme(name){setAppearance({theme:name})}
-function themePanel(){
-  const v=readAppearance();
-  openDialog('<p class="eyebrow">GLASS DESIGN SYSTEM</p><h2 class="dialog-title">Appearance</h2><p class="dialog-copy">One appearance profile controls every surface, control and panel across GLASS.</p><div class="theme-row">'+Object.entries(themes).map(([n,[c]])=>'<button class="theme-swatch" data-theme="'+n+'" title="'+n+'" aria-label="'+n+'" style="background:'+c+'"></button>').join("")+'</div><label class="setting">Glass opacity <input id="opacityControl" type="range" min="3" max="18" value="'+v.opacity+'"></label><label class="setting">Blur <input id="blurControl" type="range" min="8" max="40" value="'+v.blur+'"></label><label class="setting">Corner radius <input id="radiusControl" type="range" min="12" max="34" value="'+v.radius+'"></label><button class="dialog-action" id="appearanceDone">Apply</button>');
-  content.querySelectorAll("[data-theme]").forEach(b=>b.addEventListener("click",()=>{setAppearance({theme:b.dataset.theme});content.querySelectorAll("[data-theme]").forEach(x=>x.style.outline=x===b?"2px solid white":"none")}));
-  const bind=(id,key,convert)=>$("#"+id).addEventListener("input",e=>setAppearance({[key]:convert(e.target.value)}));
-  bind("opacityControl","opacity",Number);bind("blurControl","blur",Number);bind("radiusControl","radius",Number);
-  $("#appearanceDone").addEventListener("click",closeDialog);
+function menuPanel(){show(panelHead("GLASS","Control center","Everything in one place.")+
+ '<div class="panel-list">'+[
+ ["⌗","Tabs","Manage open tabs","tabs"],["◈","Spaces","Switch browsing spaces","spaces"],["◷","History","Recently visited pages","history"],["☆","Saved","Bookmarks and reading list","saved"],["▤","Library","Your browsing collection","library"],["⚙","Settings","Appearance and preferences","settings"]
+ ].map(x=>'<button class="panel-row" data-panel="'+x[3]+'"><span class="row-icon">'+x[0]+'</span><span class="row-main"><strong>'+x[1]+'</strong><small>'+x[2]+'</small></span><span class="row-trail">›</span></button>').join("")+'</div>')}
+function listPanel(type){
+ const data=read("glass-"+type,[]);
+ const title=type==="history"?"History":type==="saved"?"Saved pages":type==="tabs"?"Tabs":"Library";
+ const kicker=type==="history"?"YOUR ACTIVITY":type==="saved"?"BOOKMARKS":type==="tabs"?"BROWSING":"COLLECTION";
+ const rows=data.length?data.map((x,i)=>'<div class="panel-row"><span class="row-icon">'+(type==="history"?"◷":"◇")+'</span><span class="row-main"><strong>'+safe(x.title||x.url)+'</strong><small>'+safe(x.url||"")+'</small></span><button class="row-remove" data-remove="'+i+'" aria-label="Remove">×</button></div>').join(""):'<div class="empty-panel"><span>◌</span><strong>Nothing here yet</strong><small>Your '+title.toLowerCase()+' will appear here.</small></div>';
+ show(panelHead(kicker,title,"A consistent place for your browsing data.")+'<div class="panel-list">'+rows+'</div>'+(data.length?action("Clear all","clearList"):""));
+ $("#clearList")?.addEventListener("click",()=>{write("glass-"+type,[]);listPanel(type)});
+ content.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>{data.splice(Number(b.dataset.remove),1);write("glass-"+type,data);listPanel(type)}));
 }
-(function restoreAppearance(){setAppearance(readAppearance())})();
+function settingsPanel(){show(panelHead("PREFERENCES","Settings","Tune the browser without leaving its visual system.")+
+ '<div class="panel-list"><button class="panel-row" id="settingsAppearance"><span class="row-icon">◐</span><span class="row-main"><strong>Appearance</strong><small>Theme, blur, transparency and shape</small></span><span class="row-trail">›</span></button><div class="panel-row static-row"><span class="row-icon">☼</span><span class="row-main"><strong>Reduce motion</strong><small>Respect device accessibility setting</small></span><span class="row-trail">Auto</span></div><div class="panel-row static-row"><span class="row-icon">☁</span><span class="row-main"><strong>Sync</strong><small>Cloud sync will be connected later</small></span><span class="row-trail">Soon</span></div></div>')}
+$("#menuButton").addEventListener("click",menuPanel);
+$("#spaceButton").addEventListener("click",spacesPanel);
+$("#manageSpaces").addEventListener("click",spacesPanel);
+$("#libraryButton").addEventListener("click",()=>listPanel("library"));
+$("#bookmarksButton").addEventListener("click",()=>listPanel("saved"));
+$("#historyButton").addEventListener("click",()=>listPanel("history"));
+$("#dialogContent").addEventListener("click",e=>{
+ const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.space)setSpace(b.dataset.space);
+ if(b.dataset.panel==="spaces")spacesPanel();
+ if(b.dataset.panel==="settings")settingsPanel();
+ if(b.dataset.panel==="tabs")listPanel("tabs");
+ if(b.dataset.panel==="history")listPanel("history");
+ if(b.dataset.panel==="saved")listPanel("saved");
+ if(b.dataset.panel==="library")listPanel("library");
+ if(b.id==="settingsAppearance")appearancePanel();
+ if(b.id==="doneAppearance")close();
+ if(b.id==="manageSpaceInfo")show(panelHead("SPACES","Workspace management","Create and rename custom spaces will be added with persistent tab containers."));
+});
+document.querySelectorAll(".space-card").forEach(card=>card.addEventListener("click",()=>{setSpace(card.dataset.space);listPanel("tabs")}));
+function normalizeUrl(q){return /^https?:\/\//i.test(q)?q:/^[\w-]+\.[a-z]{2,}(\/.*)?$/i.test(q)?"https://"+q:"https://www.google.com/search?q="+encodeURIComponent(q)}
+function search(q){q=q.trim();if(!q)return;const url=normalizeUrl(q);const data=read("glass-history",[]);data.unshift({title:q,url,at:Date.now()});write("glass-history",data.slice(0,100));window.location.assign(url)}
+$("#searchForm").addEventListener("submit",e=>{e.preventDefault();search($("#searchInput").value)});
+$("#askButton").addEventListener("click",()=>{const input=$("#searchInput");input.placeholder="Ask anything…";input.focus();if(input.value.trim())search(input.value)});
+function voice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){show(panelHead("VOICE INPUT","Unavailable","Speech recognition is not supported by this browser. Use the search field instead."));return}const r=new SR();r.lang="ru-RU";r.onresult=e=>{const q=e.results[0][0].transcript;$("#searchInput").value=q;search(q)};r.start()}
+$("#voiceButton").addEventListener("click",voice);$("#searchVoice").addEventListener("click",voice);
+$("#backButton").addEventListener("click",()=>history.back());$("#forwardButton").addEventListener("click",()=>history.forward());
+$("#clearRecent").addEventListener("click",()=>{$("#recentList").innerHTML='<span class="empty-symbol">◷</span><span>No recently closed tabs yet.</span>'});
+$("#addShortcut").addEventListener("click",()=>show(panelHead("QUICK ACCESS","Add shortcut","Add a site to your home screen.")+'<input class="dialog-input" id="shortcutName" placeholder="Name"><input class="dialog-input" id="shortcutUrl" placeholder="https://example.com">'+action("Add shortcut","saveShortcut")));
+$("#dialogContent").addEventListener("click",e=>{if(e.target.id==="saveShortcut"){const name=$("#shortcutName").value.trim(),url=$("#shortcutUrl").value.trim();if(!name||!url)return;const href=/^https?:\/\//i.test(url)?url:"https://"+url;const a=document.createElement("a");a.className="quick-link";a.href=href;a.innerHTML='<span class="quick-icon">↗</span><span></span>';a.lastElementChild.textContent=name;$("#quickLinks").insertBefore(a,$("#addShortcut"));close()}});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
