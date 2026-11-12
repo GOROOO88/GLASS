@@ -16,6 +16,9 @@ struct ContentView: View {
     @State private var librarySection = 0
     @State private var showSpaces = false
     @State private var newSpaceName = ""
+    @State private var showPrivacy = false
+    @State private var confirmClearWebsiteData = false
+    @State private var privacyActionMessage = ""
 
     var body: some View {
         ZStack {
@@ -67,6 +70,30 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
                 .preferredColorScheme(.dark)
         }
+        .sheet(isPresented: $showPrivacy) {
+            privacySheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .preferredColorScheme(.dark)
+        }
+        .alert("Clear website data?", isPresented: $confirmClearWebsiteData) {
+            Button("Cancel", role: .cancel) {}
+            Button("Clear data", role: .destructive) {
+                browser.clearWebsiteData {
+                    privacyActionMessage = "Cookies, cache and website storage were cleared."
+                }
+            }
+        } message: {
+            Text("This signs you out of many websites and removes locally stored site data. Bookmarks and downloaded files stay untouched.")
+        }
+        .alert("Privacy", isPresented: Binding(
+            get: { !privacyActionMessage.isEmpty },
+            set: { if !$0 { privacyActionMessage = "" } }
+        )) {
+            Button("OK") { privacyActionMessage = "" }
+        } message: {
+            Text(privacyActionMessage)
+        }
     }
 
     private var header: some View {
@@ -94,6 +121,14 @@ struct ContentView: View {
                     .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Downloads")
+            Button {
+                showPrivacy = true
+            } label: {
+                Image(systemName: "hand.raised").font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white).frame(width: 42, height: 42)
+                    .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+            }
+            .accessibilityLabel("Privacy settings")
         }
     }
 
@@ -322,6 +357,61 @@ struct ContentView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarLeading) { Button("Done") { showLibrary = false } }
+            }
+        }
+        .tint(GlassPalette.accent)
+    }
+
+    private var privacySheet: some View {
+        NavigationStack {
+            List {
+                Section {
+                    HStack(spacing: 12) {
+                        Image(systemName: "eye.slash.circle.fill").font(.system(size: 24)).foregroundStyle(GlassPalette.accent)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Private tabs").foregroundStyle(.white)
+                            Text("Use a separate temporary website store. Private tabs are not restored after closing GLASS.")
+                                .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
+                        }
+                    }
+                    .listRowBackground(GlassPalette.panel)
+                    HStack(spacing: 12) {
+                        Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(GlassPalette.accent)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Browsing history").foregroundStyle(.white)
+                            Text("Regular tabs save visited addresses on this device. Private tabs do not.")
+                                .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
+                        }
+                    }
+                    .listRowBackground(GlassPalette.panel)
+                } header: {
+                    Text("On-device privacy")
+                }
+                Section {
+                    Button(role: .destructive) {
+                        confirmClearWebsiteData = true
+                    } label: {
+                        Label("Clear cookies, cache and site data", systemImage: "trash")
+                    }
+                    .listRowBackground(GlassPalette.panel)
+                    Button(role: .destructive) {
+                        browser.clearHistory()
+                        privacyActionMessage = "Browsing history was cleared."
+                    } label: {
+                        Label("Clear browsing history", systemImage: "clock")
+                    }
+                    .listRowBackground(GlassPalette.panel)
+                } header: {
+                    Text("Clear data")
+                } footer: {
+                    Text("Clearing website data may sign you out of websites. Bookmarks and downloaded files are not deleted.")
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(GlassPalette.background)
+            .navigationTitle("Privacy").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { Button("Done") { showPrivacy = false } }
             }
         }
         .tint(GlassPalette.accent)
