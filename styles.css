@@ -225,3 +225,47 @@ body:has(.app-dialog[open]) .ambient{opacity:.14}
 .studio-save button{padding:0 12px;border:1px solid rgba(var(--accent-rgb),.35);border-radius:11px;background:rgba(var(--accent-rgb),.18);color:var(--text-primary);font-size:10px}
 .studio-note{margin:9px 0 0;color:var(--text-muted);font-size:9px;line-height:1.5}
 @media(max-width:650px){.appearance-studio{gap:11px}.studio-section{padding:12px}.studio-grid{gap:6px}.studio-theme{font-size:9px}}
+
+
+/* Private mode visual state and transition */
+body,.app-shell,.bottom-dock,.app-dialog{
+  transition:background-color .38s ease,filter .38s ease,border-color .38s ease,box-shadow .38s ease;
+}
+.private-mode{
+  background-color:#080d12;
+  background-image:radial-gradient(ellipse at 50% 4%,rgba(89,153,184,.17),transparent 48%),linear-gradient(145deg,#071018,#080b12 70%)!important;
+}
+.private-mode .glass-home .search{
+  border-color:rgba(112,177,204,.55);
+  box-shadow:0 0 12px rgba(85,157,188,.32),inset 0 1px rgba(255,255,255,.12);
+}
+.private-mode .tabs-home,.private-mode .bottom-dock.reference-dock{
+  border-color:rgba(112,177,204,.34);
+  box-shadow:0 0 22px rgba(85,157,188,.1),inset 0 1px rgba(255,255,255,.12);
+}
+.private-mode .space-switch .space-dot{background:#78b7ce;box-shadow:0 0 12px #78b7ce}
+.private-mode-badge{
+  position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+  padding:7px 12px;border:1px solid rgba(126,184,207,.3);border-radius:20px;
+  background:rgba(15,34,45,.76);color:#b8dce9;font-size:10px;letter-spacing:.025em;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 5px 18px rgba(0,0,0,.18);z-index:4;
+  animation:privateBadgeIn .34s ease both;
+}
+.private-mode-badge span{width:6px;height:6px;border-radius:50%;background:#79c5dc;box-shadow:0 0 9px #79c5dc}
+.private-menu-entry{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:14px;padding:14px;border:1px solid rgba(112,177,204,.24);
+  border-radius:16px;background:rgba(76,142,170,.08)
+}
+.private-menu-entry div{display:grid;gap:4px;min-width:0}
+.private-menu-entry strong{font-size:12px;color:var(--text-primary)}
+.private-menu-entry small{font-size:10px;color:var(--text-muted)}
+.private-menu-entry button{
+  flex:0 0 auto;padding:9px 12px;border:1px solid rgba(112,177,204,.32);
+  border-radius:11px;background:rgba(76,142,170,.16);color:#b8dce9;font-size:10px
+}
+.private-mode .tab-favicon{background:rgba(112,177,204,.13);color:#9bcbdc}
+@keyframes privateBadgeIn{from{opacity:0;transform:translate(-50%,-5px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){body,.app-shell,.bottom-dock,.app-dialog{transition:none!important}.private-mode-badge{animation:none}}
