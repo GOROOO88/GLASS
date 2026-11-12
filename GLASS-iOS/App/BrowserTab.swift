@@ -15,7 +15,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     var onDownloadFinished: ((UUID, URL, String, URL?) -> Void)?
     var onDownloadFailure: ((UUID, String) -> Void)?
 
-    @Published var title = "New Tab"
+    @Published var title = "Новая вкладка"
     @Published var address = ""
     @Published var groupKind = "new"
     @Published var groupDetail = ""
@@ -268,7 +268,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        title = webView.title?.isEmpty == false ? (webView.title ?? "New Tab") : (webView.url?.host ?? "New Tab")
+        title = webView.title?.isEmpty == false ? (webView.title ?? "Новая вкладка") : (webView.url?.host ?? "New Tab")
         refreshState()
         if !isPrivate, let url = webView.url {
             onVisit?(url, title)
