@@ -18,6 +18,8 @@ struct ContentView: View {
     @AppStorage("glass.theme.addressOpacity") private var themeAddressOpacity = 0.075
     @AppStorage("glass.theme.cardOpacity") private var themeCardOpacity = 0.075
     @AppStorage("glass.theme.dockOpacity") private var themeDockOpacity = 0.052
+    @AppStorage("glass.theme.iconStyle") private var themeIconStyle = "soft"
+    @AppStorage("glass.theme.motion") private var themeMotion = 0.65
     @State private var addressText = ""
     @State private var showLibrary = false
     @State private var librarySection = 0
@@ -87,6 +89,7 @@ struct ContentView: View {
             .padding(.top, 8)
             .padding(.bottom, 12)
         }
+        .animation(.easeInOut(duration: 0.08 + themeMotion * 0.42), value: themePreset)
         .onChange(of: browser.activeTabID) { _, _ in
             addressText = browser.activeTab?.address ?? ""
         }
@@ -527,7 +530,7 @@ struct ContentView: View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: symbol)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 16, weight: themeIconStyle == "bold" ? .bold : .medium))
                 Text(title)
                     .font(.system(size: 8, weight: .medium))
             }
