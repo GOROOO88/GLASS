@@ -415,6 +415,84 @@ final class BrowserStore: ObservableObject {
         return try GlassSyncVault.seal(snapshot)
     }
 
+    func restoreEncryptedSyncSnapshot(_ envelope: String) throws {
+        let snapshot = try GlassSyncVault.open(envelope, as: GlassSyncSnapshot.self)
+        guard snapshot.schemaVersion == 1,
+              snapshot.bookmarks.count <= 5000,
+              snapshot.history.count <= 500,
+              snapshot.spaces.count > 0,
+              snapshot.spaces.count <= 100,
+              snapshot.tabs.count <= 100 else {
+            throw GlassSyncRestoreError.unsupportedSnapshot
+        }
+
+        let validSpaces = snapshot.spaces.filter {
+            !$0.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        guard validSpaces.count == snapshot.spaces.count,
+              Set(validSpaces.map(\\.id)).count == validSpaces.count,
+              validSpaces.contains(where: { $0.id == "personal" }),
+              Set(snapshot.tabs.map(\\.id)).count == snapshot.tabs.count else {
+            throw GlassSyncRestoreError.invalidSnapshot
+        }
+
+        func isWebAddress(_ value: String) -> Bool {
+            guard let url = URL(string: value),
+                  let scheme = url.scheme?.lowercased(),
+                  scheme == "http" || scheme == "https",
+                  url.host != nil else { return false }
+            return true
+        }
+
+        guard snapshot.bookmarks.allSatisfy({ isWebAddress($0.url) }),
+              snapshot.history.allSatisfy({ isWebAddress($0) }),
+              snapshot.tabs.allSatisfy({ isWebAddress($0.address) && validSpaces.contains(where: { $0.id == $0.id }) }) else {
+            throw GlassSyncRestoreError.invalidSnapshot
+        }
+
+        let spaceIDs = Set(validSpaces.map(\\.id))
+        guard snapshot.tabs.allSatisfy({ spaceIDs.contains($0.spaceID) }) else {
+            throw GlassSyncRestoreError.invalidSnapshot
+        }
+
+        let retainedPrivateTabs = tabs.filter(\\.isPrivate)
+        tabs = retainedPrivateTabs
+        spaces = validSpaces
+        bookmarks = snapshot.bookmarks
+        history = snapshot.history
+        settings = snapshot.settings
+        activeSpaceID = spaceIDs.contains(snapshot.activeSpaceID) ? snapshot.activeSpaceID : "personal"
+
+        for saved in snapshot.tabs {
+            let tab = makeTab(id: saved.id, spaceID: saved.spaceID)
+            tabs.append(tab)
+            if let url = URL(string: saved.address) {
+                tab.load(url)
+            }
+        }
+
+        if let restoredID = snapshot.activeTabID,
+           tabs.contains(where: { $0.id == restoredID && !$0.isPrivate }) {
+            activeTabID = restoredID
+        } else {
+            activeTabID = tabs.last(where: { !$0.isPrivate && $0.spaceID == activeSpaceID })?.id
+                ?? retainedPrivateTabs.last?.id
+        }
+
+        tabs.forEach {
+            $0.applyContentBlocking(
+                adBlocking: settings.adBlockingEnabled,
+                trackerBlocking: settings.trackerBlockingEnabled
+            )
+        }
+        saveBookmarks()
+        saveSpaces()
+        saveSettings()
+        UserDefaults.standard.set(history, forKey: historyKey)
+        saveSession()
+    }
+
     func clearWebsiteData(completion: @escaping () -> Void) {
         let store = WKWebsiteDataStore.default()
         let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
