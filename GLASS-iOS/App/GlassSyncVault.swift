@@ -59,6 +59,42 @@ enum GlassSyncVault {
         return SymmetricKey(data: bytes)
     }
 
+    // Pairing codes contain the account encryption key. Transfer them only
+    // through an authenticated local QR/pairing flow; never log or upload them.
+    static func exportPairingCode() throws -> String {
+        let key = try loadOrCreateKey()
+        let data = key.withUnsafeBytes { Data($0) }
+        return "glass-pair-v1:" + data.base64EncodedString()
+    }
+
+    static func importPairingCode(_ code: String) throws {
+        let prefix = "glass-pair-v1:"
+        guard code.hasPrefix(prefix),
+              let data = Data(base64Encoded: String(code.dropFirst(prefix.count))),
+              data.count == 32 else {
+            throw GlassSyncCryptoError.invalidKey
+        }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+        let attributes: [String: Any] = [
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        ]
+        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        if status == errSecItemNotFound {
+            var add = query
+            attributes.forEach { add[$0.key] = $0.value }
+            let addStatus = SecItemAdd(add as CFDictionary, nil)
+            guard addStatus == errSecSuccess else { throw GlassSyncCryptoError.keychain(addStatus) }
+        } else if status != errSecSuccess {
+            throw GlassSyncCryptoError.keychain(status)
+        }
+    }
+
     static func seal<T: Encodable>(_ value: T) throws -> String {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
