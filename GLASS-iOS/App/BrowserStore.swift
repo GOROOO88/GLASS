@@ -317,6 +317,14 @@ final class BrowserStore: ObservableObject {
                     self.objectWillChange.send()
                 }
             }
+        tab.onOpenInNewTab = { [weak self, weak tab] url, groupKind, groupDetail in
+            guard let self, let tab else { return }
+            self.addTab(spaceID: tab.spaceID, isPrivate: tab.isPrivate)
+            guard let newTab = self.activeTab else { return }
+            newTab.load(url)
+            newTab.groupKind = groupKind
+            newTab.groupDetail = groupDetail
+        }
         tab.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled)
         if !isPrivate {
             tab.onVisit = { [weak self] url, title in
