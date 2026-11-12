@@ -6,6 +6,7 @@ import Combine
 final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDelegate {
     let id = UUID()
     let webView: WKWebView
+    var onVisit: ((URL, String) -> Void)?
 
     @Published var title = "New Tab"
     @Published var address = ""
@@ -20,6 +21,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         super.init()
         webView.navigationDelegate = self
         webView.allowsBackForwardNavigationGestures = true
+        webView.allowsLinkPreview = true
     }
 
     func load(_ url: URL) {
@@ -55,6 +57,9 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         title = webView.title?.isEmpty == false ? (webView.title ?? "New Tab") : (webView.url?.host ?? "New Tab")
         refreshState()
+        if let url = webView.url {
+            onVisit?(url, title)
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
