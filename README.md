@@ -21,3 +21,18 @@ This repository currently contains the web/PWA interface foundation. A PWA is no
 
 ## Run locally
 Serve this directory over HTTPS or localhost. The service worker is registered automatically where supported.
+
+
+## Native browser development
+
+The native architecture and current platform choices are documented in [ARCHITECTURE.md](ARCHITECTURE.md). The first iOS SwiftUI + WebKit source scaffold is in [GLASS-iOS](GLASS-iOS/README.md).
+
+The native iOS project uses XcodeGen. On a Mac with Xcode and XcodeGen installed:
+
+```sh
+cd GLASS-iOS
+xcodegen generate
+open GLASS-iOS.xcodeproj
+```
+
+This generates the Xcode project from `GLASS-iOS/project.yml`. The iOS app is not yet signed, built, or distributed.
