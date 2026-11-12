@@ -614,7 +614,7 @@ of the web.")
                             ForEach(browser.history, id: \.self) { url in
                                 libraryRow(title: URL(string: url)?.host ?? url, subtitle: url, symbol: "clock") { openLibraryURL(url) }
                             }
-                        }.listStyle(.plain).scrollContentBackground(.hidden)
+                        }.listStyle(.plain).scrollContentBackground(.hidden).listRowSeparatorTint(Color.white.opacity(0.07))
                     }
                 } else if librarySection == 1 {
                     if browser.bookmarks.isEmpty {
@@ -664,7 +664,12 @@ of the web.")
                                         .accessibilityLabel("Cancel download")
                                     }
                                 }
-                                .listRowBackground(.ultraThinMaterial)
+                                .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                             }
                             ForEach(browser.downloads) { download in
                                 HStack(spacing: 10) {
@@ -679,7 +684,12 @@ of the web.")
                                         Image(systemName: "square.and.arrow.up").foregroundStyle(GlassAppearance.accent(for: themePreset))
                                     }
                                 }
-                                .listRowBackground(.ultraThinMaterial)
+                                .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                                 .swipeActions {
                                     Button(role: .destructive) { browser.removeDownload(download) } label: {
                                         Label("Delete", systemImage: "trash")
@@ -719,7 +729,12 @@ of the web.")
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
-                    .listRowBackground(.ultraThinMaterial)
+                    .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                     HStack(spacing: 12) {
                         Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(GlassAppearance.accent(for: themePreset))
                         VStack(alignment: .leading, spacing: 4) {
@@ -728,7 +743,12 @@ of the web.")
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
-                    .listRowBackground(.ultraThinMaterial)
+                    .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                 } header: {
                     Text("On-device privacy")
                 }
@@ -738,14 +758,24 @@ of the web.")
                     } label: {
                         Label("Clear cookies, cache and site data", systemImage: "trash")
                     }
-                    .listRowBackground(.ultraThinMaterial)
+                    .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                     Button(role: .destructive) {
                         browser.clearHistory()
                         privacyActionMessage = "Browsing history was cleared."
                     } label: {
                         Label("Clear browsing history", systemImage: "clock")
                     }
-                    .listRowBackground(.ultraThinMaterial)
+                    .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                 } header: {
                     Text("Clear data")
                 } footer: {
@@ -753,6 +783,7 @@ of the web.")
                 }
             }
             .scrollContentBackground(.hidden)
+            .listRowSeparatorTint(Color.white.opacity(0.07))
             .background(GlassPalette.background)
             .navigationTitle("Privacy").navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -1041,7 +1072,12 @@ of the web.")
                             browser.selectSpace(space)
                             showSpaces = false
                         }
-                        .listRowBackground(.ultraThinMaterial)
+                        .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
                         .swipeActions {
                             if space.id != "personal" {
                                 Button(role: .destructive) { browser.removeSpace(space) } label: {
@@ -1079,7 +1115,12 @@ of the web.")
             }
             .padding(.vertical, 4)
         }
-        .listRowBackground(.ultraThinMaterial)
+        .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(.ultraThinMaterial.opacity(themeBlur))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                                )
     }
 
     private func openLibraryURL(_ value: String) {
