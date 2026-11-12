@@ -23,5 +23,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.gorooo.glass
         PRODUCT_NAME: GLASS
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        INFOPLIST_KEY_NSCameraUsageDescription: GLASS uses the camera when you approve a website request.
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: GLASS uses the microphone when you approve a website request.
     scheme:
       testTargets: []
