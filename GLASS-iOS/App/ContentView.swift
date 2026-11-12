@@ -551,7 +551,10 @@ struct ContentView: View {
                     Text("Bookmarks").tag(1)
                     Text("Downloads").tag(2)
                 }
-                .pickerStyle(.segmented).padding(.horizontal)
+                .pickerStyle(.segmented)
+                .padding(5)
+                .background(Color.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                .padding(.horizontal, 16)
                 if librarySection == 0 {
                     if browser.history.isEmpty {
                         ContentUnavailableView("No history yet", systemImage: "clock", description: Text("Pages you visit will appear here."))
@@ -560,7 +563,7 @@ struct ContentView: View {
                             ForEach(browser.history, id: \.self) { url in
                                 libraryRow(title: URL(string: url)?.host ?? url, subtitle: url, symbol: "clock") { openLibraryURL(url) }
                             }
-                        }.listStyle(.plain)
+                        }.listStyle(.plain).scrollContentBackground(.hidden)
                     }
                 } else if librarySection == 1 {
                     if browser.bookmarks.isEmpty {
@@ -575,7 +578,7 @@ struct ContentView: View {
                                         }
                                     }
                             }
-                        }.listStyle(.plain)
+                        }.listStyle(.plain).scrollContentBackground(.hidden)
                     }
                 } else {
                     if browser.downloads.isEmpty && browser.activeDownloads.isEmpty {
@@ -632,7 +635,7 @@ struct ContentView: View {
                                     }
                                 }
                             }
-                        }.listStyle(.plain)
+                        }.listStyle(.plain).scrollContentBackground(.hidden)
                     }
                 }
             }
@@ -711,45 +714,86 @@ struct ContentView: View {
 
     private var tabsSheet: some View {
         NavigationStack {
-            List {
-                ForEach(browser.visibleTabs) { tab in
-                    HStack(spacing: 11) {
-                        Image(systemName: tab.isPrivate ? "eye.slash.fill" : "globe")
-                            .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                            .frame(width: 28)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(tab.title.isEmpty ? "New tab" : tab.title)
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
-                            Text(tab.address.isEmpty ? "Start page" : tab.address)
-                                .font(.system(size: 10))
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .firstTextBaseline) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("YOUR TABS")
+                                .font(.system(size: 10, weight: .bold)).tracking(1.6)
                                 .foregroundStyle(GlassPalette.secondary)
-                                .lineLimit(1)
+                            Text("\(browser.visibleTabs.count) open")
+                                .font(.system(size: 23, weight: .semibold, design: .rounded))
+                                .foregroundStyle(.white)
                         }
                         Spacer()
-                        if browser.activeTabID == tab.id {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                        }
                         Button {
-                            browser.close(tab)
+                            browser.addTab()
+                            showTabs = false
                         } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(GlassPalette.secondary)
+                            Label("New tab", systemImage: "plus")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 13).padding(.vertical, 9)
+                                .background(GlassAppearance.accent(for: themePreset), in: Capsule())
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Close tab")
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        browser.select(tab)
-                        showTabs = false
+
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 11), GridItem(.flexible(), spacing: 11)], spacing: 11) {
+                        ForEach(browser.visibleTabs) { tab in
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Image(systemName: tab.isPrivate ? "eye.slash.fill" : "globe")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                        .frame(width: 34, height: 34)
+                                        .background(GlassAppearance.accent(for: themePreset).opacity(0.14), in: RoundedRectangle(cornerRadius: 11))
+                                    Spacer()
+                                    if browser.activeTabID == tab.id {
+                                        Text("ACTIVE")
+                                            .font(.system(size: 8, weight: .bold)).tracking(1)
+                                            .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                    }
+                                    Button { browser.close(tab) } label: {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundStyle(GlassPalette.secondary)
+                                            .frame(width: 25, height: 25)
+                                            .background(Color.white.opacity(0.07), in: Circle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel("Close tab")
+                                }
+                                Spacer(minLength: 3)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(tab.title.isEmpty ? "New tab" : tab.title)
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundStyle(.white).lineLimit(2)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
+                                        .font(.system(size: 9))
+                                        .foregroundStyle(GlassPalette.secondary).lineLimit(1)
+                                }
+                            }
+                            .padding(13)
+                            .frame(minHeight: 132, alignment: .topLeading)
+                            .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
+                            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.55) : GlassPalette.line, lineWidth: browser.activeTabID == tab.id ? 1.4 : 1))
+                            .contentShape(RoundedRectangle(cornerRadius: themeCornerRadius))
+                            .onTapGesture {
+                                browser.select(tab)
+                                showTabs = false
+                            }
+                        }
                     }
-                    .listRowBackground(Color.white.opacity(themePanelOpacity))
+                    if browser.visibleTabs.isEmpty {
+                        ContentUnavailableView("No open tabs", systemImage: "square.on.square", description: Text("Create a tab to start browsing."))
+                            .frame(maxWidth: .infinity).padding(.top, 36)
+                    }
                 }
+                .padding(16)
             }
-            .scrollContentBackground(.hidden)
             .background(GlassPalette.background.ignoresSafeArea())
             .navigationTitle("Tabs")
             .navigationBarTitleDisplayMode(.inline)
@@ -757,17 +801,10 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done") { showTabs = false }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        browser.addTab()
-                        showTabs = false
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
             }
         }
         .tint(GlassAppearance.accent(for: themePreset))
+        .preferredColorScheme(.dark)
     }
 
     private var spacesSheet: some View {
