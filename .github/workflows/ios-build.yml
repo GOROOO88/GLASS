@@ -1,0 +1,59 @@
+name: GLASS iOS CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "GLASS-iOS/**"
+      - ".github/workflows/ios-build.yml"
+  pull_request:
+    paths:
+      - "GLASS-iOS/**"
+      - ".github/workflows/ios-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios-simulator:
+    name: Build iOS app (cloud)
+    runs-on: macos-26
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          xcodebuild -version
+          xcode-select -p
+
+      - name: Install XcodeGen
+        run: |
+          brew install xcodegen
+          xcodegen --version
+
+      - name: Generate Xcode project
+        working-directory: GLASS-iOS
+        run: xcodegen generate
+
+      - name: Build for iOS Simulator
+        working-directory: GLASS-iOS
+        run: |
+          xcodebuild \
+            -project GLASS-iOS.xcodeproj \
+            -scheme GLASS-iOS \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: GLASS-iOS-simulator
+          path: GLASS-iOS/build/DerivedData/Build/Products/Debug-iphonesimulator/GLASS.app
+          if-no-files-found: error
+          retention-days: 7
