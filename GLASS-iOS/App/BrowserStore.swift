@@ -14,8 +14,8 @@ struct BrowserDownload: Codable, Identifiable, Equatable {
     let sourceURL: String?
     let completedAt: Date
 
-    init(filename: String, localURL: URL, sourceURL: URL?) {
-        id = UUID()
+    init(id: UUID = UUID(), filename: String, localURL: URL, sourceURL: URL?) {
+        self.id = id
         self.filename = filename
         localPath = localURL.path
         self.sourceURL = sourceURL?.absoluteString
@@ -23,6 +23,14 @@ struct BrowserDownload: Codable, Identifiable, Equatable {
     }
 
     var fileURL: URL { URL(fileURLWithPath: localPath) }
+}
+
+struct ActiveBrowserDownload: Identifiable, Equatable {
+    let id: UUID
+    var filename: String
+    var sourceURL: String?
+    var progress: Double
+    var failure: String?
 }
 
 struct BrowserSpace: Codable, Identifiable, Equatable {
@@ -58,6 +66,8 @@ final class BrowserStore: ObservableObject {
     @Published private(set) var history: [String] = []
     @Published private(set) var bookmarks: [BrowserBookmark] = []
     @Published private(set) var downloads: [BrowserDownload] = []
+    @Published private(set) var activeDownloads: [ActiveBrowserDownload] = []
+    private var downloadOwners: [UUID: BrowserTab] = [:]
     @Published private(set) var spaces: [BrowserSpace] = []
     @Published var activeSpaceID = "personal"
 
@@ -230,8 +240,24 @@ final class BrowserStore: ObservableObject {
             tab.onVisit = { [weak self] url, title in
                 self?.recordVisit(url, title: title)
             }
-            tab.onDownload = { [weak self] fileURL, filename, sourceURL in
-                self?.recordDownload(fileURL: fileURL, filename: filename, sourceURL: sourceURL)
+            tab.onDownloadStarted = { [weak self, weak tab] id, filename, sourceURL in
+                guard let self else { return }
+                self.downloadOwners[id] = tab
+                self.activeDownloads.insert(ActiveBrowserDownload(id: id, filename: filename, sourceURL: sourceURL?.absoluteString, progress: 0, failure: nil), at: 0)
+            }
+            tab.onDownloadProgress = { [weak self] id, progress in
+                guard let self, let index = self.activeDownloads.firstIndex(where: { $0.id == id }) else { return }
+                self.activeDownloads[index].progress = min(max(progress, 0), 1)
+            }
+            tab.onDownloadFinished = { [weak self] id, fileURL, filename, sourceURL in
+                guard let self else { return }
+                self.activeDownloads.removeAll(where: { $0.id == id })
+                self.downloadOwners.removeValue(forKey: id)
+                self.recordDownload(id: id, fileURL: fileURL, filename: filename, sourceURL: sourceURL)
+            }
+            tab.onDownloadFailure = { [weak self] id, message in
+                guard let self, let index = self.activeDownloads.firstIndex(where: { $0.id == id }) else { return }
+                self.activeDownloads[index].failure = message
             }
         }
         return tab
@@ -254,10 +280,22 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
-    func recordDownload(fileURL: URL, filename: String, sourceURL: URL?) {
+    func recordDownload(id: UUID = UUID(), fileURL: URL, filename: String, sourceURL: URL?) {
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
-        downloads.insert(BrowserDownload(filename: filename, localURL: fileURL, sourceURL: sourceURL), at: 0)
+        downloads.insert(BrowserDownload(id: id, filename: filename, localURL: fileURL, sourceURL: sourceURL), at: 0)
         saveDownloads()
+    }
+
+    func cancelDownload(_ download: ActiveBrowserDownload) {
+        downloadOwners[download.id]?.cancelDownload(id: download.id)
+    }
+
+    func retryDownload(_ download: ActiveBrowserDownload) {
+        guard let value = download.sourceURL, let url = URL(string: value),
+              let owner = downloadOwners[download.id], !owner.isPrivate else { return }
+        activeDownloads.removeAll(where: { $0.id == download.id })
+        downloadOwners.removeValue(forKey: download.id)
+        owner.retryDownload(url)
     }
 
     func removeDownload(_ download: BrowserDownload) {
