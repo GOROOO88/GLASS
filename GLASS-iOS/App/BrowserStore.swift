@@ -2,7 +2,12 @@ import Foundation
 import Combine
 import WebKit
 
-enum GlassSyncRestoreError: Error {\n    case unsupportedSnapshot\n    case invalidSnapshot\n}\n\nstruct BrowserBookmark: Codable, Identifiable, Equatable {
+enum GlassSyncRestoreError: Error {
+    case unsupportedSnapshot
+    case invalidSnapshot
+}
+
+struct BrowserBookmark: Codable, Identifiable, Equatable {
     var id: String { url }
     let title: String
     let url: String
