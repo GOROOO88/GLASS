@@ -9,6 +9,11 @@ private enum GlassPalette {
 
 struct ContentView: View {
     @EnvironmentObject private var browser: BrowserStore
+    @AppStorage("glass.theme.preset") private var themePreset = "violet"
+    @AppStorage("glass.theme.panelOpacity") private var themePanelOpacity = 0.075
+    @AppStorage("glass.theme.glow") private var themeGlow = 0.55
+    @AppStorage("glass.theme.cornerRadius") private var themeCornerRadius = 20.0
+    @AppStorage("glass.theme.blur") private var themeBlur = 0.65
     @State private var addressText = ""
     @State private var showLibrary = false
     @State private var librarySection = 0
@@ -342,7 +347,8 @@ struct ContentView: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                     .padding(13)
-                                    .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+                                    .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+                                    .overlay(RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous).fill(Color.white.opacity(themePanelOpacity)))
                                     .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
                                     .buttonStyle(.plain)
                                 }
@@ -364,7 +370,8 @@ struct ContentView: View {
                                         .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                                 }
                                 .padding(15).frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius))
+                                .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius))
+                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themePanelOpacity)))
                             } else {
                                 VStack(spacing: 0) {
                                     ForEach(Array(browser.history.prefix(5)), id: \.self) { value in
