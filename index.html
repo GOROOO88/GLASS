@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111019">
+  <meta name="description" content="GLASS — browse differently.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+  <title>GLASS · Browse differently</title>
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <button class="space-switch glass" id="spaceButton" aria-label="Выбрать пространство"><span class="space-dot"></span><span>Personal</span><span class="chevron">⌄</span></button>
+      <div class="top-actions"><button class="icon-button glass" id="voiceButton" aria-label="Голосовой поиск">⌁</button><button class="icon-button glass" id="menuButton" aria-label="Меню">···</button></div>
+    </header>
+    <section class="hero">
+      <div class="brand-mark">G</div>
+      <h1>GLASS<span>.</span></h1>
+      <p class="tagline">Browse differently.</p>
+      <form class="search glass" id="searchForm">
+        <span class="search-icon">⌕</span><input id="searchInput" type="search" autocomplete="off" placeholder="Search the web or ask anything…" aria-label="Поиск"><button type="button" id="searchVoice" aria-label="Голосовой поиск">⌁</button><button class="search-submit" type="submit" aria-label="Найти">↗</button>
+      </form>
+      <div class="quick-links" id="quickLinks">
+        <a class="quick-link" href="https://www.youtube.com"><span class="quick-icon youtube">▶</span><span>YouTube</span></a>
+        <a class="quick-link" href="https://www.reddit.com"><span class="quick-icon reddit">r</span><span>Reddit</span></a>
+        <a class="quick-link" href="https://github.com"><span class="quick-icon github">⌘</span><span>GitHub</span></a>
+        <a class="quick-link" href="https://open.spotify.com"><span class="quick-icon spotify">≋</span><span>Spotify</span></a>
+        <button class="quick-link add-link" id="addShortcut"><span class="quick-icon">＋</span><span>Add</span></button>
+      </div>
+    </section>
+    <section class="section-block">
+      <div class="section-heading"><div><p class="eyebrow">YOUR WORKSPACE</p><h2>Spaces</h2></div><button class="text-button" id="manageSpaces">Manage ↗</button></div>
+      <div class="space-grid">
+        <button class="space-card gaming" data-space="Gaming"><span class="card-orb"></span><span class="card-label">SPACE 01</span><strong>Gaming</strong><span class="card-meta">Streams · Communities · Guides</span><span class="card-arrow">↗</span><div class="mini-tabs"><i></i><i></i><i></i></div></button>
+        <button class="space-card work" data-space="Work"><span class="card-orb"></span><span class="card-label">SPACE 02</span><strong>Work</strong><span class="card-meta">Focus · Research · Tools</span><span class="card-arrow">↗</span><div class="mini-tabs"><i></i><i></i><i></i></div></button>
+        <button class="space-card shopping" data-space="Shopping"><span class="card-orb"></span><span class="card-label">SPACE 03</span><strong>Shopping</strong><span class="card-meta">Discover · Compare · Save</span><span class="card-arrow">↗</span><div class="mini-tabs"><i></i><i></i><i></i></div></button>
+      </div>
+    </section>
+    <section class="section-block recent-block"><div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Recently closed</h2></div><button class="text-button" id="clearRecent">Clear</button></div><div class="empty-state glass" id="recentList"><span class="empty-symbol">◷</span><span>Your recently closed tabs will appear here.</span></div></section>
+  </main>
+  <nav class="bottom-dock" aria-label="Основная навигация">
+    <div class="dock-group glass"><button class="dock-button" id="libraryButton"><span>▤</span><small>Library</small></button><button class="dock-button" id="bookmarksButton"><span>☆</span><small>Saved</small></button><button class="dock-button" id="historyButton"><span>◷</span><small>History</small></button></div>
+    <button class="ask-button glass" id="askButton"><span class="ask-spark">✳</span><span>Ask</span></button>
+    <div class="dock-group glass nav-group"><button class="nav-button" id="backButton" aria-label="Назад">←</button><button class="nav-button" id="forwardButton" aria-label="Вперёд">→</button></div>
+  </nav>
+  <dialog id="appDialog" class="app-dialog glass"><button class="dialog-close" id="closeDialog">×</button><div id="dialogContent"></div></dialog>
+  <script src="/app.js"></script>
+</body>
+</html>
