@@ -845,6 +845,15 @@ of the web.")
         .preferredColorScheme(.dark)
     }
 
+    private func tabContext(_ tab: BrowserTab) -> String {
+        switch tab.groupKind {
+        case "search": return "Search: \(tab.groupDetail)"
+        case "searchResult": return "From search: \(tab.groupDetail)"
+        case "opened": return "Opened from: \(tab.groupDetail)"
+        default: return tab.groupDetail
+        }
+    }
+
     private func tabCard(_ tab: BrowserTab) -> some View {
         VStack(alignment: .leading, spacing: 11) {
             HStack {
@@ -874,7 +883,13 @@ of the web.")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white).lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text(tab.groupDetail.isEmpty ? (tab.address.isEmpty ? "GLASS start page" : tab.address) : tab.groupDetail)
+                if !tab.groupDetail.isEmpty {
+                    Text(tabContext(tab))
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(GlassAppearance.accent(for: themePreset).opacity(0.92))
+                        .lineLimit(1)
+                }
+                Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
                     .font(.system(size: 9))
                     .foregroundStyle(GlassPalette.secondary).lineLimit(1)
             }
