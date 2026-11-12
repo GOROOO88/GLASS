@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var librarySection = 0
     @State private var showSpaces = false
     @State private var newSpaceName = ""
-    @State private var showPrivacy = false
+    @State private var showPrivacy = false\n    @State private var showSettings = false
     @State private var confirmClearWebsiteData = false
     @State private var privacyActionMessage = ""
 
@@ -70,7 +70,7 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
                 .preferredColorScheme(.dark)
         }
-        .sheet(isPresented: $showPrivacy) {
+        .sheet(isPresented: $showSettings) {\n            BrowserSettingsView()\n                .environmentObject(browser)\n                .presentationDetents([.large])\n                .presentationDragIndicator(.visible)\n        }\n        .sheet(isPresented: $showPrivacy) {
             privacySheet
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
