@@ -738,7 +738,7 @@ struct ContentView: View {
         let domain = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
         if ["youtube.com", "youtu.be", "netflix.com", "twitch.tv", "vimeo.com", "disneyplus.com", "primevideo.com", "spotify.com", "open.spotify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "video" }
         if ["reddit.com", "discord.com", "discord.gg", "x.com", "twitter.com", "instagram.com", "facebook.com", "threads.net", "tiktok.com", "linkedin.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "social" }
-        if ["amazon.com", "amazon.de", "ebay.com", "ebay.de", "etsy.com", "aliexpress.com", " temu.com", "shopify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "shopping" }
+        if ["amazon.com", "amazon.de", "ebay.com", "ebay.de", "etsy.com", "aliexpress.com", "temu.com", "shopify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "shopping" }
         if ["github.com", "gitlab.com", "notion.so", "figma.com", "slack.com", "microsoft.com", "office.com", "docs.google.com", "drive.google.com", "linear.app"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "work" }
         if ["wikipedia.org", "medium.com", "bbc.com", "bbc.co.uk", "reuters.com", "theguardian.com", "nytimes.com", "apnews.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "news" }
         return "other"
