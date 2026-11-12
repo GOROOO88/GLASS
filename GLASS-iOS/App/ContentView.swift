@@ -174,20 +174,20 @@ struct ContentView: View {
                 .preferredColorScheme(.dark)
         }
         .alert("Clear website data?", isPresented: $confirmClearWebsiteData) {
-            Button("Cancel", role: .cancel) {}
-            Button("Clear data", role: .destructive) {
+            Button("Отмена", role: .cancel) {}
+            Button("Очистить данные", role: .destructive) {
                 browser.clearWebsiteData {
                     privacyActionMessage = "Cookies, cache and website storage were cleared."
                 }
             }
         } message: {
-            Text("This signs you out of many websites and removes locally stored site data. Bookmarks and downloaded files stay untouched.")
+            Text("Вы выйдете из аккаунтов на многих сайтах. Закладки и загруженные файлы останутся.")
         }
         .alert("Privacy", isPresented: Binding(
             get: { !privacyActionMessage.isEmpty },
             set: { if !$0 { privacyActionMessage = "" } }
         )) {
-            Button("OK") { privacyActionMessage = "" }
+            Button("Понятно") { privacyActionMessage = "" }
         } message: {
             Text(privacyActionMessage)
         }
@@ -214,7 +214,7 @@ struct ContentView: View {
             if isPrivateMode {
                 HStack(spacing: 5) {
                     Image(systemName: "eye.slash.fill").font(.system(size: 9, weight: .bold))
-                    Text("PRIVATE").font(.system(size: 9, weight: .bold)).tracking(1.1)
+                    Text("ПРИВАТНО").font(.system(size: 9, weight: .bold)).tracking(1.1)
                 }
                 .foregroundStyle(GlassAppearance.privateAccent)
                 .padding(.horizontal, 9).padding(.vertical, 7)
@@ -230,7 +230,7 @@ struct ContentView: View {
                     .foregroundStyle(.white).frame(width: 42, height: 42)
                     .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
-            .accessibilityLabel("Library")
+            .accessibilityLabel("Библиотека")
             Button {
                 librarySection = 2
                 showLibrary = true
@@ -239,7 +239,7 @@ struct ContentView: View {
                     .foregroundStyle(.white).frame(width: 42, height: 42)
                     .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
-            .accessibilityLabel("Downloads")
+            .accessibilityLabel("Загрузки")
             Button {
                 showSettings = true
             } label: {
@@ -247,7 +247,7 @@ struct ContentView: View {
                     .foregroundStyle(.white).frame(width: 42, height: 42)
                     .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
-            .accessibilityLabel("Browser settings")
+            .accessibilityLabel("Настройки браузера")
             Button {
                 showPrivacy = true
             } label: {
@@ -255,7 +255,7 @@ struct ContentView: View {
                     .foregroundStyle(.white).frame(width: 42, height: 42)
                     .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
-            .accessibilityLabel("Privacy settings")
+            .accessibilityLabel("Настройки приватности")
         }
     }
 
@@ -275,7 +275,7 @@ struct ContentView: View {
                 Button(action: openAddress) {
                     Image(systemName: "arrow.up.right").font(.system(size: 14, weight: .bold)).foregroundStyle(activeAccent)
                 }
-                .accessibilityLabel("Open address")
+                .accessibilityLabel("Открыть адрес")
             }
             if let tab = browser.activeTab, !tab.isPrivate, !tab.address.isEmpty {
                 Button {
@@ -319,7 +319,7 @@ struct ContentView: View {
                         .foregroundStyle(.white).frame(width: 34, height: 34)
                         .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
                 }
-                .accessibilityLabel("Manage spaces")
+                .accessibilityLabel("Управление пространствами")
             }
         }
     }
@@ -341,7 +341,7 @@ struct ContentView: View {
                         Button { browser.close(tab) } label: {
                             Image(systemName: "xmark").font(.system(size: 9, weight: .bold)).foregroundStyle(GlassPalette.secondary)
                         }
-                        .accessibilityLabel("Close tab")
+                        .accessibilityLabel("Закрыть вкладку")
                     }
                     .padding(.horizontal, 12).frame(height: 36)
                     .background(tab.isPrivate ? GlassAppearance.privateAccent.opacity(0.20) : (browser.activeTabID == tab.id ? activeAccent.opacity(0.24) : Color.white.opacity(themePanelOpacity)), in: Capsule())
@@ -351,7 +351,7 @@ struct ContentView: View {
                             Button {
                                 browser.move(tab, to: destination)
                             } label: {
-                                Label("Move to \(destination.name)", systemImage: destination.symbol)
+                                Label("Переместить в \(destination.name)", systemImage: destination.symbol)
                             }
                         }
                     }
@@ -360,7 +360,7 @@ struct ContentView: View {
                     Image(systemName: "plus").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
                         .frame(width: 36, height: 36).background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
                 }
-                .accessibilityLabel("New tab")
+                .accessibilityLabel("Новая вкладка")
             }
         }
     }
@@ -374,10 +374,10 @@ struct ContentView: View {
                         .font(.system(size: 46, weight: .light))
                         .foregroundStyle(GlassAppearance.privateAccent)
                         .shadow(color: GlassAppearance.privateAccent.opacity(themeGlow), radius: 24)
-                    Text("PRIVATE SPACE")
+                    Text("ПРИВАТНЫЙ РЕЖИМ")
                         .font(.system(size: 23, weight: .bold, design: .rounded)).tracking(3)
                         .foregroundStyle(GlassAppearance.privateAccent)
-                    Text("This session stays on this device and is not saved.")
+                    Text("Эта сессия остаётся на устройстве и не сохраняется в истории.")
                         .font(.system(size: 13)).foregroundStyle(GlassPalette.secondary)
                         .multilineTextAlignment(.center)
                     Spacer()
@@ -395,7 +395,7 @@ struct ContentView: View {
                                     .font(.system(size: 12, weight: .bold, design: .rounded))
                                     .tracking(3).foregroundStyle(.white.opacity(0.8))
                                 Spacer()
-                                Text("YOUR SPACE")
+                                Text("ВАШЕ ПРОСТРАНСТВО")
                                     .font(.system(size: 9, weight: .bold)).tracking(1.6)
                                     .foregroundStyle(GlassPalette.secondary)
                             }
@@ -404,7 +404,7 @@ of the web.")
                                 .font(.system(size: 34, weight: .semibold, design: .rounded))
                                 .tracking(-0.8).foregroundStyle(.white)
                                 .fixedSize(horizontal: false, vertical: true)
-                            Text("Everything you need, right where you left it.")
+                            Text("Всё нужное всегда под рукой.")
                                 .font(.system(size: 13)).foregroundStyle(GlassPalette.secondary)
                         }
                         .padding(20)
@@ -473,14 +473,14 @@ of the web.")
                             HStack {
                                 sectionHeading("RECENTLY VISITED", subtitle: "Pick up where you left off")
                                 Spacer()
-                                Button("History") { librarySection = 0; showLibrary = true }
+                                Button("История") { librarySection = 0; showLibrary = true }
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundStyle(activeAccent)
                             }
                             if browser.history.isEmpty {
                                 HStack(spacing: 10) {
                                     Image(systemName: "clock").foregroundStyle(GlassPalette.secondary)
-                                    Text("Your recent pages will appear here.")
+                                    Text("Здесь появятся недавно посещённые страницы.")
                                         .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                                 }
                                 .padding(15).frame(maxWidth: .infinity, alignment: .leading)
@@ -521,7 +521,7 @@ of the web.")
                                 HStack {
                                     sectionHeading("RECENTLY CLOSED", subtitle: "Bring a closed page back")
                                     Spacer()
-                                    Button("Clear") { browser.clearRecentlyClosed() }
+                                    Button("Очистить") { browser.clearRecentlyClosed() }
                                         .font(.system(size: 10, weight: .semibold))
                                         .foregroundStyle(GlassPalette.secondary)
                                 }
@@ -593,25 +593,25 @@ of the web.")
 
     private var navigationBar: some View {
         HStack(spacing: 0) {
-            dockButton("chevron.left", title: "Back", enabled: browser.activeTab?.canGoBack == true) {
+            dockButton("chevron.left", title: "Назад", enabled: browser.activeTab?.canGoBack == true) {
                 browser.activeTab?.goBack()
             }
             Spacer(minLength: 2)
-            dockButton("chevron.right", title: "Forward", enabled: browser.activeTab?.canGoForward == true) {
+            dockButton("chevron.right", title: "Вперёд", enabled: browser.activeTab?.canGoForward == true) {
                 browser.activeTab?.goForward()
             }
             Spacer(minLength: 2)
-            dockButton("books.vertical", title: "Library", enabled: true) {
+            dockButton("books.vertical", title: "Библиотека", enabled: true) {
                 librarySection = 1
                 showLibrary = true
             }
             Spacer(minLength: 2)
-            dockButton("clock.arrow.circlepath", title: "History", enabled: true) {
+            dockButton("clock.arrow.circlepath", title: "История", enabled: true) {
                 librarySection = 0
                 showLibrary = true
             }
             Spacer(minLength: 2)
-            dockButton("square.on.square", title: "Tabs", enabled: true) {
+            dockButton("square.on.square", title: "Вкладки", enabled: true) {
                 showTabs = true
             }
             Spacer(minLength: 2)
@@ -625,7 +625,7 @@ of the web.")
                     .background(activeAccent, in: Circle())
                     .shadow(color: activeAccent.opacity(themeGlow), radius: 12, y: 3)
             }
-            .accessibilityLabel("New tab")
+            .accessibilityLabel("Новая вкладка")
         }
         .padding(.horizontal, 13)
         .frame(height: 62)
@@ -657,7 +657,7 @@ of the web.")
             VStack(spacing: 14) {
                 Picker("Library", selection: $librarySection) {
                     Text("History").tag(0)
-                    Text("Bookmarks").tag(1)
+                    Text("Закладки").tag(1)
                     Text("Downloads").tag(2)
                 }
                 .pickerStyle(.segmented)
@@ -666,7 +666,7 @@ of the web.")
                 .padding(.horizontal, 16)
                 if librarySection == 0 {
                     if browser.history.isEmpty {
-                        ContentUnavailableView("No history yet", systemImage: "clock", description: Text("Pages you visit will appear here."))
+                        ContentUnavailableView("История пока пуста", systemImage: "clock", description: Text("Посещённые страницы появятся здесь."))
                     } else {
                         List {
                             ForEach(browser.history, id: \.self) { url in
@@ -676,14 +676,14 @@ of the web.")
                     }
                 } else if librarySection == 1 {
                     if browser.bookmarks.isEmpty {
-                        ContentUnavailableView("No bookmarks yet", systemImage: "star", description: Text("Save a page with the star in the address bar."))
+                        ContentUnavailableView("Закладок пока нет", systemImage: "star", description: Text("Нажмите на звёздочку в адресной строке, чтобы сохранить страницу."))
                     } else {
                         List {
                             ForEach(browser.bookmarks) { bookmark in
                                 libraryRow(title: bookmark.title, subtitle: bookmark.url, symbol: "star") { openLibraryURL(bookmark.url) }
                                     .swipeActions {
                                         Button(role: .destructive) { browser.removeBookmark(bookmark) } label: {
-                                            Label("Delete", systemImage: "trash")
+                                            Label("Удалить", systemImage: "trash")
                                         }
                                     }
                             }
@@ -691,7 +691,7 @@ of the web.")
                     }
                 } else {
                     if browser.downloads.isEmpty && browser.activeDownloads.isEmpty {
-                        ContentUnavailableView("No downloads yet", systemImage: "arrow.down.circle", description: Text("Files you download from websites will appear here."))
+                        ContentUnavailableView("Загрузок пока нет", systemImage: "arrow.down.circle", description: Text("Загруженные с сайтов файлы появятся здесь."))
                     } else {
                         List {
                             ForEach(browser.activeDownloads) { download in
@@ -714,12 +714,12 @@ of the web.")
                                         Button { browser.retryDownload(download) } label: {
                                             Image(systemName: "arrow.clockwise").foregroundStyle(activeAccent)
                                         }
-                                        .accessibilityLabel("Retry download")
+                                        .accessibilityLabel("Повторить загрузку")
                                     } else {
                                         Button(role: .destructive) { browser.cancelDownload(download) } label: {
                                             Image(systemName: "xmark.circle.fill").foregroundStyle(.orange)
                                         }
-                                        .accessibilityLabel("Cancel download")
+                                        .accessibilityLabel("Отменить загрузку")
                                     }
                                 }
                                 .listRowBackground(
@@ -750,7 +750,7 @@ of the web.")
                                 )
                                 .swipeActions {
                                     Button(role: .destructive) { browser.removeDownload(download) } label: {
-                                        Label("Delete", systemImage: "trash")
+                                        Label("Удалить", systemImage: "trash")
                                     }
                                 }
                             }
@@ -759,16 +759,16 @@ of the web.")
                 }
             }
             .padding(.top, 12).background(GlassPalette.background.ignoresSafeArea())
-            .navigationTitle("Library").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Библиотека").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     if librarySection == 0 && !browser.history.isEmpty {
-                        Button("Clear") { browser.clearHistory() }
+                        Button("Очистить") { browser.clearHistory() }
                     } else if librarySection == 2 && !browser.downloads.isEmpty {
-                        Button("Clear") { browser.clearDownloads() }
+                        Button("Очистить") { browser.clearDownloads() }
                     }
                 }
-                ToolbarItem(placement: .topBarLeading) { Button("Done") { showLibrary = false } }
+                ToolbarItem(placement: .topBarLeading) { Button("Готово") { showLibrary = false } }
             }
         }
         .tint(activeAccent)
@@ -782,8 +782,8 @@ of the web.")
                     HStack(spacing: 12) {
                         Image(systemName: "eye.slash.circle.fill").font(.system(size: 24)).foregroundStyle(activeAccent)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Private tabs").foregroundStyle(.white)
-                            Text("Use a separate temporary website store. Private tabs are not restored after closing GLASS.")
+                            Text("Приватные вкладки").foregroundStyle(.white)
+                            Text("Используют отдельное временное хранилище. После закрытия GLASS приватные вкладки не восстанавливаются.")
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
@@ -796,8 +796,8 @@ of the web.")
                     HStack(spacing: 12) {
                         Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(activeAccent)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Browsing history").foregroundStyle(.white)
-                            Text("Regular tabs save visited addresses on this device. Private tabs do not.")
+                            Text("История браузера").foregroundStyle(.white)
+                            Text("Обычные вкладки сохраняют адреса посещённых страниц на устройстве. Приватные вкладки этого не делают.")
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
@@ -808,13 +808,13 @@ of the web.")
                                         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                                 )
                 } header: {
-                    Text("On-device privacy")
+                    Text("Приватность на устройстве")
                 }
                 Section {
                     Button(role: .destructive) {
                         confirmClearWebsiteData = true
                     } label: {
-                        Label("Clear cookies, cache and site data", systemImage: "trash")
+                        Label("Очистить cookie, кэш и данные сайтов", systemImage: "trash")
                     }
                     .listRowBackground(
                                     RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -826,7 +826,7 @@ of the web.")
                         browser.clearHistory()
                         privacyActionMessage = "Browsing history was cleared."
                     } label: {
-                        Label("Clear browsing history", systemImage: "clock")
+                        Label("Очистить историю браузера", systemImage: "clock")
                     }
                     .listRowBackground(
                                     RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -835,17 +835,17 @@ of the web.")
                                         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                                 )
                 } header: {
-                    Text("Clear data")
+                    Text("Очистка данных")
                 } footer: {
-                    Text("Clearing website data may sign you out of websites. Bookmarks and downloaded files are not deleted.")
+                    Text("После очистки данных сайтов может потребоваться повторный вход в аккаунты. Закладки и загруженные файлы не удаляются.")
                 }
             }
             .scrollContentBackground(.hidden)
             .listRowSeparatorTint(Color.white.opacity(0.07))
             .background(GlassPalette.background)
-            .navigationTitle("Privacy").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Приватность").navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { Button("Done") { showPrivacy = false } }
+                ToolbarItem(placement: .topBarTrailing) { Button("Готово") { showPrivacy = false } }
             }
         }
         .tint(activeAccent)
@@ -886,13 +886,13 @@ of the web.")
                 VStack(alignment: .leading, spacing: 17) {
                     HStack(alignment: .center) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("YOUR TABS")
+                            Text("ВАШИ ВКЛАДКИ")
                                 .font(.system(size: 10, weight: .bold)).tracking(1.6)
                                 .foregroundStyle(GlassPalette.secondary)
-                            Text("\(browser.visibleTabs.count) open")
+                            Text("Открыто: \(browser.visibleTabs.count)")
                                 .font(.system(size: 23, weight: .semibold, design: .rounded))
                                 .foregroundStyle(.white)
-                            Text("Grouped by how each tab was opened")
+                            Text("Автоматическая группировка по способу открытия")
                                 .font(.system(size: 11)).foregroundStyle(GlassPalette.secondary)
                         }
                         Spacer()
@@ -907,12 +907,12 @@ of the web.")
                                 .overlay(Circle().stroke(.white.opacity(0.12)))
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Close all tabs in this space")
+                        .accessibilityLabel("Закрыть все вкладки пространства")
                         Button {
                             browser.addTab()
                             showTabs = false
                         } label: {
-                            Label("New tab", systemImage: "plus")
+                            Label("Новая вкладка", systemImage: "plus")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 13).padding(.vertical, 10)
@@ -929,7 +929,7 @@ of the web.")
                     HStack(spacing: 10) {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(GlassPalette.secondary)
-                        TextField("Search open tabs", text: $tabsSearchText)
+                        TextField("Поиск по открытым вкладкам", text: $tabsSearchText)
                             .font(.system(size: 13))
                             .foregroundStyle(.white)
                             .autocorrectionDisabled()
@@ -1007,31 +1007,31 @@ of the web.")
                     }
 
                     if !tabsSearchText.isEmpty && automaticTabGroups.isEmpty {
-                        ContentUnavailableView("No matching tabs", systemImage: "magnifyingglass", description: Text("Try another title, address or search query."))
+                        ContentUnavailableView("Вкладки не найдены", systemImage: "magnifyingglass", description: Text("Измените название, адрес или поисковый запрос."))
                             .frame(maxWidth: .infinity).padding(.top, 36)
                     }
 
                     if browser.visibleTabs.isEmpty {
-                        ContentUnavailableView("No open tabs", systemImage: "square.on.square", description: Text("Create a tab to start browsing."))
+                        ContentUnavailableView("Нет открытых вкладок", systemImage: "square.on.square", description: Text("Создайте вкладку, чтобы начать просмотр."))
                             .frame(maxWidth: .infinity).padding(.top, 36)
                     }
                 }
                 .padding(16)
             }
             .background(GlassPalette.background.ignoresSafeArea())
-            .confirmationDialog("Close all tabs in this space?", isPresented: $confirmCloseSpaceTabs, titleVisibility: .visible) {
-                Button("Close all tabs", role: .destructive) {
+            .confirmationDialog("Закрыть все вкладки этого пространства?", isPresented: $confirmCloseSpaceTabs, titleVisibility: .visible) {
+                Button("Закрыть все вкладки", role: .destructive) {
                     withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
                         browser.closeAllTabsInActiveSpace()
                     }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button("Отмена", role: .cancel) {}
             }
-            .navigationTitle("Tabs")
+            .navigationTitle("Вкладки")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Done") { showTabs = false }
+                    Button("Готово") { showTabs = false }
                 }
             }
         }
@@ -1058,7 +1058,7 @@ of the web.")
                     .background(activeAccent.opacity(0.14), in: RoundedRectangle(cornerRadius: 10))
                 Spacer()
                 if browser.activeTabID == tab.id {
-                    Text("ACTIVE")
+                    Text("АКТИВНАЯ")
                         .font(.system(size: 8, weight: .bold)).tracking(1)
                         .foregroundStyle(activeAccent)
                 }
@@ -1070,7 +1070,7 @@ of the web.")
                         .background(.ultraThinMaterial, in: Circle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Close tab")
+                .accessibilityLabel("Закрыть вкладку")
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(tab.title.isEmpty ? "New tab" : tab.title)
@@ -1099,12 +1099,23 @@ of the web.")
             browser.select(tab)
             showTabs = false
         }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 28)
+                .onEnded { value in
+                    let horizontal = abs(value.translation.width)
+                    let vertical = abs(value.translation.height)
+                    guard horizontal > 88, horizontal > vertical * 1.35 else { return }
+                    withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                        browser.close(tab)
+                    }
+                }
+        )
         .contextMenu {
             Button {
                 browser.duplicate(tab)
                 showTabs = false
             } label: {
-                Label("Duplicate tab", systemImage: "plus.square.on.square")
+                Label("Дублировать вкладку", systemImage: "plus.square.on.square")
             }
 
             Menu {
@@ -1116,13 +1127,13 @@ of the web.")
                     }
                 }
             } label: {
-                Label("Move to space", systemImage: "square.grid.2x2")
+                Label("Переместить в пространство", systemImage: "square.grid.2x2")
             }
 
             Button(role: .destructive) {
                 browser.close(tab)
             } label: {
-                Label("Close tab", systemImage: "xmark")
+                Label("Закрыть вкладку", systemImage: "xmark")
             }
         }
     }
@@ -1131,7 +1142,7 @@ of the web.")
         NavigationStack {
             VStack(spacing: 14) {
                 HStack(spacing: 10) {
-                    TextField("New space name", text: $newSpaceName)
+                    TextField("Название пространства", text: $newSpaceName)
                         .textFieldStyle(.roundedBorder).submitLabel(.done).onSubmit(addSpace)
                     Button(action: addSpace) {
                         Image(systemName: "plus").font(.system(size: 14, weight: .bold))
@@ -1165,7 +1176,7 @@ of the web.")
                         .swipeActions {
                             if space.id != "personal" {
                                 Button(role: .destructive) { browser.removeSpace(space) } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("Удалить", systemImage: "trash")
                                 }
                             }
                         }
@@ -1174,9 +1185,9 @@ of the web.")
                 .listStyle(.plain)
             }
             .padding(.top, 14).background(GlassPalette.background.ignoresSafeArea())
-            .navigationTitle("Spaces").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Пространства").navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { Button("Done") { showSpaces = false } }
+                ToolbarItem(placement: .topBarTrailing) { Button("Готово") { showSpaces = false } }
             }
         }
         .tint(activeAccent)
