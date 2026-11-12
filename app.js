@@ -224,3 +224,65 @@ function appearancePanel(){
   }));
   $("#doneAppearance").addEventListener("click",close);
 }
+
+
+/* Private browsing: isolated in-memory tabs and no history writes */
+let glassPrivateMode=false;
+let glassPrivateTabs=[];
+const glassOriginalMenuPanel=menuPanel;
+const glassOriginalTabsPanel=tabsPanel;
+function glassSetPrivateMode(enabled){
+  glassPrivateMode=!!enabled;
+  document.body.classList.toggle("private-mode",glassPrivateMode);
+  let badge=$("#privateModeBadge");
+  if(glassPrivateMode){
+    if(!badge){
+      badge=document.createElement("div");
+      badge.id="privateModeBadge";
+      badge.className="private-mode-badge";
+      badge.innerHTML='<span></span> Приватный режим';
+      $(".topbar").appendChild(badge);
+    }
+  }else if(badge)badge.remove();
+  close();
+}
+function menuPanel(){
+  glassOriginalMenuPanel();
+  const block=document.createElement("div");
+  block.className="private-menu-entry";
+  block.innerHTML='<div><strong>Приватный режим</strong><small>Отдельные вкладки без записи истории</small></div><button type="button" id="togglePrivateMode">'+(glassPrivateMode?"Выключить":"Включить")+'</button>';
+  content.appendChild(block);
+  $("#togglePrivateMode").addEventListener("click",()=>glassSetPrivateMode(!glassPrivateMode));
+}
+function tabsPanel(filter=""){
+  if(!glassPrivateMode){glassOriginalTabsPanel(filter);return}
+  const q=filter.trim().toLowerCase();
+  const shown=glassPrivateTabs.filter(t=>!q||(t.title+" "+t.url).toLowerCase().includes(q));
+  show(panelHead("PRIVATE BROWSING","Приватные вкладки",glassPrivateTabs.length+" вкладок · данные существуют только до выхода из режима")+
+    '<input class="dialog-input tab-search" id="privateTabFilter" placeholder="Поиск приватных вкладок…" value="'+safe(filter)+'">'+
+    '<div class="tab-add-row"><input class="dialog-input" id="privateTabUrl" placeholder="Адрес сайта или поисковый запрос"><button class="dialog-action" id="addPrivateTab">＋ Добавить</button></div>'+
+    (shown.length?'<div class="tab-card-list">'+shown.map(t=>'<article class="tab-card"><div class="tab-favicon">◌</div><div class="tab-card-main"><strong>'+safe(t.title)+'</strong><small>'+safe(t.url)+'</small></div><div class="tab-card-actions"><button data-private-open="'+safe(t.id)+'" aria-label="Открыть">↗</button><button data-private-close="'+safe(t.id)+'" aria-label="Закрыть">×</button></div></article>').join("")+'</div>':'<div class="empty-panel"><span>◌</span><strong>Приватных вкладок пока нет</strong><small>Добавьте сайт, он останется только в памяти этой сессии.</small></div>')+
+    (glassPrivateTabs.length?action("Закрыть все приватные вкладки","closePrivateTabs"):""));
+  $("#privateTabFilter").addEventListener("input",e=>{const v=e.target.value;tabsPanel(v);const el=$("#privateTabFilter");el.focus();el.setSelectionRange(v.length,v.length)});
+  $("#addPrivateTab").addEventListener("click",()=>{
+    const raw=$("#privateTabUrl").value.trim();if(!raw)return;
+    const url=normalizeUrl(raw);glassPrivateTabs.unshift({id:"p"+Date.now(),title:/^https?:/.test(url)?new URL(url).hostname:raw,url});
+    tabsPanel(filter);
+  });
+  content.querySelectorAll("[data-private-open]").forEach(b=>b.addEventListener("click",()=>{const t=glassPrivateTabs.find(x=>x.id===b.dataset.privateOpen);if(t)window.location.assign(t.url)}));
+  content.querySelectorAll("[data-private-close]").forEach(b=>b.addEventListener("click",()=>{glassPrivateTabs=glassPrivateTabs.filter(x=>x.id!==b.dataset.privateClose);tabsPanel(filter)}));
+  $("#closePrivateTabs")?.addEventListener("click",()=>{glassPrivateTabs=[];tabsPanel()});
+}
+function search(q){
+  q=q.trim();if(!q)return;
+  const url=normalizeUrl(q);
+  if(glassPrivateMode){
+    glassPrivateTabs.unshift({id:"p"+Date.now(),title:q,url});
+  }else{
+    const data=read("glass-history",[]);
+    data.unshift({title:q,url,at:Date.now()});write("glass-history",data.slice(0,100));
+    const tabs=read("glass-tabs",[]);
+    tabs.unshift({id:"t"+Date.now(),title:q,url,space:activeSpace,created:Date.now()});write("glass-tabs",tabs.slice(0,100));
+  }
+  window.location.assign(url);
+}
