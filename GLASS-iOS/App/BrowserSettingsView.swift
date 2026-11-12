@@ -161,7 +161,8 @@ struct BrowserSettingsView: View {
                                 appearanceSlider("Motion intensity", value: $themeMotion, range: 0...1)
                             }
                             .padding(14)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 17, style: .continuous))\n                            .overlay(RoundedRectangle(cornerRadius: 17).fill(Color.white.opacity(themeCardOpacity)))
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 17).fill(Color.white.opacity(themeCardOpacity)))
                             .overlay(RoundedRectangle(cornerRadius: 17).stroke(.white.opacity(0.09)))
 
                             RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous)
@@ -338,7 +339,9 @@ struct BrowserSettingsView: View {
                         Text("Sync")
                     }
                 }
-                .listStyle(.insetGrouped)\n                .scrollContentBackground(.hidden)\n                .foregroundStyle(.white)
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .foregroundStyle(.white)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
