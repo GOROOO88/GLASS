@@ -431,9 +431,9 @@ final class BrowserStore: ObservableObject {
             !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
         guard validSpaces.count == snapshot.spaces.count,
-              Set(validSpaces.map(\\.id)).count == validSpaces.count,
+              Set(validSpaces.map(\.id)).count == validSpaces.count,
               validSpaces.contains(where: { $0.id == "personal" }),
-              Set(snapshot.tabs.map(\\.id)).count == snapshot.tabs.count else {
+              Set(snapshot.tabs.map(\.id)).count == snapshot.tabs.count else {
             throw GlassSyncRestoreError.invalidSnapshot
         }
 
@@ -451,12 +451,12 @@ final class BrowserStore: ObservableObject {
             throw GlassSyncRestoreError.invalidSnapshot
         }
 
-        let spaceIDs = Set(validSpaces.map(\\.id))
+        let spaceIDs = Set(validSpaces.map(\.id))
         guard snapshot.tabs.allSatisfy({ spaceIDs.contains($0.spaceID) }) else {
             throw GlassSyncRestoreError.invalidSnapshot
         }
 
-        let retainedPrivateTabs = tabs.filter(\\.isPrivate)
+        let retainedPrivateTabs = tabs.filter(\.isPrivate)
         tabs = retainedPrivateTabs
         spaces = validSpaces
         bookmarks = snapshot.bookmarks
