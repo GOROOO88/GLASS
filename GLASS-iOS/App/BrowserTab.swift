@@ -85,7 +85,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         if let query = searchQuery(in: url) {
             groupKind = "search"
             groupDetail = query
-        } else if groupKind == "new" || groupKind == "search" {
+        } else {
             groupKind = "direct"
             groupDetail = url.host ?? ""
         }
@@ -153,7 +153,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if navigationAction.targetFrame?.isMainFrame != false,
-           let sourceURL = navigationAction.sourceFrame.request.url,
+           let sourceURL = webView.url ?? navigationAction.sourceFrame.request.url,
            let destinationURL = navigationAction.request.url,
            sourceURL.host != destinationURL.host {
             let sourceHost = (sourceURL.host ?? "").lowercased()
