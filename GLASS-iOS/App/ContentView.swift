@@ -328,23 +328,25 @@ struct ContentView: View {
                                     Button {
                                         browser.selectSpace(space)
                                     } label: {
-                                        HStack(alignment: .top, spacing: 10) {
-                                            Image(systemName: space.symbol)
-                                                .font(.system(size: 17, weight: .semibold))
-                                                .foregroundStyle(spaceColor(space.tint))
-                                                .frame(width: 36, height: 36)
-                                                .background(spaceColor(space.tint).opacity(0.16), in: RoundedRectangle(cornerRadius: 12))
-                                            Spacer(minLength: 0)
-                                            Image(systemName: browser.activeSpaceID == space.id ? "checkmark.circle.fill" : "arrow.up.right")
-                                                .font(.system(size: 11, weight: .semibold))
-                                                .foregroundStyle(browser.activeSpaceID == space.id ? GlassAppearance.accent(for: themePreset) : GlassPalette.secondary)
+                                        VStack(alignment: .leading, spacing: 9) {
+                                            HStack(alignment: .top, spacing: 10) {
+                                                Image(systemName: space.symbol)
+                                                    .font(.system(size: 17, weight: .semibold))
+                                                    .foregroundStyle(spaceColor(space.tint))
+                                                    .frame(width: 36, height: 36)
+                                                    .background(spaceColor(space.tint).opacity(0.16), in: RoundedRectangle(cornerRadius: 12))
+                                                Spacer(minLength: 0)
+                                                Image(systemName: browser.activeSpaceID == space.id ? "checkmark.circle.fill" : "arrow.up.right")
+                                                    .font(.system(size: 11, weight: .semibold))
+                                                    .foregroundStyle(browser.activeSpaceID == space.id ? GlassAppearance.accent(for: themePreset) : GlassPalette.secondary)
+                                            }
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(space.name).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                                                Text(browser.activeSpaceID == space.id ? "Currently active" : "Open space")
+                                                    .font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                         }
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(space.name).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
-                                            Text(browser.activeSpaceID == space.id ? "Currently active" : "Open space")
-                                                .font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
-                                        }
-                                        .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                     .padding(13)
                                     .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
