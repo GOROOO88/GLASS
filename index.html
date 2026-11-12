@@ -1,66 +1,77 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#090a12">
-<meta name="description" content="GLASS — your personal browser space.">
+<meta name="theme-color" content="#08070f">
+<meta name="description" content="GLASS — Browse differently.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="./styles.css">
-<title>GLASS</title>
+<title>GLASS — Browse differently.</title>
 </head>
-<body>
-<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><div class="ambient ambient-c"></div>
-<main class="app-shell glass-home">
-  <header class="topbar">
+<body class="reference-home">
+<div class="liquid-scene" aria-hidden="true">
+  <div class="liquid-halo halo-one"></div><div class="liquid-halo halo-two"></div>
+  <svg class="liquid-ribbons" viewBox="0 0 1440 1100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="ribbonA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6d8ff" stop-opacity=".03"/><stop offset=".38" stop-color="#a879ff" stop-opacity=".34"/><stop offset=".7" stop-color="#7041cf" stop-opacity=".16"/><stop offset="1" stop-color="#f2eaff" stop-opacity=".08"/></linearGradient>
+      <linearGradient id="ribbonB" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#31145f" stop-opacity=".1"/><stop offset=".52" stop-color="#9c6bff" stop-opacity=".28"/><stop offset="1" stop-color="#f3eaff" stop-opacity=".1"/></linearGradient>
+      <filter id="soft"><feGaussianBlur stdDeviation="19"/></filter>
+    </defs>
+    <path d="M-180 690 C80 390 240 300 475 420 S830 790 1070 610 S1360 230 1610 340" fill="none" stroke="url(#ribbonA)" stroke-width="150" filter="url(#soft)"/>
+    <path d="M-190 760 C70 460 255 345 490 460 S840 830 1080 655 S1380 285 1630 400" fill="none" stroke="url(#ribbonA)" stroke-width="82"/>
+    <path d="M-150 830 C100 530 270 420 500 525 S850 880 1100 720 S1400 365 1600 470" fill="none" stroke="#c5a3ff" stroke-opacity=".22" stroke-width="2"/>
+    <path d="M-140 590 C100 330 260 230 475 340 S820 680 1050 520 S1350 170 1610 275" fill="none" stroke="url(#ribbonB)" stroke-width="105"/>
+    <path d="M-150 590 C100 330 260 230 475 340 S820 680 1050 520 S1350 170 1610 275" fill="none" stroke="#e5d5ff" stroke-opacity=".19" stroke-width="1.5"/>
+  </svg>
+</div>
+<main class="app-shell glass-home reference-shell">
+  <header class="topbar reference-topbar">
     <button class="space-switch glass" id="spaceButton"><span class="space-dot"></span><span>Personal</span><span class="chevron">⌄</span></button>
     <div class="top-actions">
-      <button class="icon-button glass" id="voiceButton" aria-label="Голосовой поиск">⌁</button>
-      <button class="icon-button glass" id="menuButton" aria-label="Меню">•••</button>
+      <button class="icon-button glass" id="voiceButton" aria-label="Sound and voice">≋</button>
+      <button class="icon-button glass" id="menuButton" aria-label="Open menu">•••</button>
     </div>
   </header>
-  <section class="hero">
-    <div class="brand-emblem"><span></span><i></i></div>
-    <h1>GLASS</h1>
-    <p class="tagline">A clearer way to browse.</p>
-    <form class="search glass" id="searchForm">
+  <section class="hero reference-hero">
+    <div class="brand-lockup"><h1>GLASS</h1><p class="tagline">Browse differently.</p></div>
+    <form class="search glass reference-search" id="searchForm">
       <span class="search-icon">⌕</span>
-      <input id="searchInput" type="search" autocomplete="off" placeholder="Поиск или адрес сайта" aria-label="Поиск">
-      <button type="button" id="searchVoice" aria-label="Голосовой поиск">⌁</button>
-      <span class="search-divider"></span>
-      <button class="search-submit" type="submit" aria-label="Искать">↗</button>
+      <input id="searchInput" type="search" autocomplete="off" placeholder="Search the web or ask anything..." aria-label="Search the web or ask anything">
+      <button type="button" id="searchVoice" aria-label="Voice search">⌁</button>
+      <button class="search-submit" type="submit" aria-label="Search">✳</button>
     </form>
-    <div class="quick-links" id="quickLinks">
+    <div class="quick-links reference-shortcuts" id="quickLinks">
       <a class="quick-link" href="https://youtube.com"><span class="quick-icon youtube">▶</span><span>YouTube</span></a>
       <a class="quick-link" href="https://discord.com"><span class="quick-icon discord">◉</span><span>Discord</span></a>
       <a class="quick-link" href="https://google.com"><span class="quick-icon google">G</span><span>Google</span></a>
       <a class="quick-link" href="https://notion.so"><span class="quick-icon notion">N</span><span>Notion</span></a>
-      <button class="quick-link add-link" id="addShortcut"><span class="quick-icon">＋</span><span>Добавить</span></button>
+      <button class="quick-link add-link" id="addShortcut"><span class="quick-icon">＋</span><span>Add</span></button>
     </div>
   </section>
-  <section class="tabs-home">
+  <section class="tabs-home reference-tabs">
     <div class="section-heading">
-      <div><p class="eyebrow">YOUR WORKSPACE</p><h2>Вкладки</h2></div>
-      <button class="text-button" id="manageSpaces">Все группы <span>↗</span></button>
+      <div><p class="eyebrow">YOUR WORKSPACE</p><h2>Tabs</h2></div>
+      <button class="text-button" id="manageSpaces">View all <span>→</span></button>
     </div>
     <div class="home-tab-groups">
-      <button class="space-card gaming" data-space="Gaming"><span class="card-top"><span class="card-icon">⌘</span><span class="card-arrow">↗</span></span><strong>Gaming</strong><span class="card-meta">Игры и развлечения</span><span class="mini-tabs"><i></i><i></i><i></i><i></i></span><span class="card-count">05</span><span class="card-orb"></span></button>
-      <button class="space-card work" data-space="Work"><span class="card-top"><span class="card-icon">▤</span><span class="card-arrow">↗</span></span><strong>Work</strong><span class="card-meta">Работа и проекты</span><span class="mini-tabs"><i></i><i></i><i></i></span><span class="card-count">04</span><span class="card-orb"></span></button>
-      <button class="space-card shopping" data-space="Shopping"><span class="card-top"><span class="card-icon">◇</span><span class="card-arrow">↗</span></span><strong>Shopping</strong><span class="card-meta">Покупки и желания</span><span class="mini-tabs"><i></i><i></i></span><span class="card-count">03</span><span class="card-orb"></span></button>
+      <button class="space-card gaming" data-space="Gaming"><span class="card-top"><span class="card-icon">⌘</span><span class="card-arrow">↗</span></span><strong>Gaming</strong><span class="card-meta">Games & entertainment</span><span class="mini-tabs"><i></i><i></i><i></i><i></i></span><span class="card-count">05</span><span class="card-orb"></span></button>
+      <button class="space-card work" data-space="Work"><span class="card-top"><span class="card-icon">▤</span><span class="card-arrow">↗</span></span><strong>Work</strong><span class="card-meta">Projects & productivity</span><span class="mini-tabs"><i></i><i></i><i></i></span><span class="card-count">04</span><span class="card-orb"></span></button>
+      <button class="space-card shopping" data-space="Shopping"><span class="card-top"><span class="card-icon">◇</span><span class="card-arrow">↗</span></span><strong>Shopping</strong><span class="card-meta">Things on your wishlist</span><span class="mini-tabs"><i></i><i></i></span><span class="card-count">03</span><span class="card-orb"></span></button>
     </div>
   </section>
-  <section class="recent-block">
-    <div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Недавнее</h2></div><button class="text-button" id="clearRecent">Очистить</button></div>
-    <div class="empty-state glass" id="recentList"><span class="empty-symbol">◷</span><span>Здесь появятся недавно закрытые вкладки</span></div>
+  <section class="recent-block reference-recent">
+    <div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Recently closed</h2></div><button class="text-button" id="clearRecent">Clear</button></div>
+    <div class="empty-state glass" id="recentList"><span class="empty-symbol">◷</span><span>Recently closed tabs will appear here</span></div>
   </section>
 </main>
 <nav class="bottom-dock reference-dock">
   <div class="dock-group glass">
-    <button class="dock-button" id="bookmarksButton" aria-label="Закладки"><span>☆</span><small>Закладки</small></button>
-    <button class="dock-button" id="historyButton" aria-label="История"><span>◷</span><small>История</small></button>
+    <button class="dock-button" id="bookmarksButton" aria-label="Bookmarks"><span>☆</span><small>Saved</small></button>
+    <button class="dock-button" id="historyButton" aria-label="History"><span>◷</span><small>History</small></button>
   </div>
   <button class="ask-button glass" id="askButton"><span class="ask-spark">✳</span><span>Ask</span></button>
-  <div class="dock-group glass nav-group"><button class="nav-button" id="backButton" aria-label="Назад">‹</button><button class="nav-button" id="forwardButton" aria-label="Вперёд">›</button></div>
+  <div class="dock-group glass nav-group"><button class="nav-button" id="backButton" aria-label="Back">‹</button><button class="nav-button" id="forwardButton" aria-label="Forward">›</button></div>
 </nav>
 <dialog id="appDialog" class="app-dialog glass"><button class="dialog-close" id="closeDialog">×</button><div id="dialogContent"></div></dialog>
 <script src="./app.js"></script>
