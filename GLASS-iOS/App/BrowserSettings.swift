@@ -28,7 +28,7 @@ enum GlassSearchEngine: String, CaseIterable, Codable, Identifiable {
     }
 }
 
-struct GlassBrowserSettings: Codable, Equatable {
+struct BrowserSitePermission: Codable, Identifiable, Equatable {\n    var id: String { domain }\n    let domain: String\n    var cameraAllowed: Bool\n    var microphoneAllowed: Bool\n}\n\nstruct GlassBrowserSettings: Codable, Equatable {
     var searchEngine: GlassSearchEngine = .google
     var adBlockingEnabled = true
     var trackerBlockingEnabled = true
@@ -37,5 +37,5 @@ struct GlassBrowserSettings: Codable, Equatable {
     var startPage = "glass"
     var customStartPageURL = ""
     var clearPrivateDataOnClose = true
-    var cloudSyncEnabled = false
+    var cloudSyncEnabled = false\n    var sitePermissions: [String: BrowserSitePermission] = [:]
 }
