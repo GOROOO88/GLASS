@@ -48,6 +48,24 @@ struct BrowserDownload: Codable, Identifiable, Equatable {
     }
 
     var fileURL: URL { URL(fileURLWithPath: localPath) }
+
+    var fileSize: Int64 {
+        let attributes = try? FileManager.default.attributesOfItem(atPath: localPath)
+        return (attributes?[.size] as? NSNumber)?.int64Value ?? 0
+    }
+
+    var fileTypeLabel: String {
+        switch fileURL.pathExtension.lowercased() {
+        case "pdf": return "PDF-документ"
+        case "jpg", "jpeg", "png", "heic", "gif", "webp": return "Изображение"
+        case "mp4", "mov", "m4v", "avi": return "Видео"
+        case "mp3", "m4a", "wav", "aac", "flac": return "Аудио"
+        case "zip", "rar", "7z", "tar", "gz": return "Архив"
+        case "doc", "docx", "txt", "rtf": return "Документ"
+        case "xls", "xlsx", "csv": return "Таблица"
+        default: return fileURL.pathExtension.isEmpty ? "Файл" : fileURL.pathExtension.uppercased()
+        }
+    }
 }
 
 struct ActiveBrowserDownload: Identifiable, Equatable {
@@ -451,6 +469,11 @@ final class BrowserStore: ObservableObject {
             tab.onDownloadFailure = { [weak self] id, message in
                 guard let self, let index = self.activeDownloads.firstIndex(where: { $0.id == id }) else { return }
                 self.activeDownloads[index].failure = message
+            }
+            tab.onDownloadCancelled = { [weak self] id in
+                guard let self else { return }
+                self.activeDownloads.removeAll(where: { $0.id == id })
+                self.downloadOwners.removeValue(forKey: id)
             }
         }
         return tab
