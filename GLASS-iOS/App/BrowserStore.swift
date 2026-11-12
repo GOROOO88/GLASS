@@ -45,6 +45,12 @@ private struct SavedBrowserTab: Codable {
     let address: String
 }
 
+private struct SavedBrowserSession: Codable {
+    let tabs: [SavedBrowserTab]
+    let activeTabID: UUID?
+    let activeSpaceID: String
+}
+
 @MainActor
 final class BrowserStore: ObservableObject {
     @Published private(set) var tabs: [BrowserTab] = []
@@ -80,8 +86,17 @@ final class BrowserStore: ObservableObject {
         }
 
         var restoredTabs: [SavedBrowserTab] = []
+        var restoredActiveTabID: UUID?
+        var restoredActiveSpaceID = "personal"
         if let data = defaults.data(forKey: sessionKey) {
-            restoredTabs = (try? JSONDecoder().decode([SavedBrowserTab].self, from: data)) ?? []
+            if let session = try? JSONDecoder().decode(SavedBrowserSession.self, from: data) {
+                restoredTabs = session.tabs
+                restoredActiveTabID = session.activeTabID
+                restoredActiveSpaceID = session.activeSpaceID
+            } else {
+                // Backward compatibility with the earlier v1 array-only session format.
+                restoredTabs = (try? JSONDecoder().decode([SavedBrowserTab].self, from: data)) ?? []
+            }
         }
         if restoredTabs.isEmpty {
             addTab(spaceID: "personal")
@@ -94,8 +109,14 @@ final class BrowserStore: ObservableObject {
                     tab.load(url)
                 }
             }
-            activeTabID = tabs.first?.id
-            activeSpaceID = activeTab?.spaceID ?? "personal"
+            let safeActiveSpaceID = spaces.contains(where: { $0.id == restoredActiveSpaceID }) ? restoredActiveSpaceID : "personal"
+            activeSpaceID = safeActiveSpaceID
+            if let restoredActiveTabID, tabs.contains(where: { $0.id == restoredActiveTabID && $0.spaceID == safeActiveSpaceID }) {
+                activeTabID = restoredActiveTabID
+            } else {
+                activeTabID = tabs.last(where: { $0.spaceID == safeActiveSpaceID })?.id ?? tabs.first?.id
+                activeSpaceID = activeTab?.spaceID ?? "personal"
+            }
         }
         saveSpaces()
         saveDownloads()
@@ -139,6 +160,7 @@ final class BrowserStore: ObservableObject {
         activeSpaceID = space.id
         if let existing = tabs.last(where: { $0.spaceID == space.id && !$0.isPrivate }) {
             activeTabID = existing.id
+            saveSession()
         } else {
             addTab(spaceID: space.id)
         }
@@ -184,6 +206,7 @@ final class BrowserStore: ObservableObject {
     func select(_ tab: BrowserTab) {
         activeSpaceID = tab.spaceID
         activeTabID = tab.id
+        saveSession()
     }
 
     func close(_ tab: BrowserTab) {
@@ -275,6 +298,16 @@ final class BrowserStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: historyKey)
     }
 
+    func clearWebsiteData(completion: @escaping () -> Void) {
+        let store = WKWebsiteDataStore.default()
+        let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
+        store.removeData(ofTypes: dataTypes, modifiedSince: Date(timeIntervalSince1970: 0)) {
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+
     private func saveBookmarks() {
         guard let data = try? JSONEncoder().encode(bookmarks) else { return }
         UserDefaults.standard.set(data, forKey: bookmarksKey)
@@ -291,10 +324,12 @@ final class BrowserStore: ObservableObject {
     }
 
     private func saveSession() {
-        let saved = tabs.filter { !$0.isPrivate }.map {
+        let savedTabs = tabs.filter { !$0.isPrivate }.map {
             SavedBrowserTab(id: $0.id, spaceID: $0.spaceID, address: $0.address)
         }
-        guard let data = try? JSONEncoder().encode(saved) else { return }
+        let safeActiveTabID = activeTab?.isPrivate == false ? activeTabID : tabs.last(where: { !$0.isPrivate && $0.spaceID == activeSpaceID })?.id
+        let session = SavedBrowserSession(tabs: savedTabs, activeTabID: safeActiveTabID, activeSpaceID: activeSpaceID)
+        guard let data = try? JSONEncoder().encode(session) else { return }
         UserDefaults.standard.set(data, forKey: sessionKey)
     }
 }
