@@ -399,8 +399,8 @@ struct ContentView: View {
                                     .font(.system(size: 9, weight: .bold)).tracking(1.6)
                                     .foregroundStyle(GlassPalette.secondary)
                             }
-                            Text("A quieter corner
-of the web.")
+                            Text("Ваше личное
+пространство в сети.")
                                 .font(.system(size: 34, weight: .semibold, design: .rounded))
                                 .tracking(-0.8).foregroundStyle(.white)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -424,17 +424,17 @@ of the web.")
                         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 8).stroke(Color.white.opacity(0.13)))
 
                         VStack(alignment: .leading, spacing: 12) {
-                            sectionHeading("QUICK ACCESS", subtitle: "Your everyday destinations")
+                            sectionHeading("БЫСТРЫЙ ДОСТУП", subtitle: "Любимые сайты всегда под рукой")
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                quickLink("YouTube", subtitle: "Watch", symbol: "play.rectangle.fill", url: "https://www.youtube.com")
-                                quickLink("Spotify", subtitle: "Listen", symbol: "waveform", url: "https://open.spotify.com")
-                                quickLink("Reddit", subtitle: "Explore", symbol: "bubble.left.and.bubble.right.fill", url: "https://www.reddit.com")
-                                quickLink("Wikipedia", subtitle: "Discover", symbol: "book.closed.fill", url: "https://www.wikipedia.org")
+                                quickLink("YouTube", subtitle: "Видео", symbol: "play.rectangle.fill", url: "https://www.youtube.com")
+                                quickLink("Spotify", subtitle: "Музыка", symbol: "waveform", url: "https://open.spotify.com")
+                                quickLink("Reddit", subtitle: "Сообщество", symbol: "bubble.left.and.bubble.right.fill", url: "https://www.reddit.com")
+                                quickLink("Wikipedia", subtitle: "Знания", symbol: "book.closed.fill", url: "https://www.wikipedia.org")
                             }
                         }
 
                         VStack(alignment: .leading, spacing: 12) {
-                            sectionHeading("SPACES", subtitle: "Keep different parts of life separate")
+                            sectionHeading("ПРОСТРАНСТВА", subtitle: "Разделяйте разные сферы жизни")
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                                 ForEach(browser.spaces) { space in
                                     Button {
@@ -454,7 +454,7 @@ of the web.")
                                             }
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(space.name).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
-                                                Text(browser.activeSpaceID == space.id ? "Currently active" : "Open space")
+                                                Text(browser.activeSpaceID == space.id ? "Сейчас открыто" : "Открыть пространство")
                                                     .font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
                                             }
                                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -471,7 +471,7 @@ of the web.")
 
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                sectionHeading("RECENTLY VISITED", subtitle: "Pick up where you left off")
+                                sectionHeading("НЕДАВНО ПОСЕЩЁННЫЕ", subtitle: "Продолжить с того места, где остановились")
                                 Spacer()
                                 Button("История") { librarySection = 0; showLibrary = true }
                                     .font(.system(size: 11, weight: .semibold))
@@ -519,7 +519,7 @@ of the web.")
                         if !browser.recentlyClosed.isEmpty {
                             VStack(alignment: .leading, spacing: 11) {
                                 HStack {
-                                    sectionHeading("RECENTLY CLOSED", subtitle: "Bring a closed page back")
+                                    sectionHeading("НЕДАВНО ЗАКРЫТЫЕ", subtitle: "Вернуть закрытую страницу")
                                     Spacer()
                                     Button("Очистить") { browser.clearRecentlyClosed() }
                                         .font(.system(size: 10, weight: .semibold))
@@ -612,7 +612,7 @@ of the web.")
             }
             Spacer(minLength: 2)
             dockButton("square.on.square", title: "Вкладки", enabled: true) {
-                showTabs = true
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.88)) { showTabs = true }
             }
             Spacer(minLength: 2)
             Button {
@@ -656,9 +656,9 @@ of the web.")
         NavigationStack {
             VStack(spacing: 14) {
                 Picker("Library", selection: $librarySection) {
-                    Text("History").tag(0)
+                    Text("История").tag(0)
                     Text("Закладки").tag(1)
-                    Text("Downloads").tag(2)
+                    Text("Загрузки").tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding(5)
@@ -1073,7 +1073,7 @@ of the web.")
                 .accessibilityLabel("Закрыть вкладку")
             }
             VStack(alignment: .leading, spacing: 4) {
-                Text(tab.title.isEmpty ? "New tab" : tab.title)
+                Text(tab.title.isEmpty ? "Новая вкладка" : tab.title)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white).lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -1083,7 +1083,7 @@ of the web.")
                         .foregroundStyle(activeAccent.opacity(0.92))
                         .lineLimit(1)
                 }
-                Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
+                Text(tab.address.isEmpty ? "Стартовая страница GLASS" : tab.address)
                     .font(.system(size: 9))
                     .foregroundStyle(GlassPalette.secondary).lineLimit(1)
             }
