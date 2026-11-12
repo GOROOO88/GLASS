@@ -265,7 +265,19 @@ final class BrowserStore: ObservableObject {
         tabs.forEach { $0.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled) }
     }
 
-    func setSitePermission(domain: String, camera: Bool, microphone: Bool) {\n        let clean = domain.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()\n        guard !clean.isEmpty, !clean.contains("/") else { return }\n        settings.sitePermissions[clean] = BrowserSitePermission(domain: clean, cameraAllowed: camera, microphoneAllowed: microphone)\n        saveSettings()\n    }\n\n    func removeSitePermission(_ domain: String) {\n        settings.sitePermissions.removeValue(forKey: domain)\n        saveSettings()\n    }\n\n    func updateCustomStartPage(_ value: String) {
+    func setSitePermission(domain: String, camera: Bool, microphone: Bool) {
+        let clean = domain.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !clean.isEmpty, !clean.contains("/") else { return }
+        settings.sitePermissions[clean] = BrowserSitePermission(domain: clean, cameraAllowed: camera, microphoneAllowed: microphone)
+        saveSettings()
+    }
+
+    func removeSitePermission(_ domain: String) {
+        settings.sitePermissions.removeValue(forKey: domain)
+        saveSettings()
+    }
+
+    func updateCustomStartPage(_ value: String) {
         settings.customStartPageURL = value
         saveSettings()
     }
