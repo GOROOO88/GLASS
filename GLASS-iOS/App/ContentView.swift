@@ -42,10 +42,32 @@ struct ContentView: View {
     @State private var tabsSearchText = ""
     @State private var confirmCloseSpaceTabs = false
 
+    private var isPrivateMode: Bool { browser.activeTab?.isPrivate == true }
+    private var activeAccent: Color {
+        isPrivateMode ? GlassAppearance.privateAccent : activeAccent
+    }
+
     var body: some View {
         ZStack {
             Group {
-                switch themeBackgroundStyle {
+                if isPrivateMode {
+                    ZStack {
+                        GlassAppearance.privateBackground
+                        RadialGradient(
+                            colors: [GlassAppearance.privateAccent.opacity(0.24), .clear],
+                            center: .top,
+                            startRadius: 8,
+                            endRadius: 460
+                        )
+                        RadialGradient(
+                            colors: [Color(red: 0.48, green: 0.13, blue: 0.12).opacity(0.12), .clear],
+                            center: .bottomTrailing,
+                            startRadius: 5,
+                            endRadius: 300
+                        )
+                    }
+                } else {
+                    switch themeBackgroundStyle {
                 case "deep":
                     GlassPalette.background
                 case "gradient":
@@ -58,7 +80,7 @@ struct ContentView: View {
                     ZStack {
                         GlassPalette.background
                         RadialGradient(
-                            colors: [GlassAppearance.accent(for: themePreset).opacity(0.25), .clear],
+                            colors: [activeAccent.opacity(0.25), .clear],
                             center: .top,
                             startRadius: 8,
                             endRadius: 460
@@ -69,6 +91,7 @@ struct ContentView: View {
                             startRadius: 5,
                             endRadius: 300
                         )
+                    }
                     }
                 }
             }
@@ -160,8 +183,18 @@ struct ContentView: View {
     private var header: some View {
         HStack {
             HStack(spacing: 8) {
-                Image(systemName: "circle.hexagongrid.fill").foregroundStyle(GlassAppearance.accent(for: themePreset))
+                Image(systemName: "circle.hexagongrid.fill").foregroundStyle(activeAccent)
                 Text("GLASS").font(.system(size: 17, weight: .bold, design: .rounded)).tracking(2.4)
+            }
+            if isPrivateMode {
+                HStack(spacing: 5) {
+                    Image(systemName: "eye.slash.fill").font(.system(size: 9, weight: .bold))
+                    Text("PRIVATE").font(.system(size: 9, weight: .bold)).tracking(1.1)
+                }
+                .foregroundStyle(GlassAppearance.privateAccent)
+                .padding(.horizontal, 9).padding(.vertical, 7)
+                .background(GlassAppearance.privateAccent.opacity(0.13), in: Capsule())
+                .overlay(Capsule().stroke(GlassAppearance.privateAccent.opacity(0.38), lineWidth: 0.9))
             }
             Spacer()
             Button {
@@ -204,7 +237,7 @@ struct ContentView: View {
     private var addressBar: some View {
         HStack(spacing: 10) {
             if browser.activeTab?.isPrivate == true {
-                Image(systemName: "eye.slash.fill").foregroundStyle(GlassAppearance.accent(for: themePreset))
+                Image(systemName: "eye.slash.fill").foregroundStyle(GlassAppearance.privateAccent)
             } else {
                 Image(systemName: "magnifyingglass").foregroundStyle(GlassPalette.secondary)
             }
@@ -212,10 +245,10 @@ struct ContentView: View {
                 .font(.system(size: 15)).textInputAutocapitalization(.never)
                 .autocorrectionDisabled().keyboardType(.URL).submitLabel(.go).onSubmit(openAddress)
             if let tab = browser.activeTab, tab.isLoading {
-                ProgressView().tint(GlassAppearance.accent(for: themePreset))
+                ProgressView().tint(activeAccent)
             } else {
                 Button(action: openAddress) {
-                    Image(systemName: "arrow.up.right").font(.system(size: 14, weight: .bold)).foregroundStyle(GlassAppearance.accent(for: themePreset))
+                    Image(systemName: "arrow.up.right").font(.system(size: 14, weight: .bold)).foregroundStyle(activeAccent)
                 }
                 .accessibilityLabel("Open address")
             }
@@ -224,7 +257,7 @@ struct ContentView: View {
                     browser.toggleBookmark(url: tab.address, title: tab.title)
                 } label: {
                     Image(systemName: browser.isBookmarked(tab.address) ? "star.fill" : "star")
-                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(activeAccent)
                 }
                 .accessibilityLabel(browser.isBookmarked(tab.address) ? "Remove bookmark" : "Add bookmark")
             }
@@ -233,7 +266,7 @@ struct ContentView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeAddressOpacity)))
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(Color.white.opacity(0.15)))
-        .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow * 0.12), radius: 16, y: 5)
+        .shadow(color: activeAccent.opacity(themeGlow * 0.12), radius: 16, y: 5)
     }
 
     private var spacesBar: some View {
@@ -286,8 +319,8 @@ struct ContentView: View {
                         .accessibilityLabel("Close tab")
                     }
                     .padding(.horizontal, 12).frame(height: 36)
-                    .background(tab.isPrivate ? GlassAppearance.accent(for: themePreset).opacity(0.20) : (browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.24) : Color.white.opacity(themePanelOpacity)), in: Capsule())
-                    .overlay(Capsule().stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.45) : GlassPalette.line))
+                    .background(tab.isPrivate ? GlassAppearance.privateAccent.opacity(0.20) : (browser.activeTabID == tab.id ? activeAccent.opacity(0.24) : Color.white.opacity(themePanelOpacity)), in: Capsule())
+                    .overlay(Capsule().stroke(tab.isPrivate ? GlassAppearance.privateAccent.opacity(browser.activeTabID == tab.id ? 0.78 : 0.38) : (browser.activeTabID == tab.id ? activeAccent.opacity(0.45) : GlassPalette.line)))
                     .contextMenu {
                         ForEach(browser.spaces.filter { $0.id != tab.spaceID }) { destination in
                             Button {
@@ -314,11 +347,11 @@ struct ContentView: View {
                     Spacer()
                     Image(systemName: "eye.slash.circle.fill")
                         .font(.system(size: 46, weight: .light))
-                        .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                        .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow), radius: 24)
+                        .foregroundStyle(GlassAppearance.privateAccent)
+                        .shadow(color: GlassAppearance.privateAccent.opacity(themeGlow), radius: 24)
                     Text("PRIVATE SPACE")
                         .font(.system(size: 23, weight: .bold, design: .rounded)).tracking(3)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(GlassAppearance.privateAccent)
                     Text("This session stays on this device and is not saved.")
                         .font(.system(size: 13)).foregroundStyle(GlassPalette.secondary)
                         .multilineTextAlignment(.center)
@@ -332,7 +365,7 @@ struct ContentView: View {
                             HStack(spacing: 9) {
                                 Image(systemName: "circle.hexagongrid.fill")
                                     .font(.system(size: 17, weight: .semibold))
-                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                    .foregroundStyle(activeAccent)
                                 Text("GLASS")
                                     .font(.system(size: 12, weight: .bold, design: .rounded))
                                     .tracking(3).foregroundStyle(.white.opacity(0.8))
@@ -354,7 +387,7 @@ of the web.")
                         .background(
                             LinearGradient(
                                 colors: [
-                                    GlassAppearance.accent(for: themePreset).opacity(0.23),
+                                    activeAccent.opacity(0.23),
                                     Color.white.opacity(0.035),
                                     Color.white.opacity(0.015)
                                 ],
@@ -392,7 +425,7 @@ of the web.")
                                                 Spacer(minLength: 0)
                                                 Image(systemName: browser.activeSpaceID == space.id ? "checkmark.circle.fill" : "arrow.up.right")
                                                     .font(.system(size: 11, weight: .semibold))
-                                                    .foregroundStyle(browser.activeSpaceID == space.id ? GlassAppearance.accent(for: themePreset) : GlassPalette.secondary)
+                                                    .foregroundStyle(browser.activeSpaceID == space.id ? activeAccent : GlassPalette.secondary)
                                             }
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(space.name).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
@@ -417,7 +450,7 @@ of the web.")
                                 Spacer()
                                 Button("History") { librarySection = 0; showLibrary = true }
                                     .font(.system(size: 11, weight: .semibold))
-                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                    .foregroundStyle(activeAccent)
                             }
                             if browser.history.isEmpty {
                                 HStack(spacing: 10) {
@@ -434,9 +467,9 @@ of the web.")
                                         Button { openLibraryURL(value) } label: {
                                             HStack(spacing: 11) {
                                                 Image(systemName: "globe")
-                                                    .font(.system(size: 14)).foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                                    .font(.system(size: 14)).foregroundStyle(activeAccent)
                                                     .frame(width: 30, height: 30)
-                                                    .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: Circle())
+                                                    .background(activeAccent.opacity(0.13), in: Circle())
                                                 VStack(alignment: .leading, spacing: 3) {
                                                     Text(URL(string: value)?.host ?? value)
                                                         .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
@@ -473,9 +506,9 @@ of the web.")
                                             HStack(spacing: 11) {
                                                 Image(systemName: "arrow.uturn.backward")
                                                     .font(.system(size: 13, weight: .semibold))
-                                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                                    .foregroundStyle(activeAccent)
                                                     .frame(width: 30, height: 30)
-                                                    .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: Circle())
+                                                    .background(activeAccent.opacity(0.13), in: Circle())
                                                 VStack(alignment: .leading, spacing: 3) {
                                                     Text(item.title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
                                                     Text(URL(string: item.url)?.host ?? item.url).font(.system(size: 10)).foregroundStyle(GlassPalette.secondary).lineLimit(1)
@@ -515,9 +548,9 @@ of the web.")
             HStack(spacing: 10) {
                 Image(systemName: symbol)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                    .foregroundStyle(activeAccent)
                     .frame(width: 34, height: 34)
-                    .background(GlassAppearance.accent(for: themePreset).opacity(0.14), in: RoundedRectangle(cornerRadius: 11))
+                    .background(activeAccent.opacity(0.14), in: RoundedRectangle(cornerRadius: 11))
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
                     Text(subtitle).font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
@@ -564,8 +597,8 @@ of the web.")
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(width: 38, height: 38)
-                    .background(GlassAppearance.accent(for: themePreset), in: Circle())
-                    .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow), radius: 12, y: 3)
+                    .background(activeAccent, in: Circle())
+                    .shadow(color: activeAccent.opacity(themeGlow), radius: 12, y: 3)
             }
             .accessibilityLabel("New tab")
         }
@@ -639,14 +672,14 @@ of the web.")
                             ForEach(browser.activeDownloads) { download in
                                 HStack(spacing: 10) {
                                     Image(systemName: download.failure == nil ? "arrow.down.circle.fill" : "exclamationmark.triangle.fill")
-                                        .foregroundStyle(download.failure == nil ? GlassAppearance.accent(for: themePreset) : .orange)
+                                        .foregroundStyle(download.failure == nil ? activeAccent : .orange)
                                         .frame(width: 28)
                                     VStack(alignment: .leading, spacing: 5) {
                                         Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
                                         if let failure = download.failure {
                                             Text(failure).font(.system(size: 10)).foregroundStyle(.orange).lineLimit(2)
                                         } else {
-                                            ProgressView(value: download.progress).tint(GlassAppearance.accent(for: themePreset))
+                                            ProgressView(value: download.progress).tint(activeAccent)
                                             Text("\(Int(download.progress * 100))%")
                                                 .font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(GlassPalette.secondary)
                                         }
@@ -654,7 +687,7 @@ of the web.")
                                     Spacer()
                                     if download.failure != nil {
                                         Button { browser.retryDownload(download) } label: {
-                                            Image(systemName: "arrow.clockwise").foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                            Image(systemName: "arrow.clockwise").foregroundStyle(activeAccent)
                                         }
                                         .accessibilityLabel("Retry download")
                                     } else {
@@ -673,7 +706,7 @@ of the web.")
                             }
                             ForEach(browser.downloads) { download in
                                 HStack(spacing: 10) {
-                                    Image(systemName: "doc.fill").foregroundStyle(GlassAppearance.accent(for: themePreset)).frame(width: 28)
+                                    Image(systemName: "doc.fill").foregroundStyle(activeAccent).frame(width: 28)
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
                                         Text(download.completedAt.formatted(date: .abbreviated, time: .shortened))
@@ -681,7 +714,7 @@ of the web.")
                                     }
                                     Spacer()
                                     ShareLink(item: download.fileURL) {
-                                        Image(systemName: "square.and.arrow.up").foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                        Image(systemName: "square.and.arrow.up").foregroundStyle(activeAccent)
                                     }
                                 }
                                 .listRowBackground(
@@ -713,7 +746,7 @@ of the web.")
                 ToolbarItem(placement: .topBarLeading) { Button("Done") { showLibrary = false } }
             }
         }
-        .tint(GlassAppearance.accent(for: themePreset))
+        .tint(activeAccent)
         .preferredColorScheme(.dark)
     }
 
@@ -722,7 +755,7 @@ of the web.")
             List {
                 Section {
                     HStack(spacing: 12) {
-                        Image(systemName: "eye.slash.circle.fill").font(.system(size: 24)).foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        Image(systemName: "eye.slash.circle.fill").font(.system(size: 24)).foregroundStyle(activeAccent)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Private tabs").foregroundStyle(.white)
                             Text("Use a separate temporary website store. Private tabs are not restored after closing GLASS.")
@@ -736,7 +769,7 @@ of the web.")
                                         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                                 )
                     HStack(spacing: 12) {
-                        Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(activeAccent)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Browsing history").foregroundStyle(.white)
                             Text("Regular tabs save visited addresses on this device. Private tabs do not.")
@@ -790,7 +823,7 @@ of the web.")
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { showPrivacy = false } }
             }
         }
-        .tint(GlassAppearance.accent(for: themePreset))
+        .tint(activeAccent)
         .preferredColorScheme(.dark)
     }
 
@@ -858,7 +891,7 @@ of the web.")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 13).padding(.vertical, 10)
-                                .background(GlassAppearance.accent(for: themePreset).opacity(0.88), in: Capsule())
+                                .background(activeAccent.opacity(0.88), in: Capsule())
                                 .overlay(Capsule().stroke(.white.opacity(0.18)))
                         }
                         .buttonStyle(.plain)
@@ -901,9 +934,9 @@ of the web.")
                                 HStack(spacing: 9) {
                                     Image(systemName: group.symbol)
                                         .font(.system(size: 13, weight: .semibold))
-                                        .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                        .foregroundStyle(activeAccent)
                                         .frame(width: 30, height: 30)
-                                        .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: RoundedRectangle(cornerRadius: 10))
+                                        .background(activeAccent.opacity(0.13), in: RoundedRectangle(cornerRadius: 10))
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(group.title)
                                             .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
@@ -977,7 +1010,7 @@ of the web.")
                 }
             }
         }
-        .tint(GlassAppearance.accent(for: themePreset))
+        .tint(activeAccent)
         .preferredColorScheme(.dark)
     }
 
@@ -995,14 +1028,14 @@ of the web.")
             HStack {
                 Image(systemName: tab.isPrivate ? "eye.slash.fill" : "globe")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                    .foregroundStyle(activeAccent)
                     .frame(width: 32, height: 32)
-                    .background(GlassAppearance.accent(for: themePreset).opacity(0.14), in: RoundedRectangle(cornerRadius: 10))
+                    .background(activeAccent.opacity(0.14), in: RoundedRectangle(cornerRadius: 10))
                 Spacer()
                 if browser.activeTabID == tab.id {
                     Text("ACTIVE")
                         .font(.system(size: 8, weight: .bold)).tracking(1)
-                        .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        .foregroundStyle(activeAccent)
                 }
                 Button { browser.close(tab) } label: {
                     Image(systemName: "xmark")
@@ -1022,7 +1055,7 @@ of the web.")
                 if !tab.groupDetail.isEmpty {
                     Text(tabContext(tab))
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(GlassAppearance.accent(for: themePreset).opacity(0.92))
+                        .foregroundStyle(activeAccent.opacity(0.92))
                         .lineLimit(1)
                 }
                 Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
@@ -1034,7 +1067,7 @@ of the web.")
         .frame(minHeight: 116, alignment: .topLeading)
         .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
-        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.62) : .white.opacity(0.11), lineWidth: browser.activeTabID == tab.id ? 1.4 : 1))
+        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(browser.activeTabID == tab.id ? activeAccent.opacity(0.62) : .white.opacity(0.11), lineWidth: browser.activeTabID == tab.id ? 1.4 : 1))
         .contentShape(RoundedRectangle(cornerRadius: themeCornerRadius))
         .animation(.spring(response: 0.32, dampingFraction: 0.82), value: browser.activeTabID)
         .onTapGesture {
@@ -1052,7 +1085,7 @@ of the web.")
                     Button(action: addSpace) {
                         Image(systemName: "plus").font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.white).frame(width: 38, height: 38)
-                            .background(GlassAppearance.accent(for: themePreset), in: Circle())
+                            .background(activeAccent, in: Circle())
                     }
                     .disabled(newSpaceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
@@ -1064,7 +1097,7 @@ of the web.")
                             Text(space.name).foregroundStyle(.white)
                             Spacer()
                             if browser.activeSpaceID == space.id {
-                                Image(systemName: "checkmark.circle.fill").foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(activeAccent)
                             }
                         }
                         .contentShape(Rectangle())
@@ -1095,7 +1128,7 @@ of the web.")
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { showSpaces = false } }
             }
         }
-        .tint(GlassAppearance.accent(for: themePreset))
+        .tint(activeAccent)
     }
 
     private func addSpace() {
@@ -1107,7 +1140,7 @@ of the web.")
     private func libraryRow(title: String, subtitle: String, symbol: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: symbol).foregroundStyle(GlassAppearance.accent(for: themePreset)).frame(width: 28)
+                Image(systemName: symbol).foregroundStyle(activeAccent).frame(width: 28)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title).font(.system(size: 14, weight: .medium)).foregroundStyle(.white).lineLimit(1)
                     Text(subtitle).font(.system(size: 11)).foregroundStyle(GlassPalette.secondary).lineLimit(1)
@@ -1143,7 +1176,7 @@ of the web.")
         case "blue": return Color(red: 0.30, green: 0.62, blue: 1.0)
         case "green": return Color(red: 0.28, green: 0.82, blue: 0.58)
         case "orange": return Color(red: 1.0, green: 0.62, blue: 0.30)
-        default: return GlassAppearance.accent(for: themePreset)
+        default: return activeAccent
         }
     }
 
