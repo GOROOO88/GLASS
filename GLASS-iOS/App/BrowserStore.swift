@@ -398,6 +398,23 @@ final class BrowserStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: historyKey)
     }
 
+    func encryptedSyncSnapshot() throws -> String {
+        let snapshot = GlassSyncSnapshot(
+            schemaVersion: 1,
+            createdAt: Date(),
+            bookmarks: bookmarks,
+            history: history,
+            spaces: spaces,
+            tabs: regularTabs.map {
+                GlassSyncTab(id: $0.id, spaceID: $0.spaceID, address: $0.address)
+            },
+            activeTabID: activeTab?.isPrivate == false ? activeTabID : nil,
+            activeSpaceID: activeSpaceID,
+            settings: settings
+        )
+        return try GlassSyncVault.seal(snapshot)
+    }
+
     func clearWebsiteData(completion: @escaping () -> Void) {
         let store = WKWebsiteDataStore.default()
         let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
