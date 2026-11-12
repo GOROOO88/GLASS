@@ -57,6 +57,8 @@ private struct SavedBrowserTab: Codable {
     let id: UUID
     let spaceID: String
     let address: String
+    let groupKind: String?
+    let groupDetail: String?
 }
 
 private struct SavedBrowserSession: Codable {
@@ -130,6 +132,8 @@ final class BrowserStore: ObservableObject {
                 if let url = URL(string: saved.address), ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
                     tab.load(url)
                 }
+                tab.groupKind = saved.groupKind ?? (saved.address.isEmpty ? "new" : "direct")
+                tab.groupDetail = saved.groupDetail ?? ""
             }
             let safeActiveSpaceID = spaces.contains(where: { $0.id == restoredActiveSpaceID }) ? restoredActiveSpaceID : "personal"
             activeSpaceID = safeActiveSpaceID
@@ -525,7 +529,7 @@ final class BrowserStore: ObservableObject {
 
     private func saveSession() {
         let savedTabs = tabs.filter { !$0.isPrivate }.map {
-            SavedBrowserTab(id: $0.id, spaceID: $0.spaceID, address: $0.address)
+            SavedBrowserTab(id: $0.id, spaceID: $0.spaceID, address: $0.address, groupKind: $0.groupKind, groupDetail: $0.groupDetail)
         }
         let safeActiveTabID = activeTab?.isPrivate == false ? activeTabID : tabs.last(where: { !$0.isPrivate && $0.spaceID == activeSpaceID })?.id
         let session = SavedBrowserSession(tabs: savedTabs, activeTabID: safeActiveTabID, activeSpaceID: activeSpaceID)
