@@ -629,7 +629,7 @@ struct ContentView: View {
                                         Image(systemName: "square.and.arrow.up").foregroundStyle(GlassAppearance.accent(for: themePreset))
                                     }
                                 }
-                                .listRowBackground(Color.white.opacity(themePanelOpacity))
+                                .listRowBackground(.ultraThinMaterial)
                                 .swipeActions {
                                     Button(role: .destructive) { browser.removeDownload(download) } label: {
                                         Label("Delete", systemImage: "trash")
@@ -669,7 +669,7 @@ struct ContentView: View {
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
-                    .listRowBackground(Color.white.opacity(themePanelOpacity))
+                    .listRowBackground(.ultraThinMaterial)
                     HStack(spacing: 12) {
                         Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(GlassAppearance.accent(for: themePreset))
                         VStack(alignment: .leading, spacing: 4) {
@@ -678,7 +678,7 @@ struct ContentView: View {
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
-                    .listRowBackground(Color.white.opacity(themePanelOpacity))
+                    .listRowBackground(.ultraThinMaterial)
                 } header: {
                     Text("On-device privacy")
                 }
@@ -688,14 +688,14 @@ struct ContentView: View {
                     } label: {
                         Label("Clear cookies, cache and site data", systemImage: "trash")
                     }
-                    .listRowBackground(Color.white.opacity(themePanelOpacity))
+                    .listRowBackground(.ultraThinMaterial)
                     Button(role: .destructive) {
                         browser.clearHistory()
                         privacyActionMessage = "Browsing history was cleared."
                     } label: {
                         Label("Clear browsing history", systemImage: "clock")
                     }
-                    .listRowBackground(Color.white.opacity(themePanelOpacity))
+                    .listRowBackground(.ultraThinMaterial)
                 } header: {
                     Text("Clear data")
                 } footer: {
@@ -918,7 +918,7 @@ struct ContentView: View {
                             browser.selectSpace(space)
                             showSpaces = false
                         }
-                        .listRowBackground(Color.white.opacity(themePanelOpacity))
+                        .listRowBackground(.ultraThinMaterial)
                         .swipeActions {
                             if space.id != "personal" {
                                 Button(role: .destructive) { browser.removeSpace(space) } label: {
@@ -956,7 +956,7 @@ struct ContentView: View {
             }
             .padding(.vertical, 4)
         }
-        .listRowBackground(Color.white.opacity(themePanelOpacity))
+        .listRowBackground(.ultraThinMaterial)
     }
 
     private func openLibraryURL(_ value: String) {
