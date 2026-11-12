@@ -348,3 +348,119 @@ body.reference-home:before{opacity:.08}
  .reference-dock .nav-button{width:29px;height:46px}
 }
 @media(prefers-reduced-motion:reduce){.reference-home *{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* GLASS — reference composition pass */
+html,body{min-height:100%;background:#030108}
+body.reference-home{
+ min-height:100svh;height:100svh;padding:12px;display:flex;align-items:center;justify-content:center;
+ overflow:hidden;background:#030108;letter-spacing:0
+}
+body.reference-home:before{display:none}
+.phone-frame{
+ position:relative;isolation:isolate;transform:translateZ(0);width:min(393px,100%);
+ height:min(852px,calc(100svh - 24px));max-height:95svh;flex:0 0 auto;
+ overflow:hidden;border-radius:48px;background:#04010a;
+ border:1.5px solid rgba(255,255,255,.16);
+ box-shadow:0 0 0 8px #0a0712,0 30px 90px rgba(0,0,0,.9),0 0 70px rgba(var(--accent-rgb),.25);
+}
+.phone-frame .liquid-scene{position:absolute;inset:0;z-index:0;background:
+ radial-gradient(ellipse at 65% 25%,rgba(91,33,182,.42),transparent 38%),
+ radial-gradient(ellipse at 20% 72%,rgba(46,16,101,.5),transparent 42%),#04010a}
+.phone-frame .liquid-halo{filter:blur(80px);opacity:.32}
+.phone-frame .liquid-ribbons{opacity:.8;transform:scale(1.12)}
+.phone-frame .reference-shell{
+ position:absolute;inset:0;width:100%;height:100%;margin:0;padding:76px 16px 112px;
+ overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:0;
+}
+.phone-frame .reference-shell::-webkit-scrollbar{display:none}
+.phone-frame .reference-topbar{
+ position:absolute;top:0;left:0;right:0;height:66px;padding:16px 16px 10px;z-index:12;
+ background:linear-gradient(to bottom,rgba(4,1,10,.72),transparent)
+}
+.phone-frame .reference-topbar .space-switch{
+ height:38px;padding:0 13px;gap:8px;border-radius:999px;
+ background:linear-gradient(180deg,rgba(46,30,82,.38),rgba(14,9,28,.52));
+ border:1px solid rgba(255,255,255,.18);box-shadow:0 10px 28px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.3)
+}
+.phone-frame .reference-topbar .icon-button{
+ width:38px;height:38px;border-radius:50%;background:rgba(24,15,43,.55);
+ border:1px solid rgba(255,255,255,.19);box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.3)
+}
+.phone-frame .reference-hero{padding:20px 0 19px;text-align:left}
+.phone-frame .brand-lockup h1{
+ font-size:34px;font-weight:300;letter-spacing:.27em;padding:0;margin:0 0 5px 2px;
+ background:linear-gradient(180deg,#fff 8%,#d7cce9 100%);background-clip:text;-webkit-background-clip:text;color:transparent
+}
+.phone-frame .brand-lockup .tagline{margin:0 0 21px 3px;font-size:12px;letter-spacing:.025em;text-transform:none;color:rgba(255,255,255,.58)}
+.phone-frame .reference-search{
+ width:100%;height:51px;padding:0 13px 0 16px;gap:9px;border-radius:999px;
+ background:linear-gradient(180deg,rgba(46,30,82,.42),rgba(14,9,28,.58));
+ border:1px solid rgba(255,255,255,.24);
+ box-shadow:0 12px 28px rgba(0,0,0,.55),inset 0 1px .5px rgba(255,255,255,.45),inset 0 0 20px rgba(var(--accent-rgb),.2),0 0 26px rgba(var(--accent-rgb),.25)
+}
+.phone-frame .reference-search input{font-size:11px}
+.phone-frame .reference-search .search-icon{font-size:19px}
+.phone-frame .reference-search button{font-size:15px;padding:5px}
+.phone-frame .reference-search .search-submit{width:28px;height:28px;border-radius:50%;background:transparent;border:0;box-shadow:none;color:#c8aaff}
+.phone-frame .reference-shortcuts{margin:19px 0 0;gap:0;justify-content:space-between}
+.phone-frame .reference-shortcuts .quick-link{min-width:0;gap:6px;padding:2px 0 4px;font-size:9px;color:rgba(255,255,255,.8)}
+.phone-frame .reference-shortcuts .quick-icon{
+ width:48px;height:48px;border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.035));
+ border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px rgba(255,255,255,.2),0 9px 22px rgba(0,0,0,.22)
+}
+.phone-frame .reference-tabs{
+ margin:13px 0 0;padding:13px;border-radius:19px;
+ background:linear-gradient(165deg,rgba(34,22,62,.28),rgba(12,8,24,.48));
+ border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(24px) saturate(180%);
+ box-shadow:0 10px 28px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.25),inset 0 0 18px rgba(var(--accent-rgb),.14)
+}
+.phone-frame .reference-tabs .section-heading{margin-bottom:10px}
+.phone-frame .reference-tabs .section-heading h2{font-size:14px;font-weight:600}
+.phone-frame .reference-tabs .eyebrow{display:none}
+.phone-frame .reference-tabs .text-button{font-size:10px}
+.phone-frame .reference-tabs .home-tab-groups{display:grid;grid-template-columns:1fr;gap:8px}
+.phone-frame .reference-tabs .space-card{
+ min-height:88px;padding:10px 12px 9px 15px;border-radius:14px;display:grid;
+ grid-template-columns:1fr auto;grid-template-rows:auto auto 1fr;align-items:center;
+ background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+ border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px rgba(255,255,255,.1),0 9px 20px rgba(0,0,0,.18)
+}
+.phone-frame .reference-tabs .card-top{grid-column:1/-1;margin:0 0 2px}
+.phone-frame .reference-tabs .card-icon{width:24px;height:24px;border-radius:8px;font-size:12px}
+.phone-frame .reference-tabs .card-arrow{font-size:12px}
+.phone-frame .reference-tabs .space-card strong{grid-column:1;font-size:12px;align-self:end}
+.phone-frame .reference-tabs .card-meta{grid-column:1;font-size:8px;margin-top:2px}
+.phone-frame .reference-tabs .mini-tabs{grid-column:2;grid-row:2/4;align-self:center;margin:0;padding:0 9px 0 0}
+.phone-frame .reference-tabs .mini-tabs i{width:16px;height:3px}
+.phone-frame .reference-tabs .card-count{right:12px;bottom:8px;font-size:8px}
+.phone-frame .reference-tabs .card-orb{width:75px;height:75px;right:-38px;top:10px;filter:blur(24px);opacity:.3}
+.phone-frame .reference-recent{margin-top:15px}
+.phone-frame .reference-recent .section-heading{margin-bottom:8px}
+.phone-frame .reference-recent .section-heading h2{font-size:13px}
+.phone-frame .reference-recent .eyebrow{display:none}
+.phone-frame .reference-recent .empty-state{min-height:45px;font-size:9px;border-radius:13px}
+.phone-frame .reference-dock{
+ position:absolute;left:0;right:0;bottom:0;z-index:20;transform:none;max-width:none;
+ padding:16px 15px 19px;gap:8px;background:linear-gradient(to top,rgba(4,1,10,.8),rgba(4,1,10,.25) 65%,transparent)
+}
+.phone-frame .reference-dock .dock-group{
+ flex:1;min-width:0;height:47px;padding:3px;border-radius:999px;
+ background:linear-gradient(180deg,rgba(46,30,82,.4),rgba(14,9,28,.6));
+ border:1px solid rgba(255,255,255,.2);box-shadow:0 12px 28px rgba(0,0,0,.55),inset 0 1px .5px rgba(255,255,255,.4)
+}
+.phone-frame .reference-dock .dock-button{width:50%;height:39px;gap:0}
+.phone-frame .reference-dock .dock-button span{font-size:16px}
+.phone-frame .reference-dock .dock-button small{display:none}
+.phone-frame .reference-dock .ask-button{
+ flex:1;height:47px;justify-content:center;padding:0 12px;border-radius:999px;
+ background:linear-gradient(180deg,rgba(46,30,82,.48),rgba(14,9,28,.62));
+ border:1px solid rgba(var(--accent-rgb),.55);box-shadow:0 0 26px rgba(var(--accent-rgb),.28),0 10px 26px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.5)
+}
+.phone-frame .reference-dock .nav-button{width:50%;height:39px;font-size:20px}
+.phone-frame .app-dialog{z-index:40;inset:auto 12px 78px;width:auto;max-width:none;max-height:76%;border-radius:22px}
+@media(max-width:430px){
+ body.reference-home{padding:0}
+ .phone-frame{width:100%;height:100svh;max-height:100svh;border-radius:0;border:0;box-shadow:none}
+}
+@media(min-width:431px){.phone-frame{height:min(852px,calc(100svh - 36px))}}
