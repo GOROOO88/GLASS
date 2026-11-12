@@ -21,7 +21,8 @@ struct BrowserSettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(red: 0.055, green: 0.05, blue: 0.085).ignoresSafeArea()
+                Color(red: 0.035, green: 0.035, blue: 0.065).ignoresSafeArea()
+                RadialGradient(colors: [GlassAppearance.accent(for: themePreset).opacity(0.20), .clear], center: .top, startRadius: 8, endRadius: 480).ignoresSafeArea()
                 List {
                     Section {
                         VStack(alignment: .leading, spacing: 17) {
@@ -160,7 +161,7 @@ struct BrowserSettingsView: View {
                                 appearanceSlider("Motion intensity", value: $themeMotion, range: 0...1)
                             }
                             .padding(14)
-                            .background(Color.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 17, style: .continuous))\n                            .overlay(RoundedRectangle(cornerRadius: 17).fill(Color.white.opacity(themeCardOpacity)))
                             .overlay(RoundedRectangle(cornerRadius: 17).stroke(.white.opacity(0.09)))
 
                             RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous)
@@ -221,7 +222,7 @@ struct BrowserSettingsView: View {
                                 Text(engine.title).tag(engine)
                             }
                         }
-                        .listRowBackground(Color.white.opacity(0.075))
+                        .listRowBackground(.ultraThinMaterial)
                     } header: {
                         Text("Search")
                     } footer: {
@@ -337,8 +338,7 @@ struct BrowserSettingsView: View {
                         Text("Sync")
                     }
                 }
-                .scrollContentBackground(.hidden)
-                .foregroundStyle(.white)
+                .listStyle(.insetGrouped)\n                .scrollContentBackground(.hidden)\n                .foregroundStyle(.white)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
