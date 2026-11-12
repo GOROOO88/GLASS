@@ -85,19 +85,26 @@ struct ContentView: View {
                     .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Library")
-            Button {} label: {
-                Image(systemName: "sparkle").font(.system(size: 17, weight: .semibold))
+            Button {
+                librarySection = 2
+                showLibrary = true
+            } label: {
+                Image(systemName: "arrow.down.circle").font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(.white).frame(width: 42, height: 42)
                     .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
-            .accessibilityLabel("AI assistant")
+            .accessibilityLabel("Downloads")
         }
     }
 
     private var addressBar: some View {
         HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass").foregroundStyle(GlassPalette.secondary)
-            TextField("Search or enter address", text: $addressText)
+            if browser.activeTab?.isPrivate == true {
+                Image(systemName: "eye.slash.fill").foregroundStyle(GlassPalette.accent)
+            } else {
+                Image(systemName: "magnifyingglass").foregroundStyle(GlassPalette.secondary)
+            }
+            TextField(browser.activeTab?.isPrivate == true ? "Private browsing" : "Search or enter address", text: $addressText)
                 .font(.system(size: 15)).textInputAutocapitalization(.never)
                 .autocorrectionDisabled().keyboardType(.URL).submitLabel(.go).onSubmit(openAddress)
             if let tab = browser.activeTab, tab.isLoading {
@@ -108,7 +115,7 @@ struct ContentView: View {
                 }
                 .accessibilityLabel("Open address")
             }
-            if let tab = browser.activeTab, !tab.address.isEmpty {
+            if let tab = browser.activeTab, !tab.isPrivate, !tab.address.isEmpty {
                 Button {
                     browser.toggleBookmark(url: tab.address, title: tab.title)
                 } label: {
@@ -159,8 +166,13 @@ struct ContentView: View {
                 ForEach(browser.visibleTabs) { tab in
                     HStack(spacing: 7) {
                         Button { browser.select(tab) } label: {
-                            Text(tab.title).font(.system(size: 12, weight: .medium)).lineLimit(1)
-                                .foregroundStyle(browser.activeTabID == tab.id ? .white : GlassPalette.secondary)
+                            HStack(spacing: 5) {
+                                if tab.isPrivate {
+                                    Image(systemName: "eye.slash.fill").font(.system(size: 9))
+                                }
+                                Text(tab.title).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                            }
+                            .foregroundStyle(browser.activeTabID == tab.id ? .white : GlassPalette.secondary)
                         }
                         Button { browser.close(tab) } label: {
                             Image(systemName: "xmark").font(.system(size: 9, weight: .bold)).foregroundStyle(GlassPalette.secondary)
@@ -168,7 +180,7 @@ struct ContentView: View {
                         .accessibilityLabel("Close tab")
                     }
                     .padding(.horizontal, 12).frame(height: 36)
-                    .background(browser.activeTabID == tab.id ? GlassPalette.accent.opacity(0.24) : GlassPalette.panel, in: Capsule())
+                    .background(tab.isPrivate ? GlassPalette.accent.opacity(0.20) : (browser.activeTabID == tab.id ? GlassPalette.accent.opacity(0.24) : GlassPalette.panel), in: Capsule())
                     .overlay(Capsule().stroke(browser.activeTabID == tab.id ? GlassPalette.accent.opacity(0.45) : GlassPalette.line))
                     .contextMenu {
                         ForEach(browser.spaces.filter { $0.id != tab.spaceID }) { destination in
@@ -192,10 +204,13 @@ struct ContentView: View {
     private var startPage: some View {
         VStack(spacing: 14) {
             Spacer()
-            Image(systemName: "circle.hexagongrid.fill").font(.system(size: 42, weight: .light))
-                .foregroundStyle(GlassPalette.accent).shadow(color: GlassPalette.accent.opacity(0.55), radius: 24)
-            Text("GLASS").font(.system(size: 31, weight: .bold, design: .rounded)).tracking(7).foregroundStyle(.white)
-            Text(browser.activeSpace.name).font(.system(size: 14)).foregroundStyle(GlassPalette.secondary)
+            Image(systemName: browser.activeTab?.isPrivate == true ? "eye.slash.circle.fill" : "circle.hexagongrid.fill")
+                .font(.system(size: 42, weight: .light)).foregroundStyle(GlassPalette.accent)
+                .shadow(color: GlassPalette.accent.opacity(0.55), radius: 24)
+            Text(browser.activeTab?.isPrivate == true ? "PRIVATE TAB" : "GLASS")
+                .font(.system(size: 27, weight: .bold, design: .rounded)).tracking(5).foregroundStyle(.white)
+            Text(browser.activeTab?.isPrivate == true ? "Your private session is not saved." : browser.activeSpace.name)
+                .font(.system(size: 14)).foregroundStyle(GlassPalette.secondary)
             Button {
                 addressText = "https://www.google.com"
                 openAddress()
@@ -221,11 +236,15 @@ struct ContentView: View {
             Spacer()
             navigationButton("arrow.clockwise", enabled: browser.activeTab?.address.isEmpty == false) { browser.activeTab?.reload() }
             Spacer()
+            navigationButton(browser.activeTab?.isPrivate == true ? "eye.slash.fill" : "eye.slash", enabled: true) {
+                browser.addPrivateTab()
+            }
+            Spacer()
             navigationButton("square.on.square", enabled: true) { browser.addTab() }
             Text("\(browser.tabs.count)").font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundStyle(GlassPalette.secondary).padding(.leading, 4)
         }
-        .padding(.horizontal, 14).frame(height: 48)
+        .padding(.horizontal, 10).frame(height: 48)
         .background(GlassPalette.panel, in: Capsule()).overlay(Capsule().stroke(GlassPalette.line))
     }
 
@@ -235,6 +254,7 @@ struct ContentView: View {
                 Picker("Library", selection: $librarySection) {
                     Text("History").tag(0)
                     Text("Bookmarks").tag(1)
+                    Text("Downloads").tag(2)
                 }
                 .pickerStyle(.segmented).padding(.horizontal)
                 if librarySection == 0 {
@@ -247,7 +267,7 @@ struct ContentView: View {
                             }
                         }.listStyle(.plain)
                     }
-                } else {
+                } else if librarySection == 1 {
                     if browser.bookmarks.isEmpty {
                         ContentUnavailableView("No bookmarks yet", systemImage: "star", description: Text("Save a page with the star in the address bar."))
                     } else {
@@ -262,13 +282,44 @@ struct ContentView: View {
                             }
                         }.listStyle(.plain)
                     }
+                } else {
+                    if browser.downloads.isEmpty {
+                        ContentUnavailableView("No downloads yet", systemImage: "arrow.down.circle", description: Text("Files you download from websites will appear here."))
+                    } else {
+                        List {
+                            ForEach(browser.downloads) { download in
+                                HStack(spacing: 10) {
+                                    Image(systemName: "doc.fill").foregroundStyle(GlassPalette.accent).frame(width: 28)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
+                                        Text(download.completedAt.formatted(date: .abbreviated, time: .shortened))
+                                            .font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
+                                    }
+                                    Spacer()
+                                    ShareLink(item: download.fileURL) {
+                                        Image(systemName: "square.and.arrow.up").foregroundStyle(GlassPalette.accent)
+                                    }
+                                }
+                                .listRowBackground(GlassPalette.panel)
+                                .swipeActions {
+                                    Button(role: .destructive) { browser.removeDownload(download) } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                            }
+                        }.listStyle(.plain)
+                    }
                 }
             }
             .padding(.top, 12).background(GlassPalette.background)
             .navigationTitle("Library").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    if librarySection == 0 && !browser.history.isEmpty { Button("Clear") { browser.clearHistory() } }
+                    if librarySection == 0 && !browser.history.isEmpty {
+                        Button("Clear") { browser.clearHistory() }
+                    } else if librarySection == 2 && !browser.downloads.isEmpty {
+                        Button("Clear") { browser.clearDownloads() }
+                    }
                 }
                 ToolbarItem(placement: .topBarLeading) { Button("Done") { showLibrary = false } }
             }
@@ -281,9 +332,7 @@ struct ContentView: View {
             VStack(spacing: 14) {
                 HStack(spacing: 10) {
                     TextField("New space name", text: $newSpaceName)
-                        .textFieldStyle(.roundedBorder)
-                        .submitLabel(.done)
-                        .onSubmit(addSpace)
+                        .textFieldStyle(.roundedBorder).submitLabel(.done).onSubmit(addSpace)
                     Button(action: addSpace) {
                         Image(systemName: "plus").font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.white).frame(width: 38, height: 38)
@@ -358,7 +407,7 @@ struct ContentView: View {
     private func navigationButton(_ symbol: String, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol).font(.system(size: 16, weight: .medium))
-                .foregroundStyle(enabled ? .white : GlassPalette.secondary.opacity(0.3)).frame(width: 38, height: 38)
+                .foregroundStyle(enabled ? .white : GlassPalette.secondary.opacity(0.3)).frame(width: 34, height: 38)
         }
         .disabled(!enabled)
     }
