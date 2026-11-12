@@ -241,7 +241,7 @@ final class BrowserStore: ObservableObject {
                 self?.recordVisit(url, title: title)
             }
             tab.onDownloadStarted = { [weak self, weak tab] id, filename, sourceURL in
-                guard let self else { return }
+                guard let self, let tab else { return }
                 self.downloadOwners[id] = tab
                 self.activeDownloads.insert(ActiveBrowserDownload(id: id, filename: filename, sourceURL: sourceURL?.absoluteString, progress: 0, failure: nil), at: 0)
             }
