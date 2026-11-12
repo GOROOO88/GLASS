@@ -13,6 +13,25 @@ struct BrowserBookmark: Codable, Identifiable, Equatable {
     let url: String
 }
 
+struct RecentlyClosedTab: Codable, Identifiable, Equatable {
+    let id: UUID
+    let title: String
+    let url: String
+    let spaceID: String
+    let groupKind: String
+    let groupDetail: String
+    let closedAt: Date
+
+    init(tab: BrowserTab) {
+        id = UUID()
+        title = tab.title.isEmpty ? (URL(string: tab.address)?.host ?? "Closed tab") : tab.title
+        url = tab.address
+        spaceID = tab.spaceID
+        groupKind = tab.groupKind
+        groupDetail = tab.groupDetail
+        closedAt = Date()
+    }
+}
 struct BrowserDownload: Codable, Identifiable, Equatable {
     let id: UUID
     let filename: String
@@ -72,6 +91,7 @@ final class BrowserStore: ObservableObject {
     @Published private(set) var tabs: [BrowserTab] = []
     @Published var activeTabID: UUID?
     @Published private(set) var history: [String] = []
+    @Published private(set) var recentlyClosed: [RecentlyClosedTab] = []
     @Published private(set) var bookmarks: [BrowserBookmark] = []
     @Published private(set) var downloads: [BrowserDownload] = []
     @Published private(set) var activeDownloads: [ActiveBrowserDownload] = []
@@ -82,6 +102,7 @@ final class BrowserStore: ObservableObject {
     @Published private(set) var settings = GlassBrowserSettings()
 
     private let historyKey = "glass.ios.history.v1"
+    private let recentlyClosedKey = "glass.ios.recentlyClosed.v1"
     private let bookmarksKey = "glass.ios.bookmarks.v1"
     private let downloadsKey = "glass.ios.downloads.v1"
     private let spacesKey = "glass.ios.spaces.v1"
@@ -95,6 +116,10 @@ final class BrowserStore: ObservableObject {
             settings = savedSettings
         }
         history = defaults.stringArray(forKey: historyKey) ?? []
+        if let data = defaults.data(forKey: recentlyClosedKey),
+           let saved = try? JSONDecoder().decode([RecentlyClosedTab].self, from: data) {
+            recentlyClosed = saved
+        }
         if let data = defaults.data(forKey: bookmarksKey),
            let saved = try? JSONDecoder().decode([BrowserBookmark].self, from: data) {
             bookmarks = saved
