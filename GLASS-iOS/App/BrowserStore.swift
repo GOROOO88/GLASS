@@ -7,6 +7,24 @@ struct BrowserBookmark: Codable, Identifiable, Equatable {
     let url: String
 }
 
+struct BrowserDownload: Codable, Identifiable, Equatable {
+    let id: UUID
+    let filename: String
+    let localPath: String
+    let sourceURL: String?
+    let completedAt: Date
+
+    init(filename: String, localURL: URL, sourceURL: URL?) {
+        id = UUID()
+        self.filename = filename
+        localPath = localURL.path
+        self.sourceURL = sourceURL?.absoluteString
+        completedAt = Date()
+    }
+
+    var fileURL: URL { URL(fileURLWithPath: localPath) }
+}
+
 struct BrowserSpace: Codable, Identifiable, Equatable {
     let id: String
     var name: String
@@ -33,11 +51,13 @@ final class BrowserStore: ObservableObject {
     @Published var activeTabID: UUID?
     @Published private(set) var history: [String] = []
     @Published private(set) var bookmarks: [BrowserBookmark] = []
+    @Published private(set) var downloads: [BrowserDownload] = []
     @Published private(set) var spaces: [BrowserSpace] = []
     @Published var activeSpaceID = "personal"
 
     private let historyKey = "glass.ios.history.v1"
     private let bookmarksKey = "glass.ios.bookmarks.v1"
+    private let downloadsKey = "glass.ios.downloads.v1"
     private let spacesKey = "glass.ios.spaces.v1"
     private let sessionKey = "glass.ios.session.v1"
 
@@ -47,6 +67,10 @@ final class BrowserStore: ObservableObject {
         if let data = defaults.data(forKey: bookmarksKey),
            let saved = try? JSONDecoder().decode([BrowserBookmark].self, from: data) {
             bookmarks = saved
+        }
+        if let data = defaults.data(forKey: downloadsKey),
+           let saved = try? JSONDecoder().decode([BrowserDownload].self, from: data) {
+            downloads = saved.filter { FileManager.default.fileExists(atPath: $0.localPath) }
         }
         if let data = defaults.data(forKey: spacesKey),
            let saved = try? JSONDecoder().decode([BrowserSpace].self, from: data), !saved.isEmpty {
@@ -74,6 +98,7 @@ final class BrowserStore: ObservableObject {
             activeSpaceID = activeTab?.spaceID ?? "personal"
         }
         saveSpaces()
+        saveDownloads()
         saveSession()
     }
 
@@ -89,18 +114,30 @@ final class BrowserStore: ObservableObject {
         tabs.filter { $0.spaceID == activeSpaceID }
     }
 
-    func addTab(spaceID: String? = nil) {
+    var regularTabs: [BrowserTab] {
+        tabs.filter { !$0.isPrivate }
+    }
+
+    var privateTabs: [BrowserTab] {
+        tabs.filter { $0.isPrivate }
+    }
+
+    func addTab(spaceID: String? = nil, isPrivate: Bool = false) {
         let destination = spaceID ?? activeSpaceID
-        let tab = makeTab(spaceID: destination)
+        let tab = makeTab(spaceID: destination, isPrivate: isPrivate)
         tabs.append(tab)
         activeSpaceID = destination
         activeTabID = tab.id
         saveSession()
     }
 
+    func addPrivateTab() {
+        addTab(spaceID: activeSpaceID, isPrivate: true)
+    }
+
     func selectSpace(_ space: BrowserSpace) {
         activeSpaceID = space.id
-        if let existing = tabs.last(where: { $0.spaceID == space.id }) {
+        if let existing = tabs.last(where: { $0.spaceID == space.id && !$0.isPrivate }) {
             activeTabID = existing.id
         } else {
             addTab(spaceID: space.id)
@@ -126,7 +163,7 @@ final class BrowserStore: ObservableObject {
         spaces.removeAll(where: { $0.id == space.id })
         if activeSpaceID == space.id {
             activeSpaceID = "personal"
-            if let tab = tabs.last(where: { $0.spaceID == "personal" }) {
+            if let tab = tabs.last(where: { $0.spaceID == "personal" && !$0.isPrivate }) {
                 activeTabID = tab.id
             } else {
                 addTab(spaceID: "personal")
@@ -164,10 +201,15 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
-    private func makeTab(id: UUID = UUID(), spaceID: String) -> BrowserTab {
-        let tab = BrowserTab(id: id, spaceID: spaceID)
-        tab.onVisit = { [weak self] url, title in
-            self?.recordVisit(url, title: title)
+    private func makeTab(id: UUID = UUID(), spaceID: String, isPrivate: Bool = false) -> BrowserTab {
+        let tab = BrowserTab(id: id, spaceID: spaceID, isPrivate: isPrivate)
+        if !isPrivate {
+            tab.onVisit = { [weak self] url, title in
+                self?.recordVisit(url, title: title)
+            }
+            tab.onDownload = { [weak self] fileURL, filename, sourceURL in
+                self?.recordDownload(fileURL: fileURL, filename: filename, sourceURL: sourceURL)
+            }
         }
         return tab
     }
@@ -187,6 +229,26 @@ final class BrowserStore: ObservableObject {
             saveBookmarks()
         }
         saveSession()
+    }
+
+    func recordDownload(fileURL: URL, filename: String, sourceURL: URL?) {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+        downloads.insert(BrowserDownload(filename: filename, localURL: fileURL, sourceURL: sourceURL), at: 0)
+        saveDownloads()
+    }
+
+    func removeDownload(_ download: BrowserDownload) {
+        try? FileManager.default.removeItem(at: download.fileURL)
+        downloads.removeAll(where: { $0.id == download.id })
+        saveDownloads()
+    }
+
+    func clearDownloads() {
+        for download in downloads {
+            try? FileManager.default.removeItem(at: download.fileURL)
+        }
+        downloads.removeAll()
+        saveDownloads()
     }
 
     func isBookmarked(_ url: String) -> Bool {
@@ -218,13 +280,20 @@ final class BrowserStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: bookmarksKey)
     }
 
+    private func saveDownloads() {
+        guard let data = try? JSONEncoder().encode(downloads) else { return }
+        UserDefaults.standard.set(data, forKey: downloadsKey)
+    }
+
     private func saveSpaces() {
         guard let data = try? JSONEncoder().encode(spaces) else { return }
         UserDefaults.standard.set(data, forKey: spacesKey)
     }
 
     private func saveSession() {
-        let saved = tabs.map { SavedBrowserTab(id: $0.id, spaceID: $0.spaceID, address: $0.address) }
+        let saved = tabs.filter { !$0.isPrivate }.map {
+            SavedBrowserTab(id: $0.id, spaceID: $0.spaceID, address: $0.address)
+        }
         guard let data = try? JSONEncoder().encode(saved) else { return }
         UserDefaults.standard.set(data, forKey: sessionKey)
     }
