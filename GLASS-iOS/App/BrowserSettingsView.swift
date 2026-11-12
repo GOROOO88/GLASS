@@ -10,6 +10,8 @@ struct BrowserSettingsView: View {
     @AppStorage("glass.theme.addressOpacity") private var themeAddressOpacity = 0.075
     @AppStorage("glass.theme.cardOpacity") private var themeCardOpacity = 0.075
     @AppStorage("glass.theme.dockOpacity") private var themeDockOpacity = 0.052
+    @AppStorage("glass.theme.iconStyle") private var themeIconStyle = "soft"
+    @AppStorage("glass.theme.motion") private var themeMotion = 0.65
     @AppStorage("glass.theme.preset") private var themePreset = "violet"
     @AppStorage("glass.theme.panelOpacity") private var themePanelOpacity = 0.075
     @AppStorage("glass.theme.glow") private var themeGlow = 0.55
@@ -140,6 +142,22 @@ struct BrowserSettingsView: View {
                                 appearanceSlider("Address bar", value: $themeAddressOpacity, range: 0.02...0.20)
                                 appearanceSlider("Cards & panels", value: $themeCardOpacity, range: 0.02...0.20)
                                 appearanceSlider("Bottom dock", value: $themeDockOpacity, range: 0.02...0.20)
+                                Divider().overlay(.white.opacity(0.08))
+                                Text("DETAILS")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .tracking(1.4)
+                                    .foregroundStyle(.white.opacity(0.45))
+                                HStack {
+                                    Text("Icon weight").font(.system(size: 12, weight: .medium))
+                                    Spacer()
+                                    Picker("Icon weight", selection: $themeIconStyle) {
+                                        Text("Soft").tag("soft")
+                                        Text("Bold").tag("bold")
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .frame(width: 142)
+                                }
+                                appearanceSlider("Motion intensity", value: $themeMotion, range: 0...1)
                             }
                             .padding(14)
                             .background(Color.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
@@ -342,6 +360,8 @@ struct BrowserSettingsView: View {
                             themeAddressOpacity = 0.075
                             themeCardOpacity = 0.075
                             themeDockOpacity = 0.052
+                            themeIconStyle = "soft"
+                            themeMotion = 0.65
                             appearanceApplied = false
                         }
                     } label: {
