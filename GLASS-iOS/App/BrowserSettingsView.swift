@@ -4,6 +4,7 @@ struct BrowserSettingsView: View {
     @EnvironmentObject private var browser: BrowserStore
     @Environment(\.dismiss) private var dismiss
     @State private var customURL = ""
+    @State private var permissionDomain = ""
 
     var body: some View {
         NavigationStack {
@@ -39,7 +40,7 @@ struct BrowserSettingsView: View {
                             .listRowBackground(Color.white.opacity(0.075))
                         Toggle("Allow microphone requests", isOn: setting(\.microphoneAllowed))
                             .listRowBackground(Color.white.opacity(0.075))
-                        Label("Location access is controlled by iOS site and app permission prompts.", systemImage: "location")
+                        HStack(spacing: 8) {\n                            TextField("example.com", text: $permissionDomain)\n                                .textInputAutocapitalization(.never)\n                                .autocorrectionDisabled()\n                            Button("Add") {\n                                browser.setSitePermission(domain: permissionDomain, camera: true, microphone: true)\n                                permissionDomain = ""\n                            }\n                            .disabled(permissionDomain.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)\n                        }\n                        .listRowBackground(Color.white.opacity(0.075))\n                        ForEach(browser.settings.sitePermissions.values.sorted { $0.domain < $1.domain }) { site in\n                            VStack(alignment: .leading, spacing: 8) {\n                                HStack {\n                                    Text(site.domain).font(.system(size: 13, weight: .semibold))\n                                    Spacer()\n                                    Button(role: .destructive) { browser.removeSitePermission(site.domain) } label: {\n                                        Image(systemName: "trash")\n                                    }\n                                }\n                                Toggle("Camera", isOn: Binding(\n                                    get: { browser.settings.sitePermissions[site.domain]?.cameraAllowed ?? true },\n                                    set: { browser.setSitePermission(domain: site.domain, camera: $0, microphone: browser.settings.sitePermissions[site.domain]?.microphoneAllowed ?? true) }\n                                ))\n                                Toggle("Microphone", isOn: Binding(\n                                    get: { browser.settings.sitePermissions[site.domain]?.microphoneAllowed ?? true },\n                                    set: { browser.setSitePermission(domain: site.domain, camera: browser.settings.sitePermissions[site.domain]?.cameraAllowed ?? true, microphone: $0) }\n                                ))\n                            }\n                            .listRowBackground(Color.white.opacity(0.075))\n                        }\n                        Label("Location access is controlled by iOS site and app permission prompts.", systemImage: "location")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .listRowBackground(Color.white.opacity(0.075))
