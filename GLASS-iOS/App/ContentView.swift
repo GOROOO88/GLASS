@@ -41,6 +41,7 @@ struct ContentView: View {
     @State private var collapsedTabGroups: Set<String> = []
     @State private var tabsSearchText = ""
     @State private var confirmCloseSpaceTabs = false
+    @State private var privacyTransitionOpacity = 0.0
 
     private var isPrivateMode: Bool { browser.activeTab?.isPrivate == true }
     private var activeAccent: Color {
@@ -122,8 +123,23 @@ struct ContentView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 12)
+
+            Color.black
+                .ignoresSafeArea()
+                .opacity(privacyTransitionOpacity)
+                .allowsHitTesting(privacyTransitionOpacity > 0.02)
         }
         .animation(.easeInOut(duration: 0.08 + themeMotion * 0.42), value: themePreset)
+        .onChange(of: isPrivateMode) { _, _ in
+            withAnimation(.easeInOut(duration: 0.22)) {
+                privacyTransitionOpacity = 1
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+                withAnimation(.easeInOut(duration: 0.38)) {
+                    privacyTransitionOpacity = 0
+                }
+            }
+        }
         .onChange(of: browser.activeTabID) { _, _ in
             addressText = browser.activeTab?.address ?? ""
         }
