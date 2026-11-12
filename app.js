@@ -63,7 +63,6 @@ function spacesPanel(){
  $("#createSpace").addEventListener("click",()=>spaceEditor());
  content.querySelectorAll("[data-edit-space]").forEach(b=>b.addEventListener("click",()=>spaceEditor(Number(b.dataset.editSpace))));
 }
-}
 function appearancePanel(){
  const p=appearance;
  show(panelHead("GLASS DESIGN SYSTEM","Appearance","One profile controls the visual language across every screen.")+
