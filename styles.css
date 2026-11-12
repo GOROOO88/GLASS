@@ -262,3 +262,16 @@ h1{font-size:clamp(39px,7vw,55px);font-weight:560;letter-spacing:.38em;margin-le
  .studio-theme{padding:10px 3px}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Appearance controls are connected to the live page background. */
+body{
+ background-color:var(--user-bg,#080910);
+ background-image:var(--user-wallpaper,none),
+ radial-gradient(ellipse 58% 42% at 50% -10%,rgba(var(--accent-rgb),.23),transparent 72%),
+ radial-gradient(ellipse 36% 40% at 100% 72%,rgba(88,105,190,.13),transparent 76%),
+ radial-gradient(ellipse 30% 32% at 0% 80%,rgba(var(--accent-rgb),.10),transparent 78%),
+ linear-gradient(145deg,#10111b 0%,var(--user-bg,#090a12) 55%,#080910 100%);
+ background-size:cover,auto,auto,auto,auto;
+ background-position:center,center,center,center,center;
+ background-attachment:fixed;
+}
