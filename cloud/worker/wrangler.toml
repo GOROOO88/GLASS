@@ -1,0 +1,14 @@
+name = "glass-sync"
+main = "src/index.ts"
+compatibility_date = "2026-11-12"
+
+[[durable_objects.bindings]]
+name = "GLASS_SYNC"
+class_name = "GLASSSyncObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GLASSSyncObject"]
+
+[observability]
+enabled = true
