@@ -9,6 +9,14 @@ private struct AutomaticTabGroup: Identifiable {
     let tabs: [BrowserTab]
 }
 
+private struct AddressSuggestion: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let url: String
+    let symbol: String
+}
+
 private enum GlassPalette {
     static let background = Color(red: 0.035, green: 0.035, blue: 0.065)
     static let line = Color.white.opacity(0.12)
@@ -29,6 +37,7 @@ struct ContentView: View {
     @AppStorage("glass.theme.iconStyle") private var themeIconStyle = "soft"
     @AppStorage("glass.theme.motion") private var themeMotion = 0.65
     @State private var addressText = ""
+    @FocusState private var addressFocused: Bool
     @State private var showLibrary = false
     @State private var librarySection = 0
     @State private var showSpaces = false
@@ -101,6 +110,10 @@ struct ContentView: View {
             VStack(spacing: 12) {
                 header
                 addressBar
+                if addressFocused && !addressText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    addressSuggestionsPanel
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
                 spacesBar
                 tabStrip
 
@@ -266,9 +279,20 @@ struct ContentView: View {
             } else {
                 Image(systemName: "magnifyingglass").foregroundStyle(GlassPalette.secondary)
             }
-            TextField(browser.activeTab?.isPrivate == true ? "Private browsing" : "Search or enter address", text: $addressText)
+            TextField(browser.activeTab?.isPrivate == true ? "Приватный просмотр" : "Поиск или адрес сайта", text: $addressText)
                 .font(.system(size: 15)).textInputAutocapitalization(.never)
-                .autocorrectionDisabled().keyboardType(.URL).submitLabel(.go).onSubmit(openAddress)
+                .autocorrectionDisabled().focused($addressFocused)
+                .submitLabel(.go).onSubmit(openAddress)
+            if !addressText.isEmpty {
+                Button {
+                    addressText = ""
+                    addressFocused = true
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 15)).foregroundStyle(GlassPalette.secondary)
+                }
+                .accessibilityLabel("Очистить строку")
+            }
             if let tab = browser.activeTab, tab.isLoading {
                 ProgressView().tint(activeAccent)
             } else {
@@ -284,7 +308,7 @@ struct ContentView: View {
                     Image(systemName: browser.isBookmarked(tab.address) ? "star.fill" : "star")
                         .font(.system(size: 15, weight: .semibold)).foregroundStyle(activeAccent)
                 }
-                .accessibilityLabel(browser.isBookmarked(tab.address) ? "Remove bookmark" : "Add bookmark")
+                .accessibilityLabel(browser.isBookmarked(tab.address) ? "Убрать из закладок" : "Добавить в закладки")
             }
         }
         .padding(.horizontal, 15).frame(height: 54)
@@ -292,6 +316,101 @@ struct ContentView: View {
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeAddressOpacity)))
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(Color.white.opacity(0.15)))
         .shadow(color: activeAccent.opacity(themeGlow * 0.12), radius: 16, y: 5)
+    }
+
+    private var addressSuggestions: [AddressSuggestion] {
+        let query = addressText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return [] }
+        var results: [AddressSuggestion] = []
+        for bookmark in browser.bookmarks {
+            if bookmark.title.localizedCaseInsensitiveContains(query) || bookmark.url.localizedCaseInsensitiveContains(query) {
+                results.append(AddressSuggestion(
+                    id: "bookmark:\(bookmark.url)",
+                    title: bookmark.title.isEmpty ? (URL(string: bookmark.url)?.host ?? bookmark.url) : bookmark.title,
+                    subtitle: bookmark.url,
+                    url: bookmark.url,
+                    symbol: "star.fill"
+                ))
+            }
+        }
+        for value in browser.history {
+            guard value.localizedCaseInsensitiveContains(query),
+                  !results.contains(where: { $0.url == value }) else { continue }
+            let host = URL(string: value)?.host ?? value
+            results.append(AddressSuggestion(
+                id: "history:\(value)",
+                title: host,
+                subtitle: value,
+                url: value,
+                symbol: "clock"
+            ))
+        }
+        return Array(results.prefix(5))
+    }
+
+    private var addressSuggestionsPanel: some View {
+        VStack(spacing: 0) {
+            ForEach(addressSuggestions) { suggestion in
+                Button {
+                    openSuggestion(suggestion.url)
+                } label: {
+                    HStack(spacing: 11) {
+                        Image(systemName: suggestion.symbol)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(activeAccent)
+                            .frame(width: 25, height: 25)
+                            .background(activeAccent.opacity(0.12), in: Circle())
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(suggestion.title)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            Text(suggestion.subtitle)
+                                .font(.system(size: 10))
+                                .foregroundStyle(GlassPalette.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 4)
+                        Image(systemName: "arrow.up.left")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(GlassPalette.secondary)
+                    }
+                    .padding(.horizontal, 13)
+                    .padding(.vertical, 9)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            Button {
+                openAddress()
+            } label: {
+                HStack(spacing: 9) {
+                    Image(systemName: "magnifyingglass").foregroundStyle(activeAccent)
+                    Text("Искать в интернете: \(addressText)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                    Image(systemName: "arrow.up.right").foregroundStyle(activeAccent)
+                }
+                .padding(.horizontal, 13)
+                .padding(.vertical, 11)
+                .background(Color.white.opacity(0.045))
+            }
+            .buttonStyle(.plain)
+        }
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.white.opacity(0.12)))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .animation(.easeOut(duration: 0.18), value: addressSuggestions.count)
+    }
+
+    private func openSuggestion(_ value: String) {
+        guard let url = URL(string: value), let tab = browser.activeTab else { return }
+        tab.load(url)
+        addressText = value
+        addressFocused = false
+        hideKeyboard()
     }
 
     private var spacesBar: some View {
@@ -1255,6 +1374,7 @@ struct ContentView: View {
         }
         guard let destination else { return }
         tab.load(destination)
+        addressFocused = false
         hideKeyboard()
     }
 
