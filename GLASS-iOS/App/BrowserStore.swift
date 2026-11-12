@@ -447,7 +447,7 @@ final class BrowserStore: ObservableObject {
 
         guard snapshot.bookmarks.allSatisfy({ isWebAddress($0.url) }),
               snapshot.history.allSatisfy({ isWebAddress($0) }),
-              snapshot.tabs.allSatisfy({ isWebAddress($0.address) && validSpaces.contains(where: { $0.id == $0.id }) }) else {
+              snapshot.tabs.allSatisfy({ isWebAddress($0.address) }) else {
             throw GlassSyncRestoreError.invalidSnapshot
         }
 
