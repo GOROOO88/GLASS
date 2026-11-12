@@ -27,10 +27,10 @@ struct BrowserSettingsView: View {
                     Section {
                         VStack(alignment: .leading, spacing: 17) {
                             VStack(alignment: .leading, spacing: 5) {
-                                Text("Choose your atmosphere")
+                                Text("Выберите атмосферу")
                                     .font(.system(size: 19, weight: .semibold, design: .rounded))
                                     .foregroundStyle(.white)
-                                Text("Four signature GLASS themes. The layout stays consistent; the atmosphere changes.")
+                                Text("Четыре фирменные темы GLASS. Структура интерфейса остаётся единой, меняется атмосфера.")
                                     .font(.system(size: 11))
                                     .foregroundStyle(.white.opacity(0.55))
                                     .fixedSize(horizontal: false, vertical: true)
@@ -99,11 +99,11 @@ struct BrowserSettingsView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "slider.horizontal.3")
                                     .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                                Text("Fine-tune your theme")
+                                Text("Настройте тему")
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundStyle(.white)
                                 Spacer()
-                                Button("Reset") {
+                                Button("Сбросить") {
                                     withAnimation(.easeInOut(duration: 0.2)) {
                                         themePanelOpacity = 0.075
                                         themeBlur = 0.65
@@ -117,7 +117,7 @@ struct BrowserSettingsView: View {
                             .padding(.top, 5)
 
                             VStack(alignment: .leading, spacing: 13) {
-                                Text("BACKGROUND")
+                                Text("ФОН")
                                     .font(.system(size: 9, weight: .bold))
                                     .tracking(1.4)
                                     .foregroundStyle(.white.opacity(0.45))
@@ -127,7 +127,7 @@ struct BrowserSettingsView: View {
                                     backgroundChoice("Deep", value: "deep", symbol: "moon.fill")
                                 }
                                 Divider().overlay(.white.opacity(0.08))
-                                Text("GLASS & LIGHT")
+                                Text("СТЕКЛО И СВЕТ")
                                     .font(.system(size: 9, weight: .bold))
                                     .tracking(1.4)
                                     .foregroundStyle(.white.opacity(0.45))
@@ -136,7 +136,7 @@ struct BrowserSettingsView: View {
                                 appearanceSlider("Glow intensity", value: $themeGlow, range: 0...1)
                                 appearanceSlider("Corner radius", value: $themeCornerRadius, range: 12...30)
                                 Divider().overlay(.white.opacity(0.08))
-                                Text("ELEMENT TRANSPARENCY")
+                                Text("ПРОЗРАЧНОСТЬ ЭЛЕМЕНТОВ")
                                     .font(.system(size: 9, weight: .bold))
                                     .tracking(1.4)
                                     .foregroundStyle(.white.opacity(0.45))
@@ -144,16 +144,16 @@ struct BrowserSettingsView: View {
                                 appearanceSlider("Cards & panels", value: $themeCardOpacity, range: 0.02...0.20)
                                 appearanceSlider("Bottom dock", value: $themeDockOpacity, range: 0.02...0.20)
                                 Divider().overlay(.white.opacity(0.08))
-                                Text("DETAILS")
+                                Text("ДЕТАЛИ")
                                     .font(.system(size: 9, weight: .bold))
                                     .tracking(1.4)
                                     .foregroundStyle(.white.opacity(0.45))
                                 HStack {
-                                    Text("Icon weight").font(.system(size: 12, weight: .medium))
+                                    Text("Стиль значков").font(.system(size: 12, weight: .medium))
                                     Spacer()
                                     Picker("Icon weight", selection: $themeIconStyle) {
-                                        Text("Soft").tag("soft")
-                                        Text("Bold").tag("bold")
+                                        Text("Мягкий").tag("soft")
+                                        Text("Выразительный").tag("bold")
                                     }
                                     .pickerStyle(.segmented)
                                     .frame(width: 142)
@@ -178,7 +178,7 @@ struct BrowserSettingsView: View {
                                             .shadow(color: .white.opacity(themeGlow), radius: 9)
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text("GLASS").font(.system(size: 11, weight: .bold)).tracking(1.4)
-                                            Text("Live appearance preview").font(.system(size: 9)).foregroundStyle(.white.opacity(0.65))
+                                            Text("Предпросмотр оформления").font(.system(size: 9)).foregroundStyle(.white.opacity(0.65))
                                         }
                                         Spacer()
                                         Image(systemName: "sparkles").foregroundStyle(.white.opacity(0.8))
@@ -212,9 +212,9 @@ struct BrowserSettingsView: View {
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
                     } header: {
-                        Text("GLASS THEMES")
+                        Text("ТЕМЫ GLASS")
                     } footer: {
-                        Text("The four approved themes stay fixed. Every slider updates the browser immediately and is saved on this device.")
+                        Text("Четыре основные темы остаются неизменными. Каждый ползунок сразу меняет оформление браузера, настройки сохраняются на устройстве.")
                     }
 
                     Section {
@@ -230,9 +230,9 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                     } header: {
-                        Text("Search")
+                        Text("Поиск")
                     } footer: {
-                        Text("This engine is used whenever text is entered in the address bar.")
+                        Text("Эта поисковая система используется при вводе текста в адресную строку.")
                     }
 
                     Section {
@@ -251,9 +251,9 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                     } header: {
-                        Text("Protection")
+                        Text("Защита")
                     } footer: {
-                        Text("GLASS uses WebKit content rules to block common advertising and tracking resources. Some sites may need these protections disabled.")
+                        Text("GLASS блокирует распространённые рекламные и следящие ресурсы средствами WebKit. Для работы некоторых сайтов защиту может потребоваться отключить.")
                     }
 
                     Section {
@@ -272,10 +272,10 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                         HStack(spacing: 8) {
-                            TextField("example.com", text: $permissionDomain)
+                            TextField("пример.рф", text: $permissionDomain)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
-                            Button("Add") {
+                            Button("Добавить") {
                                 browser.setSitePermission(domain: permissionDomain, camera: true, microphone: true)
                                 permissionDomain = ""
                             }
@@ -312,7 +312,7 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                         }
-                        Label("Location access is controlled by iOS site and app permission prompts.", systemImage: "location")
+                        Label("Доступ к геопозиции регулируется запросами разрешений iOS.", systemImage: "location")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .listRowBackground(
@@ -322,15 +322,15 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                     } header: {
-                        Text("Site permissions")
+                        Text("Разрешения сайтов")
                     } footer: {
-                        Text("Camera and microphone requests are handled by the browser delegate. iOS does not expose a general per-site geolocation permission manager to this app.")
+                        Text("Запросы камеры и микрофона обрабатываются браузером. iOS не предоставляет приложению общего менеджера разрешений на геопозицию для каждого сайта.")
                     }
 
                     Section {
                         Picker("New tab page", selection: setting(\.startPage)) {
-                            Text("GLASS start page").tag("glass")
-                            Text("Custom website").tag("custom")
+                            Text("Стартовая страница GLASS").tag("glass")
+                            Text("Другой сайт").tag("custom")
                         }
                         .listRowBackground(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -354,7 +354,7 @@ struct BrowserSettingsView: View {
                                 }
                         }
                     } header: {
-                        Text("Start page")
+                        Text("Стартовая страница")
                     }
 
                     Section {
@@ -368,7 +368,7 @@ struct BrowserSettingsView: View {
                         Button(role: .destructive) {
                             browser.closeAllPrivateTabs()
                         } label: {
-                            Label("Close all private tabs now", systemImage: "eye.slash")
+                            Label("Закрыть все приватные вкладки" , systemImage: "eye.slash")
                         }
                         .listRowBackground(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -377,16 +377,16 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                     } header: {
-                        Text("Private browsing")
+                        Text("Приватный режим")
                     } footer: {
-                        Text("Private tabs use a non-persistent WebKit data store. Closing a private tab destroys its in-memory browsing session.")
+                        Text("Приватные вкладки используют временное хранилище WebKit. При закрытии вкладки её данные сеанса удаляются.")
                     }
 
                     Section {
                         HStack {
-                            Label("Cloud sync", systemImage: "icloud")
+                            Label("Облачная синхронизация", systemImage: "icloud")
                             Spacer()
-                            Text("Coming later")
+                            Text("Позже")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
@@ -396,7 +396,7 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
-                        Text("Local AES-GCM encryption and Keychain key storage are implemented. Cross-device sync remains off until secure device pairing, account authentication, and the Cloudflare service are connected.")
+                        Text("Локальное шифрование AES-GCM и хранение ключа в Keychain уже реализованы. Синхронизация между устройствами появится после подключения безопасного сопряжения, авторизации и сервиса Cloudflare.")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .listRowBackground(
@@ -406,7 +406,7 @@ struct BrowserSettingsView: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
                         )
                     } header: {
-                        Text("Sync")
+                        Text("Синхронизация")
                     }
                 }
                 .listStyle(.insetGrouped)
