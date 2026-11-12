@@ -316,7 +316,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 18) {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(spacing: 9) {
                                 Image(systemName: "circle.hexagongrid.fill")
@@ -331,13 +331,13 @@ struct ContentView: View {
                                     .foregroundStyle(GlassPalette.secondary)
                             }
                             Text("A quieter corner\nof the web.")
-                                .font(.system(size: 31, weight: .semibold, design: .rounded))
+                                .font(.system(size: 34, weight: .semibold, design: .rounded))
                                 .tracking(-0.8).foregroundStyle(.white)
                                 .fixedSize(horizontal: false, vertical: true)
                             Text("Everything you need, right where you left it.")
                                 .font(.system(size: 13)).foregroundStyle(GlassPalette.secondary)
                         }
-                        .padding(18)
+                        .padding(20)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
                             LinearGradient(
@@ -475,8 +475,9 @@ struct ContentView: View {
                 Image(systemName: "arrow.up.right").font(.system(size: 9, weight: .semibold)).foregroundStyle(GlassPalette.secondary)
             }
             .padding(12)
-            .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
+            .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themePanelOpacity)))
+            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(Color.white.opacity(0.11)))
         }
         .buttonStyle(.plain)
     }
@@ -635,7 +636,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .padding(.top, 12).background(GlassPalette.background)
+            .padding(.top, 12).background(GlassPalette.background.ignoresSafeArea())
             .navigationTitle("Library").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -649,6 +650,7 @@ struct ContentView: View {
             }
         }
         .tint(GlassAppearance.accent(for: themePreset))
+        .preferredColorScheme(.dark)
     }
 
     private var privacySheet: some View {
@@ -704,6 +706,7 @@ struct ContentView: View {
             }
         }
         .tint(GlassAppearance.accent(for: themePreset))
+        .preferredColorScheme(.dark)
     }
 
     private var tabsSheet: some View {
@@ -747,7 +750,7 @@ struct ContentView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(GlassPalette.background)
+            .background(GlassPalette.background.ignoresSafeArea())
             .navigationTitle("Tabs")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -808,7 +811,7 @@ struct ContentView: View {
                 }
                 .listStyle(.plain)
             }
-            .padding(.top, 14).background(GlassPalette.background)
+            .padding(.top, 14).background(GlassPalette.background.ignoresSafeArea())
             .navigationTitle("Spaces").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { showSpaces = false } }
