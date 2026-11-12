@@ -44,7 +44,7 @@ struct ContentView: View {
 
     private var isPrivateMode: Bool { browser.activeTab?.isPrivate == true }
     private var activeAccent: Color {
-        isPrivateMode ? GlassAppearance.privateAccent : activeAccent
+        isPrivateMode ? GlassAppearance.privateAccent : GlassAppearance.accent(for: themePreset)
     }
 
     var body: some View {
