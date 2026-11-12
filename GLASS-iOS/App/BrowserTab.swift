@@ -9,8 +9,10 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     @Published var spaceID: String
     let isPrivate: Bool
     var onVisit: ((URL, String) -> Void)?
-    var onDownload: ((URL, String, URL?) -> Void)?
-    var onDownloadFailure: ((String) -> Void)?
+    var onDownloadStarted: ((UUID, String, URL?) -> Void)?
+    var onDownloadProgress: ((UUID, Double) -> Void)?
+    var onDownloadFinished: ((UUID, URL, String, URL?) -> Void)?
+    var onDownloadFailure: ((UUID, String) -> Void)?
 
     @Published var title = "New Tab"
     @Published var address = ""
@@ -21,6 +23,9 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     private var downloadDestinations: [ObjectIdentifier: URL] = [:]
     private var downloadNames: [ObjectIdentifier: String] = [:]
     private var downloadSources: [ObjectIdentifier: URL] = [:]
+    private var downloadIDs: [ObjectIdentifier: UUID] = [:]
+    private var progressObservers: [ObjectIdentifier: NSKeyValueObservation] = [:]
+    private var downloadObjects: [ObjectIdentifier: WKDownload] = [:]
 
     init(id: UUID = UUID(), spaceID: String = "personal", isPrivate: Bool = false) {
         self.id = id
@@ -57,6 +62,31 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         webView.reload()
     }
 
+    func cancelDownload(id: UUID) {
+        guard let pair = downloadIDs.first(where: { $0.value == id }),
+              let download = downloadObjects[pair.key] else { return }
+        download.cancel { _ in }
+    }
+
+    func retryDownload(_ url: URL) {
+        webView.startDownload(using: URLRequest(url: url)) { [weak self] download in
+            guard let self else { return }
+            download.delegate = self
+            self.track(download)
+        }
+    }
+
+    private func track(_ download: WKDownload) {
+        let key = ObjectIdentifier(download)
+        let id = downloadIDs[key] ?? UUID()
+        downloadIDs[key] = id
+        downloadObjects[key] = download
+        progressObservers[key] = download.progress.observe(\.fractionCompleted, options: [.initial, .new]) { [weak self] progress, _ in
+            let value = progress.fractionCompleted
+            Task { @MainActor in self?.onDownloadProgress?(id, value) }
+        }
+    }
+
     private func refreshState() {
         address = webView.url?.absoluteString ?? address
         canGoBack = webView.canGoBack
@@ -78,10 +108,12 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
 
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         download.delegate = self
+        track(download)
     }
 
     func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
         download.delegate = self
+        track(download)
     }
 
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
@@ -100,6 +132,9 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
             downloadDestinations[key] = destination
             downloadNames[key] = filename
             downloadSources[key] = response.url
+            let id = downloadIDs[key] ?? UUID()
+            downloadIDs[key] = id
+            onDownloadStarted?(id, filename, response.url)
             completionHandler(destination)
         } catch {
             completionHandler(nil)
@@ -112,18 +147,32 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         if let destination = downloadDestinations.removeValue(forKey: key) {
             let filename = downloadNames.removeValue(forKey: key) ?? destination.lastPathComponent
             let source = downloadSources.removeValue(forKey: key)
+            let id = downloadIDs[key] ?? UUID()
             if !isPrivate {
-                onDownload?(destination, filename, source)
+                onDownloadFinished?(id, destination, filename, source)
+            } else {
+                try? FileManager.default.removeItem(at: destination)
             }
         }
+        cleanupDownload(key)
     }
 
     func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         let key = ObjectIdentifier(download)
+        let id = downloadIDs[key] ?? UUID()
         downloadDestinations.removeValue(forKey: key)
         downloadNames.removeValue(forKey: key)
         downloadSources.removeValue(forKey: key)
-        onDownloadFailure?(error.localizedDescription)
+        cleanupDownload(key)
+        if !isPrivate {
+            onDownloadFailure?(id, error.localizedDescription)
+        }
+    }
+
+    private func cleanupDownload(_ key: ObjectIdentifier) {
+        progressObservers.removeValue(forKey: key)?.invalidate()
+        downloadIDs.removeValue(forKey: key)
+        downloadObjects.removeValue(forKey: key)
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
