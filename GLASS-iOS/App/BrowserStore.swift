@@ -261,6 +261,34 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
+    func closeAllTabsInActiveSpace() {
+        let closing = tabs.filter { $0.spaceID == activeSpaceID }
+        guard !closing.isEmpty else { return }
+        for tab in closing {
+            if tab.isPrivate && settings.clearPrivateDataOnClose {
+                tab.webView.stopLoading()
+                tab.webView.configuration.websiteDataStore.removeData(
+                    ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+                    modifiedSince: Date(timeIntervalSince1970: 0),
+                    completionHandler: {}
+                )
+            }
+            tab.webView.stopLoading()
+            tabStateObservers.removeValue(forKey: tab.id)?.cancel()
+        }
+        tabs.removeAll { $0.spaceID == activeSpaceID }
+        addTab(spaceID: activeSpaceID)
+    }
+
+    func moveTab(_ source: BrowserTab, before destination: BrowserTab) {
+        guard source.id != destination.id, source.spaceID == destination.spaceID,
+              let sourceIndex = tabs.firstIndex(where: { $0.id == source.id }),
+              let destinationIndex = tabs.firstIndex(where: { $0.id == destination.id }) else { return }
+        let moved = tabs.remove(at: sourceIndex)
+        let adjustedDestination = tabs.firstIndex(where: { $0.id == destination.id }) ?? min(destinationIndex, tabs.count)
+        tabs.insert(moved, at: adjustedDestination)
+        saveSession()
+    }
     func closeAllPrivateTabs() {
         let privateTabs = tabs.filter { $0.isPrivate }
         privateTabs.forEach { close($0) }
