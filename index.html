@@ -60,7 +60,7 @@ const W=document.getElementById('w'),S=document.getElementById('st');
 const rects=[[42,335,373,242],[440,336,370,238],[44,690,370,222],[440,690,370,222]];
 const palettes=[['#6a2de6','#b06bff'],['#1b6ef3','#22c8e6'],['#0f9d6b','#5be49b'],['#e0417a','#ff8fbf']];
 let selected=0,motion=true,opacity=72,blur=16;
-function fit(){const k=innerWidth<innerHeight?innerWidth/852:Math.min(innerWidth/852,innerHeight/1846);S.style.transform='translateX(-50%) scale('+k+')';W.style.height=(1846*k)+'px'}
+function fit(){const k=innerWidth<innerHeight?innerWidth/852:Math.min(innerWidth/852,innerHeight/1846);S.style.transform='scale('+k+')';W.style.height=(1846*k)+'px'}
 function pick(i){selected=i;const r=rects[i],e=document.getElementById('sel');e.style.cssText='left:'+(r[0]-2)+'px;top:'+(r[1]-2)+'px;width:'+(r[2]+4)+'px;height:'+(r[3]+4)+'px'}
 function go(id){['home','themes'].forEach(x=>document.getElementById(x).classList.toggle('on',x===id));window.scrollTo(0,0);try{history.replaceState(null,'','#'+id)}catch(e){}}
 function toggleMotion(){motion=!motion;document.getElementById('tg').classList.toggle('off',!motion);document.documentElement.style.setProperty('--motion',motion?1:0)}
