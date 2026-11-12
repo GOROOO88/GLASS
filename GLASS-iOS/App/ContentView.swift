@@ -859,12 +859,12 @@ struct ContentView: View {
         }
         let order = ["new", "search", "searchResult", "opened", "direct", "private"]
         let metadata: [String: (String, String, String)] = [
-            "new": ("New tabs", "plus.square", "Blank tabs ready for a new page"),
-            "search": ("Search tabs", "magnifyingglass", "Searches already entered"),
-            "searchResult": ("Opened from search", "arrow.up.right", "Pages opened from search results"),
-            "opened": ("Opened from another page", "link", "Pages reached through a link"),
-            "direct": ("Directly opened pages", "globe", "Addresses entered directly"),
-            "private": ("Private tabs", "eye.slash.fill", "Temporary private sessions")
+            "new": ("Новые вкладки", "plus.square", "Пустые вкладки для новых страниц"),
+            "search": ("Поисковые вкладки", "magnifyingglass", "Выполненные поисковые запросы"),
+            "searchResult": ("Открыты из поиска", "arrow.up.right", "Страницы из результатов поиска"),
+            "opened": ("Открыты по ссылке", "link", "Страницы, открытые по ссылкам"),
+            "direct": ("Открыты напрямую", "globe", "Адреса, введённые вручную"),
+            "private": ("Приватные вкладки", "eye.slash.fill", "Временные приватные сессии")
         ]
         return order.compactMap { key in
             guard let tabs = grouped[key], !tabs.isEmpty, let info = metadata[key] else { return nil }
@@ -1041,9 +1041,9 @@ struct ContentView: View {
 
     private func tabContext(_ tab: BrowserTab) -> String {
         switch tab.groupKind {
-        case "search": return "Search: \(tab.groupDetail)"
-        case "searchResult": return "From search: \(tab.groupDetail)"
-        case "opened": return "Opened from: \(tab.groupDetail)"
+        case "search": return "Поиск: \(tab.groupDetail)"
+        case "searchResult": return "Из поиска: \(tab.groupDetail)"
+        case "opened": return "Открыта с сайта: \(tab.groupDetail)"
         default: return tab.groupDetail
         }
     }
