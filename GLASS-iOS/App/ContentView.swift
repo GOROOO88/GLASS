@@ -14,6 +14,10 @@ struct ContentView: View {
     @AppStorage("glass.theme.glow") private var themeGlow = 0.55
     @AppStorage("glass.theme.cornerRadius") private var themeCornerRadius = 20.0
     @AppStorage("glass.theme.blur") private var themeBlur = 0.65
+    @AppStorage("glass.theme.backgroundStyle") private var themeBackgroundStyle = "aurora"
+    @AppStorage("glass.theme.addressOpacity") private var themeAddressOpacity = 0.075
+    @AppStorage("glass.theme.cardOpacity") private var themeCardOpacity = 0.075
+    @AppStorage("glass.theme.dockOpacity") private var themeDockOpacity = 0.052
     @State private var addressText = ""
     @State private var showLibrary = false
     @State private var librarySection = 0
@@ -27,9 +31,35 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            GlassPalette.background.ignoresSafeArea()
-            RadialGradient(colors: [GlassAppearance.accent(for: themePreset).opacity(0.18), .clear], center: .top, startRadius: 8, endRadius: 420)
-                .ignoresSafeArea()
+            Group {
+                switch themeBackgroundStyle {
+                case "deep":
+                    GlassPalette.background
+                case "gradient":
+                    LinearGradient(
+                        colors: GlassAppearance.previewColors(for: themePreset).map { $0.opacity(0.52) } + [GlassPalette.background],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                default:
+                    ZStack {
+                        GlassPalette.background
+                        RadialGradient(
+                            colors: [GlassAppearance.accent(for: themePreset).opacity(0.25), .clear],
+                            center: .top,
+                            startRadius: 8,
+                            endRadius: 460
+                        )
+                        RadialGradient(
+                            colors: [GlassAppearance.previewColors(for: themePreset)[2].opacity(0.10), .clear],
+                            center: .bottomTrailing,
+                            startRadius: 5,
+                            endRadius: 300
+                        )
+                    }
+                }
+            }
+            .ignoresSafeArea()
 
             VStack(spacing: 12) {
                 header
@@ -187,7 +217,7 @@ struct ContentView: View {
         }
         .padding(.horizontal, 15).frame(height: 54)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themePanelOpacity)))
+        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeAddressOpacity)))
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(Color.white.opacity(0.15)))
         .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow * 0.12), radius: 16, y: 5)
     }
@@ -359,7 +389,7 @@ struct ContentView: View {
                                     }
                                     .padding(13)
                                     .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
-                                    .overlay(RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous).fill(Color.white.opacity(themePanelOpacity)))
+                                    .overlay(RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous).fill(Color.white.opacity(themeCardOpacity)))
                                     .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
                                     .buttonStyle(.plain)
                                 }
@@ -382,7 +412,7 @@ struct ContentView: View {
                                 }
                                 .padding(15).frame(maxWidth: .infinity, alignment: .leading)
                                 .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius))
-                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themePanelOpacity)))
+                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
                             } else {
                                 VStack(spacing: 0) {
                                     ForEach(Array(browser.history.prefix(5)), id: \.self) { value in
@@ -408,7 +438,7 @@ struct ContentView: View {
                                         }
                                     }
                                 }
-                                .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius))
+                                .background(Color.white.opacity(themeCardOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius))
                                 .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
                             }
                         }
@@ -487,7 +517,7 @@ struct ContentView: View {
         .padding(.horizontal, 13)
         .frame(height: 62)
         .background(.ultraThinMaterial, in: Capsule())
-        .overlay(Capsule().fill(Color.white.opacity(themePanelOpacity * 0.7)))
+        .overlay(Capsule().fill(Color.white.opacity(themeDockOpacity)))
         .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1))
         .shadow(color: .black.opacity(0.24), radius: 18, y: 7)
         .padding(.horizontal, 2)
