@@ -16,6 +16,8 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
 
     @Published var title = "New Tab"
     @Published var address = ""
+    @Published var groupKind = "new"
+    @Published var groupDetail = ""
     @Published var isLoading = false
     @Published var canGoBack = false
     @Published var canGoForward = false
@@ -80,7 +82,23 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     }
 
     func load(_ url: URL) {
+        if let query = searchQuery(in: url) {
+            groupKind = "search"
+            groupDetail = query
+        } else if groupKind == "new" || groupKind == "search" {
+            groupKind = "direct"
+            groupDetail = url.host ?? ""
+        }
         webView.load(URLRequest(url: url))
+    }
+
+    private func searchQuery(in url: URL) -> String? {
+        let host = (url.host ?? "").lowercased()
+        let searchHosts = ["google.", "bing.com", "duckduckgo.com", "yandex.", "search.yahoo.com", "search.brave.com"]
+        guard searchHosts.contains(where: { host.contains($0) }) else { return nil }
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let query = items.first(where: { ["q", "text", "query", "p"].contains($0.name.lowercased()) })?.value
+        return query?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? query : nil
     }
 
     func loadFile(_ url: URL) {
@@ -134,6 +152,21 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if navigationAction.targetFrame?.isMainFrame != false,
+           let sourceURL = navigationAction.sourceFrame.request.url,
+           let destinationURL = navigationAction.request.url,
+           sourceURL.host != destinationURL.host {
+            let sourceHost = (sourceURL.host ?? "").lowercased()
+            let searchHosts = ["google.", "bing.com", "duckduckgo.com", "yandex.", "search.yahoo.com", "search.brave.com"]
+            if searchHosts.contains(where: { sourceHost.contains($0) }) {
+                groupKind = "searchResult"
+                groupDetail = URLComponents(url: sourceURL, resolvingAgainstBaseURL: false)?.queryItems?
+                    .first(where: { ["q", "text", "query", "p"].contains($0.name.lowercased()) })?.value ?? ""
+            } else if navigationAction.navigationType == .linkActivated {
+                groupKind = "opened"
+                groupDetail = sourceURL.host ?? ""
+            }
+        }
         if navigationAction.shouldPerformDownload {
             decisionHandler(.download)
         } else {
