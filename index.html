@@ -1,27 +1,67 @@
 <!doctype html>
-<html lang="ru"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#080510"><meta name="description" content="GLASS — browse differently.">
-<link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css">
-<title>GLASS · Browse differently</title></head><body>
-<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090a12">
+<meta name="description" content="GLASS — your personal browser space.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./styles.css">
+<title>GLASS</title>
+</head>
+<body>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><div class="ambient ambient-c"></div>
 <main class="app-shell glass-home">
-<header class="topbar"><button class="space-switch glass" id="spaceButton"><span class="space-dot"></span><span>Personal</span><span class="chevron">⌄</span></button><div class="top-actions"><button class="icon-button glass" id="voiceButton" aria-label="Голосовой поиск">≋</button><button class="icon-button glass" id="menuButton" aria-label="Меню">···</button></div></header>
-<section class="hero">
-<h1>G L A S S</h1><p class="tagline">Browse differently.</p>
-<form class="search glass" id="searchForm"><span class="search-icon">⌕</span><input id="searchInput" type="search" autocomplete="off" placeholder="Search the web or ask anything…" aria-label="Поиск"><span class="search-divider"></span><button type="button" id="searchVoice" aria-label="Голосовой поиск">⌁</button><button class="search-submit" type="submit" aria-label="Ask">✳</button></form>
-<div class="quick-links" id="quickLinks">
-<a class="quick-link" href="https://youtube.com"><span class="quick-icon youtube">▶</span><span>YouTube</span></a>
-<a class="quick-link" href="https://discord.com"><span class="quick-icon">◉</span><span>Discord</span></a>
-<a class="quick-link" href="https://google.com"><span class="quick-icon">G</span><span>Google</span></a>
-<a class="quick-link" href="https://notion.so"><span class="quick-icon">N</span><span>Notion</span></a>
-<button class="quick-link add-link" id="addShortcut"><span class="quick-icon">＋</span><span>Add</span></button>
-</div></section>
-<section class="tabs-home"><div class="section-heading"><h2><span class="tabs-glyph">▰</span> Tabs</h2><button class="text-button" id="manageSpaces">View all →</button></div>
-<div class="home-tab-groups">
-<button class="home-tab-card gaming" data-space="Gaming"><span class="home-card-head"><span>🎮</span><b>Gaming</b><small>5 tabs</small><i>⌄</i></span><span class="home-previews"><i>◉</i><i>▶</i><i>▣</i><i>+2</i></span></button>
-<button class="home-tab-card work" data-space="Work"><span class="home-card-head"><span>▣</span><b>Work</b><small>4 tabs</small><i>⌄</i></span><span class="home-previews"><i>N</i><i>M</i><i>▦</i><i>+1</i></span></button>
-<button class="home-tab-card shopping" data-space="Shopping"><span>♙</span><b>Shopping</b><small>3 tabs</small><i>⌄</i><span class="home-previews"><i>a</i><i>AS</i><i>◒</i></span></button>
-</div></section></main>
-<nav class="bottom-dock reference-dock"><div class="dock-group glass"><button class="dock-button" id="bookmarksButton" aria-label="Закладки">☆</button><button class="dock-button" id="historyButton" aria-label="История">◷</button></div><button class="ask-button glass" id="askButton"><span class="ask-spark">✳</span><span>Ask</span></button><div class="dock-group glass nav-group"><button class="nav-button" id="backButton" aria-label="Назад">‹</button><button class="nav-button" id="forwardButton" aria-label="Вперёд">›</button></div></nav>
-<dialog id="appDialog" class="app-dialog glass"><button class="dialog-close" id="closeDialog">×</button><div id="dialogContent"></div></dialog><script src="./app.js"></script></body></html>
+  <header class="topbar">
+    <button class="space-switch glass" id="spaceButton"><span class="space-dot"></span><span>Personal</span><span class="chevron">⌄</span></button>
+    <div class="top-actions">
+      <button class="icon-button glass" id="voiceButton" aria-label="Голосовой поиск">⌁</button>
+      <button class="icon-button glass" id="menuButton" aria-label="Меню">•••</button>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="brand-emblem"><span></span><i></i></div>
+    <h1>GLASS</h1>
+    <p class="tagline">A clearer way to browse.</p>
+    <form class="search glass" id="searchForm">
+      <span class="search-icon">⌕</span>
+      <input id="searchInput" type="search" autocomplete="off" placeholder="Поиск или адрес сайта" aria-label="Поиск">
+      <button type="button" id="searchVoice" aria-label="Голосовой поиск">⌁</button>
+      <span class="search-divider"></span>
+      <button class="search-submit" type="submit" aria-label="Искать">↗</button>
+    </form>
+    <div class="quick-links" id="quickLinks">
+      <a class="quick-link" href="https://youtube.com"><span class="quick-icon youtube">▶</span><span>YouTube</span></a>
+      <a class="quick-link" href="https://discord.com"><span class="quick-icon discord">◉</span><span>Discord</span></a>
+      <a class="quick-link" href="https://google.com"><span class="quick-icon google">G</span><span>Google</span></a>
+      <a class="quick-link" href="https://notion.so"><span class="quick-icon notion">N</span><span>Notion</span></a>
+      <button class="quick-link add-link" id="addShortcut"><span class="quick-icon">＋</span><span>Добавить</span></button>
+    </div>
+  </section>
+  <section class="tabs-home">
+    <div class="section-heading">
+      <div><p class="eyebrow">YOUR WORKSPACE</p><h2>Вкладки</h2></div>
+      <button class="text-button" id="manageSpaces">Все группы <span>↗</span></button>
+    </div>
+    <div class="home-tab-groups">
+      <button class="space-card gaming" data-space="Gaming"><span class="card-top"><span class="card-icon">⌘</span><span class="card-arrow">↗</span></span><strong>Gaming</strong><span class="card-meta">Игры и развлечения</span><span class="mini-tabs"><i></i><i></i><i></i><i></i></span><span class="card-count">05</span><span class="card-orb"></span></button>
+      <button class="space-card work" data-space="Work"><span class="card-top"><span class="card-icon">▤</span><span class="card-arrow">↗</span></span><strong>Work</strong><span class="card-meta">Работа и проекты</span><span class="mini-tabs"><i></i><i></i><i></i></span><span class="card-count">04</span><span class="card-orb"></span></button>
+      <button class="space-card shopping" data-space="Shopping"><span class="card-top"><span class="card-icon">◇</span><span class="card-arrow">↗</span></span><strong>Shopping</strong><span class="card-meta">Покупки и желания</span><span class="mini-tabs"><i></i><i></i></span><span class="card-count">03</span><span class="card-orb"></span></button>
+    </div>
+  </section>
+  <section class="recent-block">
+    <div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Недавнее</h2></div><button class="text-button" id="clearRecent">Очистить</button></div>
+    <div class="empty-state glass"><span class="empty-symbol">◷</span><span>Здесь появятся недавно закрытые вкладки</span></div>
+  </section>
+</main>
+<nav class="bottom-dock reference-dock">
+  <div class="dock-group glass">
+    <button class="dock-button" id="bookmarksButton" aria-label="Закладки"><span>☆</span><small>Закладки</small></button>
+    <button class="dock-button" id="historyButton" aria-label="История"><span>◷</span><small>История</small></button>
+  </div>
+  <button class="ask-button glass" id="askButton"><span class="ask-spark">✳</span><span>Ask</span></button>
+  <div class="dock-group glass nav-group"><button class="nav-button" id="backButton" aria-label="Назад">‹</button><button class="nav-button" id="forwardButton" aria-label="Вперёд">›</button></div>
+</nav>
+<dialog id="appDialog" class="app-dialog glass"><button class="dialog-close" id="closeDialog">×</button><div id="dialogContent"></div></dialog>
+<script src="./app.js"></script>
+</body></html>
