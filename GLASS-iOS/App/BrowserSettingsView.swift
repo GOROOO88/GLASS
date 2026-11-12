@@ -125,7 +125,7 @@ struct BrowserSettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .listRowBackground(Color.white.opacity(0.075))
-                        Text("Settings are currently saved on this device. Cross-device sync needs a configured secure GLASS account and Cloudflare sync service.")
+                        Text("Local AES-GCM encryption and Keychain key storage are implemented. Cross-device sync remains off until secure device pairing, account authentication, and the Cloudflare service are connected.")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .listRowBackground(Color.white.opacity(0.075))
