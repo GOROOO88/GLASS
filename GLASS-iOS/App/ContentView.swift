@@ -714,34 +714,23 @@ struct ContentView: View {
     }
 
     private var automaticTabGroups: [AutomaticTabGroup] {
-        let grouped = Dictionary(grouping: browser.visibleTabs) { tabGroupKey(for: $0) }
-        let order = ["private", "video", "social", "shopping", "work", "news", "other", "new"]
-        let metadata: [String: (String, String)] = [
-            "private": ("Private", "eye.slash.fill"),
-            "video": ("Video & streaming", "play.rectangle.fill"),
-            "social": ("Social", "bubble.left.and.bubble.right.fill"),
-            "shopping": ("Shopping", "bag.fill"),
-            "work": ("Work & productivity", "briefcase.fill"),
-            "news": ("News & reading", "newspaper.fill"),
-            "other": ("Other websites", "globe"),
-            "new": ("New tabs", "sparkle")
+        let grouped = Dictionary(grouping: browser.visibleTabs) { tab in
+            if tab.isPrivate { return "private" }
+            return tab.groupKind
+        }
+        let order = ["new", "search", "searchResult", "opened", "direct", "private"]
+        let metadata: [String: (String, String, String)] = [
+            "new": ("New tabs", "plus.square", "Blank tabs ready for a new page"),
+            "search": ("Search tabs", "magnifyingglass", "Searches already entered"),
+            "searchResult": ("Opened from search", "arrow.up.right", "Pages opened from search results"),
+            "opened": ("Opened from another page", "link", "Pages reached through a link"),
+            "direct": ("Directly opened pages", "globe", "Addresses entered directly"),
+            "private": ("Private tabs", "eye.slash.fill", "Temporary private sessions")
         ]
         return order.compactMap { key in
             guard let tabs = grouped[key], !tabs.isEmpty, let info = metadata[key] else { return nil }
-            return AutomaticTabGroup(id: key, title: info.0, symbol: info.1, tabs: tabs)
+            return AutomaticTabGroup(id: key, title: info.0, symbol: info.1, subtitle: info.2, tabs: tabs)
         }
-    }
-
-    private func tabGroupKey(for tab: BrowserTab) -> String {
-        if tab.isPrivate { return "private" }
-        guard let host = URL(string: tab.address)?.host?.lowercased() else { return "new" }
-        let domain = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
-        if ["youtube.com", "youtu.be", "netflix.com", "twitch.tv", "vimeo.com", "disneyplus.com", "primevideo.com", "spotify.com", "open.spotify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "video" }
-        if ["reddit.com", "discord.com", "discord.gg", "x.com", "twitter.com", "instagram.com", "facebook.com", "threads.net", "tiktok.com", "linkedin.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "social" }
-        if ["amazon.com", "amazon.de", "ebay.com", "ebay.de", "etsy.com", "aliexpress.com", "temu.com", "shopify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "shopping" }
-        if ["github.com", "gitlab.com", "notion.so", "figma.com", "slack.com", "microsoft.com", "office.com", "docs.google.com", "drive.google.com", "linear.app"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "work" }
-        if ["wikipedia.org", "medium.com", "bbc.com", "bbc.co.uk", "reuters.com", "theguardian.com", "nytimes.com", "apnews.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "news" }
-        return "other"
     }
 
     private var tabsSheet: some View {
@@ -756,7 +745,7 @@ struct ContentView: View {
                             Text("\(browser.visibleTabs.count) open")
                                 .font(.system(size: 23, weight: .semibold, design: .rounded))
                                 .foregroundStyle(.white)
-                            Text("Automatically grouped by activity")
+                            Text("Grouped by how each tab was opened")
                                 .font(.system(size: 11)).foregroundStyle(GlassPalette.secondary)
                         }
                         Spacer()
@@ -872,7 +861,7 @@ struct ContentView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white).lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
+                Text(tab.groupDetail.isEmpty ? (tab.address.isEmpty ? "GLASS start page" : tab.address) : tab.groupDetail)
                     .font(.system(size: 9))
                     .foregroundStyle(GlassPalette.secondary).lineLimit(1)
             }
