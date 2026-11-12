@@ -5,12 +5,82 @@ struct BrowserSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var customURL = ""
     @State private var permissionDomain = ""
+    @AppStorage("glass.theme.preset") private var themePreset = "violet"
+    @AppStorage("glass.theme.panelOpacity") private var themePanelOpacity = 0.075
+    @AppStorage("glass.theme.glow") private var themeGlow = 0.55
+    @AppStorage("glass.theme.cornerRadius") private var themeCornerRadius = 20.0
+    @AppStorage("glass.theme.blur") private var themeBlur = 0.65
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(red: 0.055, green: 0.05, blue: 0.085).ignoresSafeArea()
                 List {
+                    Section {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("GLASS appearance").font(.system(size: 15, weight: .semibold))
+                                    Text("One visual language across the browser").font(.system(size: 11)).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: GlassAppearance.symbol(for: themePreset))
+                                    .font(.system(size: 22, weight: .medium))
+                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                            }
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
+                                ForEach(GlassAppearance.presets, id: \.self) { preset in
+                                    Button {
+                                        themePreset = preset
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            Circle().fill(GlassAppearance.accent(for: preset)).frame(width: 12, height: 12)
+                                            Text(GlassAppearance.title(for: preset)).font(.system(size: 12, weight: .semibold))
+                                            Spacer()
+                                            if themePreset == preset {
+                                                Image(systemName: "checkmark.circle.fill").font(.system(size: 13))
+                                            }
+                                        }
+                                        .foregroundStyle(.white)
+                                        .padding(11)
+                                        .background(GlassAppearance.accent(for: preset).opacity(themePreset == preset ? 0.22 : 0.09), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(GlassAppearance.accent(for: preset).opacity(themePreset == preset ? 0.65 : 0.20)))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            VStack(spacing: 12) {
+                                appearanceSlider("Transparency", value: $themePanelOpacity, range: 0.035...0.16)
+                                appearanceSlider("Blur", value: $themeBlur, range: 0.15...1.0)
+                                appearanceSlider("Glow", value: $themeGlow, range: 0...1)
+                                appearanceSlider("Corner radius", value: $themeCornerRadius, range: 12...30)
+                            }
+                            .padding(.top, 3)
+                            RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous)
+                                .fill(GlassAppearance.accent(for: themePreset).opacity(0.15))
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+                                .overlay {
+                                    HStack {
+                                        Image(systemName: "circle.hexagongrid.fill")
+                                            .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                            .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow), radius: 10)
+                                        Text("Live GLASS preview").font(.system(size: 12, weight: .semibold))
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right").font(.system(size: 10))
+                                    }
+                                    .foregroundStyle(.white)
+                                    .padding(14)
+                                }
+                                .frame(height: 54)
+                        }
+                        .padding(.vertical, 7)
+                        .listRowBackground(Color.white.opacity(0.045))
+                    } header: {
+                        Text("Appearance")
+                    } footer: {
+                        Text("Your appearance is saved on this device. The same preset and controls will be included in secure sync once device pairing is connected.")
+                    }
+
                     Section {
                         Picker("Search engine", selection: setting(\.searchEngine)) {
                             ForEach(GlassSearchEngine.allCases) { engine in
@@ -149,6 +219,20 @@ struct BrowserSettingsView: View {
         }
         .tint(Color(red: 0.68, green: 0.53, blue: 1.0))
         .preferredColorScheme(.dark)
+    }
+
+    private func appearanceSlider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title).font(.system(size: 12, weight: .medium))
+                Spacer()
+                Text(title == "Corner radius" ? "\(Int(value.wrappedValue)) pt" : "\(Int(value.wrappedValue * 100))%")
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: value, in: range)
+                .tint(GlassAppearance.accent(for: themePreset))
+        }
     }
 
     private func setting<Value>(_ keyPath: WritableKeyPath<GlassBrowserSettings, Value>) -> Binding<Value> {
