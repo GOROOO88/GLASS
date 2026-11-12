@@ -12,6 +12,19 @@ enum GlassAppearance {
         }
     }
 
+    static func previewColors(for preset: String) -> [Color] {
+        switch preset {
+        case "ocean":
+            return [Color(red: 0.035, green: 0.18, blue: 0.34), Color(red: 0.12, green: 0.48, blue: 0.68), Color(red: 0.22, green: 0.72, blue: 0.88)]
+        case "emerald":
+            return [Color(red: 0.025, green: 0.20, blue: 0.15), Color(red: 0.08, green: 0.48, blue: 0.34), Color(red: 0.30, green: 0.72, blue: 0.48)]
+        case "rose":
+            return [Color(red: 0.24, green: 0.045, blue: 0.16), Color(red: 0.62, green: 0.16, blue: 0.38), Color(red: 0.94, green: 0.38, blue: 0.58)]
+        default:
+            return [Color(red: 0.10, green: 0.055, blue: 0.24), Color(red: 0.34, green: 0.18, blue: 0.58), Color(red: 0.62, green: 0.38, blue: 0.90)]
+        }
+    }
+
     static func title(for preset: String) -> String {
         switch preset {
         case "ocean": return "Ocean"
