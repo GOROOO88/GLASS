@@ -186,17 +186,17 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
                 .preferredColorScheme(.dark)
         }
-        .alert("Clear website data?", isPresented: $confirmClearWebsiteData) {
+        .alert("Очистить данные сайтов?", isPresented: $confirmClearWebsiteData) {
             Button("Отмена", role: .cancel) {}
             Button("Очистить данные", role: .destructive) {
                 browser.clearWebsiteData {
-                    privacyActionMessage = "Cookies, cache and website storage were cleared."
+                    privacyActionMessage = "Cookie, кэш и данные сайтов очищены."
                 }
             }
         } message: {
             Text("Вы выйдете из аккаунтов на многих сайтах. Закладки и загруженные файлы останутся.")
         }
-        .alert("Privacy", isPresented: Binding(
+        .alert("Приватность", isPresented: Binding(
             get: { !privacyActionMessage.isEmpty },
             set: { if !$0 { privacyActionMessage = "" } }
         )) {
@@ -773,7 +773,7 @@ struct ContentView: View {
     private var librarySheet: some View {
         NavigationStack {
             VStack(spacing: 14) {
-                Picker("Library", selection: $librarySection) {
+                Picker("Библиотека", selection: $librarySection) {
                     Text("История").tag(0)
                     Text("Закладки").tag(1)
                     Text("Загрузки").tag(2)
@@ -942,7 +942,7 @@ struct ContentView: View {
                                 )
                     Button(role: .destructive) {
                         browser.clearHistory()
-                        privacyActionMessage = "Browsing history was cleared."
+                        privacyActionMessage = "История браузера очищена."
                     } label: {
                         Label("Очистить историю браузера", systemImage: "clock")
                     }
