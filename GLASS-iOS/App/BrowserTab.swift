@@ -9,6 +9,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     @Published var spaceID: String
     let isPrivate: Bool
     var onVisit: ((URL, String) -> Void)?
+    var onOpenInNewTab: ((URL, String, String) -> Void)?
     var onDownloadStarted: ((UUID, String, URL?) -> Void)?
     var onDownloadProgress: ((UUID, Double) -> Void)?
     var onDownloadFinished: ((UUID, URL, String, URL?) -> Void)?
@@ -151,7 +152,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         isLoading = webView.isLoading
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {\n        guard navigationAction.targetFrame == nil,\n              let destinationURL = navigationAction.request.url else { return nil }\n        let sourceURL = webView.url ?? navigationAction.sourceFrame.request.url\n        let sourceHost = (sourceURL?.host ?? "").lowercased()\n        let searchHosts = ["google.", "bing.com", "duckduckgo.com", "yandex.", "search.yahoo.com", "search.brave.com"]\n        let isSearchSource = searchHosts.contains(where: { sourceHost.contains($0) })\n        let query = sourceURL.flatMap { url in\n            URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?\n                .first(where: { ["q", "text", "query", "p"].contains($0.name.lowercased()) })?.value\n        } ?? ""\n        onOpenInNewTab?(destinationURL, isSearchSource ? "searchResult" : "opened", isSearchSource ? query : (sourceURL?.host ?? ""))\n        return nil\n    }\n\n    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if navigationAction.targetFrame?.isMainFrame != false,
            let sourceURL = webView.url ?? navigationAction.sourceFrame.request.url,
            let destinationURL = navigationAction.request.url,
