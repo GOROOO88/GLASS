@@ -12,6 +12,8 @@ private enum GlassPalette {
 struct ContentView: View {
     @EnvironmentObject private var browser: BrowserStore
     @State private var addressText = ""
+    @State private var showLibrary = false
+    @State private var librarySection = 0
 
     var body: some View {
         ZStack {
@@ -50,6 +52,12 @@ struct ContentView: View {
         .onChange(of: browser.activeTab?.address) { _, value in
             if let value { addressText = value }
         }
+        .sheet(isPresented: $showLibrary) {
+            librarySheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .preferredColorScheme(.dark)
+        }
     }
 
     private var header: some View {
@@ -62,6 +70,18 @@ struct ContentView: View {
                     .tracking(2.4)
             }
             Spacer()
+            Button {
+                librarySection = 1
+                showLibrary = true
+            } label: {
+                Image(systemName: "books.vertical")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 42, height: 42)
+                    .background(GlassPalette.panel, in: Circle())
+                    .overlay(Circle().stroke(GlassPalette.line))
+            }
+            .accessibilityLabel("Library")
             Button {} label: {
                 Image(systemName: "sparkle")
                     .font(.system(size: 17, weight: .semibold))
@@ -94,6 +114,16 @@ struct ContentView: View {
                         .foregroundStyle(GlassPalette.accent)
                 }
                 .accessibilityLabel("Open address")
+            }
+            if let tab = browser.activeTab, !tab.address.isEmpty {
+                Button {
+                    browser.toggleBookmark(url: tab.address, title: tab.title)
+                } label: {
+                    Image(systemName: browser.isBookmarked(tab.address) ? "star.fill" : "star")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(GlassPalette.accent)
+                }
+                .accessibilityLabel(browser.isBookmarked(tab.address) ? "Remove bookmark" : "Add bookmark")
             }
         }
         .padding(.horizontal, 15)
@@ -184,6 +214,11 @@ struct ContentView: View {
                 browser.activeTab?.goForward()
             }
             Spacer()
+            navigationButton("clock.arrow.circlepath", enabled: true) {
+                librarySection = 0
+                showLibrary = true
+            }
+            Spacer()
             navigationButton("arrow.clockwise", enabled: browser.activeTab?.address.isEmpty == false) {
                 browser.activeTab?.reload()
             }
@@ -196,10 +231,96 @@ struct ContentView: View {
                 .foregroundStyle(GlassPalette.secondary)
                 .padding(.leading, 4)
         }
-        .padding(.horizontal, 18)
+        .padding(.horizontal, 14)
         .frame(height: 48)
         .background(GlassPalette.panel, in: Capsule())
         .overlay(Capsule().stroke(GlassPalette.line))
+    }
+
+    private var librarySheet: some View {
+        NavigationStack {
+            VStack(spacing: 14) {
+                Picker("Library", selection: $librarySection) {
+                    Text("History").tag(0)
+                    Text("Bookmarks").tag(1)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+
+                if librarySection == 0 {
+                    if browser.history.isEmpty {
+                        ContentUnavailableView("No history yet", systemImage: "clock", description: Text("Pages you visit will appear here."))
+                    } else {
+                        List {
+                            ForEach(browser.history, id: \.self) { url in
+                                libraryRow(title: URL(string: url)?.host ?? url, subtitle: url, symbol: "clock") {
+                                    openLibraryURL(url)
+                                }
+                            }
+                        }
+                        .listStyle(.plain)
+                    }
+                } else {
+                    if browser.bookmarks.isEmpty {
+                        ContentUnavailableView("No bookmarks yet", systemImage: "star", description: Text("Save a page with the star in the address bar."))
+                    } else {
+                        List {
+                            ForEach(browser.bookmarks) { bookmark in
+                                libraryRow(title: bookmark.title, subtitle: bookmark.url, symbol: "star") {
+                                    openLibraryURL(bookmark.url)
+                                }
+                                .swipeActions {
+                                    Button(role: .destructive) {
+                                        browser.removeBookmark(bookmark)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                            }
+                        }
+                        .listStyle(.plain)
+                    }
+                }
+            }
+            .padding(.top, 12)
+            .background(GlassPalette.background)
+            .navigationTitle("Library")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if librarySection == 0 && !browser.history.isEmpty {
+                        Button("Clear") { browser.clearHistory() }
+                    }
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Done") { showLibrary = false }
+                }
+            }
+        }
+        .tint(GlassPalette.accent)
+    }
+
+    private func libraryRow(title: String, subtitle: String, symbol: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: symbol)
+                    .foregroundStyle(GlassPalette.accent)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.system(size: 14, weight: .medium)).foregroundStyle(.white).lineLimit(1)
+                    Text(subtitle).font(.system(size: 11)).foregroundStyle(GlassPalette.secondary).lineLimit(1)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+        .listRowBackground(GlassPalette.panel)
+    }
+
+    private func openLibraryURL(_ value: String) {
+        guard let url = URL(string: value) else { return }
+        if browser.activeTab == nil { browser.addTab() }
+        browser.activeTab?.load(url)
+        showLibrary = false
     }
 
     private func navigationButton(_ symbol: String, enabled: Bool, action: @escaping () -> Void) -> some View {
@@ -223,13 +344,13 @@ struct ContentView: View {
         } else if input.contains(".") && !input.contains(" ") {
             destination = URL(string: "https://" + input)
         } else {
-            let query = input.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? input
-            destination = URL(string: "https://www.google.com/search?q=" + query)
+            var components = URLComponents(string: "https://www.google.com/search")
+            components?.queryItems = [URLQueryItem(name: "q", value: input)]
+            destination = components?.url
         }
 
         guard let destination else { return }
         tab.load(destination)
-        browser.recordVisit(destination)
         hideKeyboard()
     }
 
