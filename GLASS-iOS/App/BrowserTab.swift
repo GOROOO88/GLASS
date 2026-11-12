@@ -14,6 +14,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     var onDownloadProgress: ((UUID, Double) -> Void)?
     var onDownloadFinished: ((UUID, URL, String, URL?) -> Void)?
     var onDownloadFailure: ((UUID, String) -> Void)?
+    var onDownloadCancelled: ((UUID) -> Void)?
 
     @Published var title = "Новая вкладка"
     @Published var address = ""
@@ -29,6 +30,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     private var downloadIDs: [ObjectIdentifier: UUID] = [:]
     private var progressObservers: [ObjectIdentifier: NSKeyValueObservation] = [:]
     private var downloadObjects: [ObjectIdentifier: WKDownload] = [:]
+    private var cancelledDownloadIDs: Set<UUID> = []
 
     init(id: UUID = UUID(), spaceID: String = "personal", isPrivate: Bool = false) {
         self.id = id
@@ -123,6 +125,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     func cancelDownload(id: UUID) {
         guard let pair = downloadIDs.first(where: { $0.value == id }),
               let download = downloadObjects[pair.key] else { return }
+        cancelledDownloadIDs.insert(id)
         download.cancel { _ in }
     }
 
@@ -251,7 +254,9 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         downloadNames.removeValue(forKey: key)
         downloadSources.removeValue(forKey: key)
         cleanupDownload(key)
-        if !isPrivate {
+        if cancelledDownloadIDs.remove(id) != nil {
+            if !isPrivate { onDownloadCancelled?(id) }
+        } else if !isPrivate {
             onDownloadFailure?(id, error.localizedDescription)
         }
     }
