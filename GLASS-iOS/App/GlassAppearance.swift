@@ -1,6 +1,9 @@
 import SwiftUI
 
 enum GlassAppearance {
+    static let privateAccent = Color(red: 1.0, green: 0.48, blue: 0.29)
+    static let privateBackground = Color(red: 0.075, green: 0.035, blue: 0.035)
+
     static let presets = ["violet", "ocean", "emerald", "rose"]
 
     static func accent(for preset: String) -> Color {
