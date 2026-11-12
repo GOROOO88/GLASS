@@ -21,6 +21,10 @@ The iOS/Android/Windows clients must encrypt and decrypt the payload locally bef
 
 The Durable Object SQLite migration is declared in `wrangler.toml`. Cloudflare creates the namespace as part of deployment.
 
+## Important client-authentication limitation
+
+`SYNC_TOKEN` is a server-side bootstrap secret for deployment and controlled testing. **Never embed it in the iOS, Android, or Windows app**: mobile application secrets can be extracted. This Worker is not yet ready for direct production use by client apps. Before enabling cross-device sync, add account/device pairing that issues revocable per-device credentials and stores only credential verifiers server-side. The encryption key must be transferred between the user's devices through an authenticated local pairing flow, not sent to this Worker.
+
 ## API
 
 - `GET /health` returns service status.
