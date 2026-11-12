@@ -41,7 +41,43 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
         webView.allowsLinkPreview = true
     }
 
-    func applyContentBlocking(adBlocking: Bool, trackerBlocking: Bool) {\n        let store = WKContentRuleListStore.default()\n        let identifier = "glass-content-protection"\n        let rules: [[String: Any]] = [\n            ["trigger": ["url-filter": ".*", "if-domain": ["*doubleclick.net", "*googlesyndication.com", "*adservice.google.com", "*adnxs.com", "*adform.net", "*adsrvr.org", "*taboola.com", "*outbrain.com"], "load-type": ["third-party"]], "action": ["type": "block"]],\n            ["trigger": ["url-filter": ".*", "if-domain": ["*google-analytics.com", "*googletagmanager.com", "*connect.facebook.net", "*hotjar.com", "*mixpanel.com", "*segment.io", "*scorecardresearch.com"], "load-type": ["third-party"]], "action": ["type": "block"]]\n        ]\n        let enabledRules = rules.enumerated().compactMap { index, rule -> [String: Any]? in\n            if index == 0 && !adBlocking { return nil }\n            if index == 1 && !trackerBlocking { return nil }\n            return rule\n        }\n        webView.configuration.userContentController.removeAllContentRuleLists()\n        guard !enabledRules.isEmpty, let data = try? JSONSerialization.data(withJSONObject: enabledRules),\n              let json = String(data: data, encoding: .utf8) else { return }\n        store.compileContentRuleList(forIdentifier: identifier, encodedContentRuleList: json) { [weak self] list, _ in\n            guard let self, let list else { return }\n            Task { @MainActor in\n                self.webView.configuration.userContentController.add(list)\n            }\n        }\n    }\n\n    func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {\n        let data = UserDefaults.standard.data(forKey: "glass.ios.settings.v1")\n        let settings = data.flatMap { try? JSONDecoder().decode(GlassBrowserSettings.self, from: $0) } ?? GlassBrowserSettings()\n        let allowed: Bool\n        switch type {\n        case .camera: allowed = settings.cameraAllowed\n        case .microphone: allowed = settings.microphoneAllowed\n        case .cameraAndMicrophone: allowed = settings.cameraAllowed && settings.microphoneAllowed\n        @unknown default: allowed = false\n        }\n        decisionHandler(allowed ? .grant : .deny)\n    }\n\n    func load(_ url: URL) {
+    func applyContentBlocking(adBlocking: Bool, trackerBlocking: Bool) {
+        let store = WKContentRuleListStore.default()
+        let identifier = "glass-content-protection"
+        let rules: [[String: Any]] = [
+            ["trigger": ["url-filter": ".*", "if-domain": ["*doubleclick.net", "*googlesyndication.com", "*adservice.google.com", "*adnxs.com", "*adform.net", "*adsrvr.org", "*taboola.com", "*outbrain.com"], "load-type": ["third-party"]], "action": ["type": "block"]],
+            ["trigger": ["url-filter": ".*", "if-domain": ["*google-analytics.com", "*googletagmanager.com", "*connect.facebook.net", "*hotjar.com", "*mixpanel.com", "*segment.io", "*scorecardresearch.com"], "load-type": ["third-party"]], "action": ["type": "block"]]
+        ]
+        let enabledRules = rules.enumerated().compactMap { index, rule -> [String: Any]? in
+            if index == 0 && !adBlocking { return nil }
+            if index == 1 && !trackerBlocking { return nil }
+            return rule
+        }
+        webView.configuration.userContentController.removeAllContentRuleLists()
+        guard !enabledRules.isEmpty, let data = try? JSONSerialization.data(withJSONObject: enabledRules),
+              let json = String(data: data, encoding: .utf8) else { return }
+        store.compileContentRuleList(forIdentifier: identifier, encodedContentRuleList: json) { [weak self] list, _ in
+            guard let self, let list else { return }
+            Task { @MainActor in
+                self.webView.configuration.userContentController.add(list)
+            }
+        }
+    }
+
+    func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+        let data = UserDefaults.standard.data(forKey: "glass.ios.settings.v1")
+        let settings = data.flatMap { try? JSONDecoder().decode(GlassBrowserSettings.self, from: $0) } ?? GlassBrowserSettings()
+        let allowed: Bool
+        switch type {
+        case .camera: allowed = settings.cameraAllowed
+        case .microphone: allowed = settings.microphoneAllowed
+        case .cameraAndMicrophone: allowed = settings.cameraAllowed && settings.microphoneAllowed
+        @unknown default: allowed = false
+        }
+        decisionHandler(allowed ? .grant : .deny)
+    }
+
+    func load(_ url: URL) {
         webView.load(URLRequest(url: url))
     }
 
