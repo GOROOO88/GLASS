@@ -223,7 +223,12 @@ struct BrowserSettingsView: View {
                                 Text(engine.title).tag(engine)
                             }
                         }
-                        .listRowBackground(.ultraThinMaterial)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                     } header: {
                         Text("Search")
                     } footer: {
@@ -232,9 +237,19 @@ struct BrowserSettingsView: View {
 
                     Section {
                         Toggle("Block ads", isOn: setting(\.adBlockingEnabled))
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         Toggle("Block known trackers", isOn: setting(\.trackerBlockingEnabled))
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                     } header: {
                         Text("Protection")
                     } footer: {
@@ -243,9 +258,19 @@ struct BrowserSettingsView: View {
 
                     Section {
                         Toggle("Allow camera requests", isOn: setting(\.cameraAllowed))
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         Toggle("Allow microphone requests", isOn: setting(\.microphoneAllowed))
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         HStack(spacing: 8) {
                             TextField("example.com", text: $permissionDomain)
                                 .textInputAutocapitalization(.never)
@@ -256,7 +281,12 @@ struct BrowserSettingsView: View {
                             }
                             .disabled(permissionDomain.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
-                        .listRowBackground(.ultraThinMaterial)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         ForEach(browser.settings.sitePermissions.values.sorted { $0.domain < $1.domain }) { site in
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
@@ -275,12 +305,22 @@ struct BrowserSettingsView: View {
                                     set: { browser.setSitePermission(domain: site.domain, camera: browser.settings.sitePermissions[site.domain]?.cameraAllowed ?? true, microphone: $0) }
                                 ))
                             }
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         }
                         Label("Location access is controlled by iOS site and app permission prompts.", systemImage: "location")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                     } header: {
                         Text("Site permissions")
                     } footer: {
@@ -292,13 +332,23 @@ struct BrowserSettingsView: View {
                             Text("GLASS start page").tag("glass")
                             Text("Custom website").tag("custom")
                         }
-                        .listRowBackground(.ultraThinMaterial)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         if browser.settings.startPage == "custom" {
                             TextField("https://example.com", text: $customURL)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                                 .keyboardType(.URL)
-                                .listRowBackground(.ultraThinMaterial)
+                                .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                                 .onChange(of: customURL) { _, value in
                                     browser.updateCustomStartPage(value)
                                 }
@@ -309,13 +359,23 @@ struct BrowserSettingsView: View {
 
                     Section {
                         Toggle("Clear private data when tabs close", isOn: setting(\.clearPrivateDataOnClose))
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         Button(role: .destructive) {
                             browser.closeAllPrivateTabs()
                         } label: {
                             Label("Close all private tabs now", systemImage: "eye.slash")
                         }
-                        .listRowBackground(.ultraThinMaterial)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                     } header: {
                         Text("Private browsing")
                     } footer: {
@@ -330,17 +390,29 @@ struct BrowserSettingsView: View {
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
-                        .listRowBackground(.ultraThinMaterial)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                         Text("Local AES-GCM encryption and Keychain key storage are implemented. Cross-device sync remains off until secure device pairing, account authentication, and the Cloudflare service are connected.")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
-                            .listRowBackground(.ultraThinMaterial)
+                            .listRowBackground(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(themeCardOpacity * 0.55)))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.white.opacity(0.075), lineWidth: 0.8))
+                        )
                     } header: {
                         Text("Sync")
                     }
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
+                .listRowSeparatorTint(Color.white.opacity(0.075))
+                .environment(\.defaultMinListRowHeight, 48)
                 .foregroundStyle(.white)
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -349,7 +421,7 @@ struct BrowserSettingsView: View {
                     Button { dismiss() } label: { Image(systemName: "chevron.left").font(.system(size: 15, weight: .semibold)) }
                 }
                 ToolbarItem(placement: .principal) {
-                    Text("Темы").font(.system(size: 16, weight: .semibold))
+                    Text("Настройки").font(.system(size: 16, weight: .semibold))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -376,7 +448,8 @@ struct BrowserSettingsView: View {
                 customURL = browser.settings.customStartPageURL
             }
         }
-        .tint(Color(red: 0.68, green: 0.53, blue: 1.0))
+        .tint(GlassAppearance.accent(for: themePreset))
+        .toolbarBackground(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
     }
 
