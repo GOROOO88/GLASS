@@ -110,6 +110,8 @@ struct ContentView: View {
                             startPage
                         } else {
                             BrowserView(tab: tab)
+                                .id(tab.id)
+                                .transition(.opacity)
                                 .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                         }
                     } else {
@@ -131,20 +133,12 @@ struct ContentView: View {
                 .accessibilityHidden(true)
         }
         .animation(.easeInOut(duration: 0.08 + themeMotion * 0.42), value: themePreset)
+        .animation(.easeInOut(duration: 0.22 + themeMotion * 0.20), value: browser.activeTabID)
         .onChange(of: isPrivateMode) { _, _ in
             playScreenFade()
         }
         .onChange(of: browser.activeTabID) { _, _ in
             addressText = browser.activeTab?.address ?? ""
-            playScreenFade()
-        }
-        .onChange(of: browser.activeSpaceID) { _, _ in
-            playScreenFade()
-        }
-        .onChange(of: browser.activeTab?.isLoading) { _, isLoading in
-            if isLoading == true {
-                playScreenFade()
-            }
         }
         .onChange(of: browser.activeTab?.address) { _, value in
             if let value { addressText = value }
