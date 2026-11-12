@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import QuickLook
 
 private struct AutomaticTabGroup: Identifiable {
     let id: String
@@ -51,6 +52,7 @@ struct ContentView: View {
     @State private var tabsSearchText = ""
     @State private var confirmCloseSpaceTabs = false
     @State private var screenFadeOpacity = 0.0
+    @State private var previewDownloadURL: URL?
 
     private var isPrivateMode: Bool { browser.activeTab?.isPrivate == true }
     private var activeAccent: Color {
@@ -840,16 +842,43 @@ struct ContentView: View {
                             }
                             ForEach(browser.downloads) { download in
                                 HStack(spacing: 10) {
-                                    Image(systemName: "doc.fill").foregroundStyle(activeAccent).frame(width: 28)
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
+                                    Image(systemName: "doc.fill")
+                                        .font(.system(size: 17))
+                                        .foregroundStyle(activeAccent)
+                                        .frame(width: 30, height: 34)
+                                        .background(activeAccent.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(download.filename)
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundStyle(.white)
+                                            .lineLimit(1)
+                                        Text("\(download.fileTypeLabel) · \(ByteCountFormatter.string(fromByteCount: download.fileSize, countStyle: .file))")
+                                            .font(.system(size: 10, weight: .medium))
+                                            .foregroundStyle(GlassPalette.secondary)
+                                            .lineLimit(1)
                                         Text(download.completedAt.formatted(date: .abbreviated, time: .shortened))
-                                            .font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
+                                            .font(.system(size: 9))
+                                            .foregroundStyle(GlassPalette.secondary.opacity(0.78))
                                     }
-                                    Spacer()
+                                    Spacer(minLength: 4)
+                                    Button {
+                                        guard FileManager.default.fileExists(atPath: download.fileURL.path) else { return }
+                                        previewDownloadURL = download.fileURL
+                                    } label: {
+                                        Image(systemName: "eye")
+                                            .font(.system(size: 14, weight: .semibold))
+                                            .foregroundStyle(activeAccent)
+                                            .frame(width: 34, height: 34)
+                                            .background(activeAccent.opacity(0.12), in: Circle())
+                                    }
+                                    .accessibilityLabel("Просмотреть файл")
                                     ShareLink(item: download.fileURL) {
-                                        Image(systemName: "square.and.arrow.up").foregroundStyle(activeAccent)
+                                        Image(systemName: "square.and.arrow.up")
+                                            .font(.system(size: 14, weight: .semibold))
+                                            .foregroundStyle(activeAccent)
+                                            .frame(width: 32, height: 34)
                                     }
+                                    .accessibilityLabel("Поделиться файлом")
                                 }
                                 .listRowBackground(
                                     RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -859,7 +888,7 @@ struct ContentView: View {
                                 )
                                 .swipeActions {
                                     Button(role: .destructive) { browser.removeDownload(download) } label: {
-                                        Label("Удалить", systemImage: "trash")
+                                        Label("Удалить файл", systemImage: "trash")
                                     }
                                 }
                             }
@@ -882,6 +911,7 @@ struct ContentView: View {
         }
         .tint(activeAccent)
         .preferredColorScheme(.dark)
+        .quickLookPreview($previewDownloadURL)
     }
 
     private var privacySheet: some View {
