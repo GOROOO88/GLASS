@@ -67,11 +67,13 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
         let data = UserDefaults.standard.data(forKey: "glass.ios.settings.v1")
         let settings = data.flatMap { try? JSONDecoder().decode(GlassBrowserSettings.self, from: $0) } ?? GlassBrowserSettings()
+        let siteRule = settings.sitePermissions[origin.host.lowercased()]
         let allowed: Bool
         switch type {
-        case .camera: allowed = settings.cameraAllowed
-        case .microphone: allowed = settings.microphoneAllowed
-        case .cameraAndMicrophone: allowed = settings.cameraAllowed && settings.microphoneAllowed
+        case .camera: allowed = siteRule?.cameraAllowed ?? settings.cameraAllowed
+        case .microphone: allowed = siteRule?.microphoneAllowed ?? settings.microphoneAllowed
+        case .cameraAndMicrophone:
+            allowed = (siteRule?.cameraAllowed ?? settings.cameraAllowed) && (siteRule?.microphoneAllowed ?? settings.microphoneAllowed)
         @unknown default: allowed = false
         }
         decisionHandler(allowed ? .grant : .deny)
