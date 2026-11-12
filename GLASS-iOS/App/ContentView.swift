@@ -2,10 +2,8 @@ import SwiftUI
 import UIKit
 
 private enum GlassPalette {
-    static let background = Color(red: 0.055, green: 0.05, blue: 0.085)
-    static let panel = Color.white.opacity(0.075)
-    static let line = Color.white.opacity(0.11)
-    static let accent = Color(red: 0.68, green: 0.53, blue: 1.0)
+    static let background = Color(red: 0.035, green: 0.035, blue: 0.065)
+    static let line = Color.white.opacity(0.12)
     static let secondary = Color.white.opacity(0.58)
 }
 
@@ -24,7 +22,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             GlassPalette.background.ignoresSafeArea()
-            RadialGradient(colors: [GlassPalette.accent.opacity(0.18), .clear], center: .top, startRadius: 8, endRadius: 420)
+            RadialGradient(colors: [GlassAppearance.accent(for: themePreset).opacity(0.18), .clear], center: .top, startRadius: 8, endRadius: 420)
                 .ignoresSafeArea()
 
             VStack(spacing: 12) {
@@ -106,7 +104,7 @@ struct ContentView: View {
     private var header: some View {
         HStack {
             HStack(spacing: 8) {
-                Image(systemName: "circle.hexagongrid.fill").foregroundStyle(GlassPalette.accent)
+                Image(systemName: "circle.hexagongrid.fill").foregroundStyle(GlassAppearance.accent(for: themePreset))
                 Text("GLASS").font(.system(size: 17, weight: .bold, design: .rounded)).tracking(2.4)
             }
             Spacer()
@@ -116,7 +114,7 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "books.vertical").font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white).frame(width: 42, height: 42)
-                    .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+                    .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Library")
             Button {
@@ -125,7 +123,7 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "arrow.down.circle").font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(.white).frame(width: 42, height: 42)
-                    .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+                    .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Downloads")
             Button {
@@ -133,7 +131,7 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "slider.horizontal.3").font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white).frame(width: 42, height: 42)
-                    .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+                    .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Browser settings")
             Button {
@@ -141,7 +139,7 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "hand.raised").font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white).frame(width: 42, height: 42)
-                    .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+                    .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Privacy settings")
         }
@@ -150,7 +148,7 @@ struct ContentView: View {
     private var addressBar: some View {
         HStack(spacing: 10) {
             if browser.activeTab?.isPrivate == true {
-                Image(systemName: "eye.slash.fill").foregroundStyle(GlassPalette.accent)
+                Image(systemName: "eye.slash.fill").foregroundStyle(GlassAppearance.accent(for: themePreset))
             } else {
                 Image(systemName: "magnifyingglass").foregroundStyle(GlassPalette.secondary)
             }
@@ -158,10 +156,10 @@ struct ContentView: View {
                 .font(.system(size: 15)).textInputAutocapitalization(.never)
                 .autocorrectionDisabled().keyboardType(.URL).submitLabel(.go).onSubmit(openAddress)
             if let tab = browser.activeTab, tab.isLoading {
-                ProgressView().tint(GlassPalette.accent)
+                ProgressView().tint(GlassAppearance.accent(for: themePreset))
             } else {
                 Button(action: openAddress) {
-                    Image(systemName: "arrow.up.right").font(.system(size: 14, weight: .bold)).foregroundStyle(GlassPalette.accent)
+                    Image(systemName: "arrow.up.right").font(.system(size: 14, weight: .bold)).foregroundStyle(GlassAppearance.accent(for: themePreset))
                 }
                 .accessibilityLabel("Open address")
             }
@@ -170,13 +168,13 @@ struct ContentView: View {
                     browser.toggleBookmark(url: tab.address, title: tab.title)
                 } label: {
                     Image(systemName: browser.isBookmarked(tab.address) ? "star.fill" : "star")
-                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(GlassPalette.accent)
+                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(GlassAppearance.accent(for: themePreset))
                 }
                 .accessibilityLabel(browser.isBookmarked(tab.address) ? "Remove bookmark" : "Add bookmark")
             }
         }
         .padding(.horizontal, 15).frame(height: 52)
-        .background(GlassPalette.panel, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(GlassPalette.line))
     }
 
@@ -194,7 +192,7 @@ struct ContentView: View {
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(browser.activeSpaceID == space.id ? .white : GlassPalette.secondary)
                         .padding(.horizontal, 13).frame(height: 34)
-                        .background(browser.activeSpaceID == space.id ? spaceColor(space.tint).opacity(0.30) : GlassPalette.panel, in: Capsule())
+                        .background(browser.activeSpaceID == space.id ? spaceColor(space.tint).opacity(0.30) : Color.white.opacity(themePanelOpacity), in: Capsule())
                         .overlay(Capsule().stroke(browser.activeSpaceID == space.id ? spaceColor(space.tint).opacity(0.75) : GlassPalette.line))
                     }
                 }
@@ -203,7 +201,7 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "plus").font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white).frame(width: 34, height: 34)
-                        .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+                        .background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
                 }
                 .accessibilityLabel("Manage spaces")
             }
@@ -230,8 +228,8 @@ struct ContentView: View {
                         .accessibilityLabel("Close tab")
                     }
                     .padding(.horizontal, 12).frame(height: 36)
-                    .background(tab.isPrivate ? GlassPalette.accent.opacity(0.20) : (browser.activeTabID == tab.id ? GlassPalette.accent.opacity(0.24) : GlassPalette.panel), in: Capsule())
-                    .overlay(Capsule().stroke(browser.activeTabID == tab.id ? GlassPalette.accent.opacity(0.45) : GlassPalette.line))
+                    .background(tab.isPrivate ? GlassAppearance.accent(for: themePreset).opacity(0.20) : (browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.24) : Color.white.opacity(themePanelOpacity)), in: Capsule())
+                    .overlay(Capsule().stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.45) : GlassPalette.line))
                     .contextMenu {
                         ForEach(browser.spaces.filter { $0.id != tab.spaceID }) { destination in
                             Button {
@@ -244,7 +242,7 @@ struct ContentView: View {
                 }
                 Button { browser.addTab() } label: {
                     Image(systemName: "plus").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
-                        .frame(width: 36, height: 36).background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+                        .frame(width: 36, height: 36).background(Color.white.opacity(themePanelOpacity), in: Circle()).overlay(Circle().stroke(GlassPalette.line))
                 }
                 .accessibilityLabel("New tab")
             }
@@ -252,32 +250,184 @@ struct ContentView: View {
     }
 
     private var startPage: some View {
-        VStack(spacing: 14) {
-            Spacer()
-            Image(systemName: browser.activeTab?.isPrivate == true ? "eye.slash.circle.fill" : "circle.hexagongrid.fill")
-                .font(.system(size: 42, weight: .light)).foregroundStyle(GlassPalette.accent)
-                .shadow(color: GlassPalette.accent.opacity(0.55), radius: 24)
-            Text(browser.activeTab?.isPrivate == true ? "PRIVATE TAB" : "GLASS")
-                .font(.system(size: 27, weight: .bold, design: .rounded)).tracking(5).foregroundStyle(.white)
-            Text(browser.activeTab?.isPrivate == true ? "Your private session is not saved." : browser.activeSpace.name)
-                .font(.system(size: 14)).foregroundStyle(GlassPalette.secondary)
-            Button {
-                if let custom = browser.resolvedStartPageURL {
-                    browser.activeTab?.load(custom)
-                } else {
-                    addressText = "https://www.google.com"
-                    openAddress()
+        Group {
+            if browser.activeTab?.isPrivate == true {
+                VStack(spacing: 14) {
+                    Spacer()
+                    Image(systemName: "eye.slash.circle.fill")
+                        .font(.system(size: 46, weight: .light))
+                        .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow), radius: 24)
+                    Text("PRIVATE SPACE")
+                        .font(.system(size: 23, weight: .bold, design: .rounded)).tracking(3)
+                        .foregroundStyle(.white)
+                    Text("This session stays on this device and is not saved.")
+                        .font(.system(size: 13)).foregroundStyle(GlassPalette.secondary)
+                        .multilineTextAlignment(.center)
+                    Spacer()
                 }
-            } label: {
-                Label("Start browsing", systemImage: "arrow.up.right")
-                    .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
-                    .padding(.horizontal, 18).padding(.vertical, 12)
-                    .background(GlassPalette.accent.opacity(0.28), in: Capsule())
-                    .overlay(Capsule().stroke(GlassPalette.accent.opacity(0.45)))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 9) {
+                                Image(systemName: "circle.hexagongrid.fill")
+                                    .font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                Text("GLASS")
+                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .tracking(3).foregroundStyle(.white.opacity(0.8))
+                                Spacer()
+                                Text("YOUR SPACE")
+                                    .font(.system(size: 9, weight: .bold)).tracking(1.6)
+                                    .foregroundStyle(GlassPalette.secondary)
+                            }
+                            Text("A quieter corner\nof the web.")
+                                .font(.system(size: 31, weight: .semibold, design: .rounded))
+                                .tracking(-0.8).foregroundStyle(.white)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("Everything you need, right where you left it.")
+                                .font(.system(size: 13)).foregroundStyle(GlassPalette.secondary)
+                        }
+                        .padding(18)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    GlassAppearance.accent(for: themePreset).opacity(0.23),
+                                    Color.white.opacity(0.035),
+                                    Color.white.opacity(0.015)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            in: RoundedRectangle(cornerRadius: themeCornerRadius + 8, style: .continuous)
+                        )
+                        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 8).stroke(Color.white.opacity(0.13)))
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            sectionHeading("QUICK ACCESS", subtitle: "Your everyday destinations")
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                                quickLink("YouTube", subtitle: "Watch", symbol: "play.rectangle.fill", url: "https://www.youtube.com")
+                                quickLink("Spotify", subtitle: "Listen", symbol: "waveform", url: "https://open.spotify.com")
+                                quickLink("Reddit", subtitle: "Explore", symbol: "bubble.left.and.bubble.right.fill", url: "https://www.reddit.com")
+                                quickLink("Wikipedia", subtitle: "Discover", symbol: "book.closed.fill", url: "https://www.wikipedia.org")
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            sectionHeading("SPACES", subtitle: "Keep different parts of life separate")
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                                ForEach(browser.spaces) { space in
+                                    Button {
+                                        browser.selectSpace(space)
+                                    } label: {
+                                        HStack(alignment: .top, spacing: 10) {
+                                            Image(systemName: space.symbol)
+                                                .font(.system(size: 17, weight: .semibold))
+                                                .foregroundStyle(spaceColor(space.tint))
+                                                .frame(width: 36, height: 36)
+                                                .background(spaceColor(space.tint).opacity(0.16), in: RoundedRectangle(cornerRadius: 12))
+                                            Spacer(minLength: 0)
+                                            Image(systemName: browser.activeSpaceID == space.id ? "checkmark.circle.fill" : "arrow.up.right")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundStyle(browser.activeSpaceID == space.id ? GlassAppearance.accent(for: themePreset) : GlassPalette.secondary)
+                                        }
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(space.name).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                                            Text(browser.activeSpaceID == space.id ? "Currently active" : "Open space")
+                                                .font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                    .padding(13)
+                                    .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+                                    .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                sectionHeading("RECENTLY VISITED", subtitle: "Pick up where you left off")
+                                Spacer()
+                                Button("History") { librarySection = 0; showLibrary = true }
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                            }
+                            if browser.history.isEmpty {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "clock").foregroundStyle(GlassPalette.secondary)
+                                    Text("Your recent pages will appear here.")
+                                        .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
+                                }
+                                .padding(15).frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius))
+                            } else {
+                                VStack(spacing: 0) {
+                                    ForEach(Array(browser.history.prefix(5)), id: \.self) { value in
+                                        Button { openLibraryURL(value) } label: {
+                                            HStack(spacing: 11) {
+                                                Image(systemName: "globe")
+                                                    .font(.system(size: 14)).foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                                    .frame(width: 30, height: 30)
+                                                    .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: Circle())
+                                                VStack(alignment: .leading, spacing: 3) {
+                                                    Text(URL(string: value)?.host ?? value)
+                                                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                                                    Text(value).font(.system(size: 10)).foregroundStyle(GlassPalette.secondary).lineLimit(1)
+                                                }
+                                                Spacer()
+                                                Image(systemName: "arrow.up.right").font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
+                                            }
+                                            .padding(.vertical, 10).padding(.horizontal, 12)
+                                        }
+                                        .buttonStyle(.plain)
+                                        if value != browser.history.prefix(5).last {
+                                            Divider().overlay(Color.white.opacity(0.07)).padding(.leading, 52)
+                                        }
+                                    }
+                                }
+                                .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius))
+                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
             }
-            Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func sectionHeading(_ title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title).font(.system(size: 10, weight: .bold)).tracking(1.5).foregroundStyle(GlassPalette.secondary)
+            Text(subtitle).font(.system(size: 12)).foregroundStyle(.white.opacity(0.78))
+        }
+    }
+
+    private func quickLink(_ title: String, subtitle: String, symbol: String, url: String) -> some View {
+        Button { openLibraryURL(url) } label: {
+            HStack(spacing: 10) {
+                Image(systemName: symbol)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                    .frame(width: 34, height: 34)
+                    .background(GlassAppearance.accent(for: themePreset).opacity(0.14), in: RoundedRectangle(cornerRadius: 11))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                    Text(subtitle).font(.system(size: 10)).foregroundStyle(GlassPalette.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.up.right").font(.system(size: 9, weight: .semibold)).foregroundStyle(GlassPalette.secondary)
+            }
+            .padding(12)
+            .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
+        }
+        .buttonStyle(.plain)
     }
 
     private var navigationBar: some View {
@@ -299,7 +449,7 @@ struct ContentView: View {
                 .foregroundStyle(GlassPalette.secondary).padding(.leading, 4)
         }
         .padding(.horizontal, 10).frame(height: 48)
-        .background(GlassPalette.panel, in: Capsule()).overlay(Capsule().stroke(GlassPalette.line))
+        .background(Color.white.opacity(themePanelOpacity), in: Capsule()).overlay(Capsule().stroke(GlassPalette.line))
     }
 
     private var librarySheet: some View {
@@ -344,14 +494,14 @@ struct ContentView: View {
                             ForEach(browser.activeDownloads) { download in
                                 HStack(spacing: 10) {
                                     Image(systemName: download.failure == nil ? "arrow.down.circle.fill" : "exclamationmark.triangle.fill")
-                                        .foregroundStyle(download.failure == nil ? GlassPalette.accent : .orange)
+                                        .foregroundStyle(download.failure == nil ? GlassAppearance.accent(for: themePreset) : .orange)
                                         .frame(width: 28)
                                     VStack(alignment: .leading, spacing: 5) {
                                         Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
                                         if let failure = download.failure {
                                             Text(failure).font(.system(size: 10)).foregroundStyle(.orange).lineLimit(2)
                                         } else {
-                                            ProgressView(value: download.progress).tint(GlassPalette.accent)
+                                            ProgressView(value: download.progress).tint(GlassAppearance.accent(for: themePreset))
                                             Text("\(Int(download.progress * 100))%")
                                                 .font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(GlassPalette.secondary)
                                         }
@@ -359,7 +509,7 @@ struct ContentView: View {
                                     Spacer()
                                     if download.failure != nil {
                                         Button { browser.retryDownload(download) } label: {
-                                            Image(systemName: "arrow.clockwise").foregroundStyle(GlassPalette.accent)
+                                            Image(systemName: "arrow.clockwise").foregroundStyle(GlassAppearance.accent(for: themePreset))
                                         }
                                         .accessibilityLabel("Retry download")
                                     } else {
@@ -369,11 +519,11 @@ struct ContentView: View {
                                         .accessibilityLabel("Cancel download")
                                     }
                                 }
-                                .listRowBackground(GlassPalette.panel)
+                                .listRowBackground(Color.white.opacity(themePanelOpacity))
                             }
                             ForEach(browser.downloads) { download in
                                 HStack(spacing: 10) {
-                                    Image(systemName: "doc.fill").foregroundStyle(GlassPalette.accent).frame(width: 28)
+                                    Image(systemName: "doc.fill").foregroundStyle(GlassAppearance.accent(for: themePreset)).frame(width: 28)
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
                                         Text(download.completedAt.formatted(date: .abbreviated, time: .shortened))
@@ -381,10 +531,10 @@ struct ContentView: View {
                                     }
                                     Spacer()
                                     ShareLink(item: download.fileURL) {
-                                        Image(systemName: "square.and.arrow.up").foregroundStyle(GlassPalette.accent)
+                                        Image(systemName: "square.and.arrow.up").foregroundStyle(GlassAppearance.accent(for: themePreset))
                                     }
                                 }
-                                .listRowBackground(GlassPalette.panel)
+                                .listRowBackground(Color.white.opacity(themePanelOpacity))
                                 .swipeActions {
                                     Button(role: .destructive) { browser.removeDownload(download) } label: {
                                         Label("Delete", systemImage: "trash")
@@ -408,7 +558,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) { Button("Done") { showLibrary = false } }
             }
         }
-        .tint(GlassPalette.accent)
+        .tint(GlassAppearance.accent(for: themePreset))
     }
 
     private var privacySheet: some View {
@@ -416,23 +566,23 @@ struct ContentView: View {
             List {
                 Section {
                     HStack(spacing: 12) {
-                        Image(systemName: "eye.slash.circle.fill").font(.system(size: 24)).foregroundStyle(GlassPalette.accent)
+                        Image(systemName: "eye.slash.circle.fill").font(.system(size: 24)).foregroundStyle(GlassAppearance.accent(for: themePreset))
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Private tabs").foregroundStyle(.white)
                             Text("Use a separate temporary website store. Private tabs are not restored after closing GLASS.")
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
-                    .listRowBackground(GlassPalette.panel)
+                    .listRowBackground(Color.white.opacity(themePanelOpacity))
                     HStack(spacing: 12) {
-                        Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(GlassPalette.accent)
+                        Image(systemName: "clock.badge.xmark").font(.system(size: 22)).foregroundStyle(GlassAppearance.accent(for: themePreset))
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Browsing history").foregroundStyle(.white)
                             Text("Regular tabs save visited addresses on this device. Private tabs do not.")
                                 .font(.system(size: 12)).foregroundStyle(GlassPalette.secondary)
                         }
                     }
-                    .listRowBackground(GlassPalette.panel)
+                    .listRowBackground(Color.white.opacity(themePanelOpacity))
                 } header: {
                     Text("On-device privacy")
                 }
@@ -442,14 +592,14 @@ struct ContentView: View {
                     } label: {
                         Label("Clear cookies, cache and site data", systemImage: "trash")
                     }
-                    .listRowBackground(GlassPalette.panel)
+                    .listRowBackground(Color.white.opacity(themePanelOpacity))
                     Button(role: .destructive) {
                         browser.clearHistory()
                         privacyActionMessage = "Browsing history was cleared."
                     } label: {
                         Label("Clear browsing history", systemImage: "clock")
                     }
-                    .listRowBackground(GlassPalette.panel)
+                    .listRowBackground(Color.white.opacity(themePanelOpacity))
                 } header: {
                     Text("Clear data")
                 } footer: {
@@ -463,7 +613,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { showPrivacy = false } }
             }
         }
-        .tint(GlassPalette.accent)
+        .tint(GlassAppearance.accent(for: themePreset))
     }
 
     private var spacesSheet: some View {
@@ -475,7 +625,7 @@ struct ContentView: View {
                     Button(action: addSpace) {
                         Image(systemName: "plus").font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.white).frame(width: 38, height: 38)
-                            .background(GlassPalette.accent, in: Circle())
+                            .background(GlassAppearance.accent(for: themePreset), in: Circle())
                     }
                     .disabled(newSpaceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
@@ -487,7 +637,7 @@ struct ContentView: View {
                             Text(space.name).foregroundStyle(.white)
                             Spacer()
                             if browser.activeSpaceID == space.id {
-                                Image(systemName: "checkmark.circle.fill").foregroundStyle(GlassPalette.accent)
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(GlassAppearance.accent(for: themePreset))
                             }
                         }
                         .contentShape(Rectangle())
@@ -495,7 +645,7 @@ struct ContentView: View {
                             browser.selectSpace(space)
                             showSpaces = false
                         }
-                        .listRowBackground(GlassPalette.panel)
+                        .listRowBackground(Color.white.opacity(themePanelOpacity))
                         .swipeActions {
                             if space.id != "personal" {
                                 Button(role: .destructive) { browser.removeSpace(space) } label: {
@@ -513,7 +663,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { showSpaces = false } }
             }
         }
-        .tint(GlassPalette.accent)
+        .tint(GlassAppearance.accent(for: themePreset))
     }
 
     private func addSpace() {
@@ -525,7 +675,7 @@ struct ContentView: View {
     private func libraryRow(title: String, subtitle: String, symbol: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: symbol).foregroundStyle(GlassPalette.accent).frame(width: 28)
+                Image(systemName: symbol).foregroundStyle(GlassAppearance.accent(for: themePreset)).frame(width: 28)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title).font(.system(size: 14, weight: .medium)).foregroundStyle(.white).lineLimit(1)
                     Text(subtitle).font(.system(size: 11)).foregroundStyle(GlassPalette.secondary).lineLimit(1)
@@ -533,7 +683,7 @@ struct ContentView: View {
             }
             .padding(.vertical, 4)
         }
-        .listRowBackground(GlassPalette.panel)
+        .listRowBackground(Color.white.opacity(themePanelOpacity))
     }
 
     private func openLibraryURL(_ value: String) {
@@ -556,7 +706,7 @@ struct ContentView: View {
         case "blue": return Color(red: 0.30, green: 0.62, blue: 1.0)
         case "green": return Color(red: 0.28, green: 0.82, blue: 0.58)
         case "orange": return Color(red: 1.0, green: 0.62, blue: 0.30)
-        default: return GlassPalette.accent
+        default: return GlassAppearance.accent(for: themePreset)
         }
     }
 
