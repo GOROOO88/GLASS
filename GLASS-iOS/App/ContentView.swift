@@ -39,6 +39,7 @@ struct ContentView: View {
     @State private var confirmClearWebsiteData = false
     @State private var privacyActionMessage = ""
     @State private var collapsedTabGroups: Set<String> = []
+    @State private var tabsSearchText = ""
 
     var body: some View {
         ZStack {
@@ -738,7 +739,15 @@ of the web.")
         ]
         return order.compactMap { key in
             guard let tabs = grouped[key], !tabs.isEmpty, let info = metadata[key] else { return nil }
-            return AutomaticTabGroup(id: key, title: info.0, symbol: info.1, subtitle: info.2, tabs: tabs)
+            let filtered = tabs.filter { tab in
+                let query = tabsSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !query.isEmpty else { return true }
+                return tab.title.localizedCaseInsensitiveContains(query)
+                    || tab.address.localizedCaseInsensitiveContains(query)
+                    || tab.groupDetail.localizedCaseInsensitiveContains(query)
+            }
+            guard !filtered.isEmpty else { return nil }
+            return AutomaticTabGroup(id: key, title: info.0, symbol: info.1, subtitle: info.2, tabs: filtered)
         }
     }
 
@@ -775,6 +784,25 @@ of the web.")
                     .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius + 2, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).fill(Color.white.opacity(themeCardOpacity)))
                     .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).stroke(.white.opacity(0.12)))
+
+                    HStack(spacing: 10) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(GlassPalette.secondary)
+                        TextField("Search open tabs", text: $tabsSearchText)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.white)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                        if !tabsSearchText.isEmpty {
+                            Button { tabsSearchText = "" } label: {
+                                Image(systemName: "xmark.circle.fill").foregroundStyle(GlassPalette.secondary)
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 12)
+                    .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(themeCardOpacity)))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.10)))
 
                     ForEach(automaticTabGroups) { group in
                         VStack(alignment: .leading, spacing: 10) {
@@ -815,14 +843,29 @@ of the web.")
                                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                     ForEach(group.tabs) { tab in
                                         tabCard(tab)
+                                            .draggable(tab.id.uuidString)
+                                            .dropDestination(for: String.self) { items, _ in
+                                                guard let rawID = items.first, let sourceID = UUID(uuidString: rawID),
+                                                      let source = browser.visibleTabs.first(where: { $0.id == sourceID }) else { return false }
+                                                withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                                                    browser.moveTab(source, before: tab)
+                                                }
+                                                return true
+                                            }
                                     }
                                 }
+                                .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         }
                         .padding(13)
                         .background(.ultraThinMaterial.opacity(themeBlur * 0.8), in: RoundedRectangle(cornerRadius: themeCornerRadius + 2, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).fill(Color.white.opacity(themePanelOpacity * 0.72)))
                         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).stroke(.white.opacity(0.09)))
+                    }
+
+                    if !tabsSearchText.isEmpty && automaticTabGroups.isEmpty {
+                        ContentUnavailableView("No matching tabs", systemImage: "magnifyingglass", description: Text("Try another title, address or search query."))
+                            .frame(maxWidth: .infinity).padding(.top, 36)
                     }
 
                     if browser.visibleTabs.isEmpty {
@@ -900,6 +943,7 @@ of the web.")
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
         .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.62) : .white.opacity(0.11), lineWidth: browser.activeTabID == tab.id ? 1.4 : 1))
         .contentShape(RoundedRectangle(cornerRadius: themeCornerRadius))
+        .animation(.spring(response: 0.32, dampingFraction: 0.82), value: browser.activeTabID)
         .onTapGesture {
             browser.select(tab)
             showTabs = false
