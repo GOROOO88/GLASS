@@ -42,7 +42,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     }
 
     func applyContentBlocking(adBlocking: Bool, trackerBlocking: Bool) {
-        let store = WKContentRuleListStore.default()
+        guard let store = WKContentRuleListStore.default() else { return }
         let identifier = "glass-content-protection"
         let rules: [[String: Any]] = [
             ["trigger": ["url-filter": ".*", "if-domain": ["*doubleclick.net", "*googlesyndication.com", "*adservice.google.com", "*adnxs.com", "*adform.net", "*adsrvr.org", "*taboola.com", "*outbrain.com"], "load-type": ["third-party"]], "action": ["type": "block"]],
