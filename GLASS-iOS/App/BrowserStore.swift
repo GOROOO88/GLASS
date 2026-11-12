@@ -65,10 +65,10 @@ struct BrowserSpace: Codable, Identifiable, Equatable {
     var tint: String
 
     static let defaults = [
-        BrowserSpace(id: "personal", name: "Personal", symbol: "person", tint: "violet"),
-        BrowserSpace(id: "gaming", name: "Gaming", symbol: "gamecontroller", tint: "green"),
-        BrowserSpace(id: "work", name: "Work", symbol: "briefcase", tint: "blue"),
-        BrowserSpace(id: "shopping", name: "Shopping", symbol: "bag", tint: "orange")
+        BrowserSpace(id: "personal", name: "Личное", symbol: "person", tint: "violet"),
+        BrowserSpace(id: "gaming", name: "Игры", symbol: "gamecontroller", tint: "green"),
+        BrowserSpace(id: "work", name: "Работа", symbol: "briefcase", tint: "blue"),
+        BrowserSpace(id: "shopping", name: "Покупки", symbol: "bag", tint: "orange")
     ]
 }
 
@@ -133,6 +133,15 @@ final class BrowserStore: ObservableObject {
             spaces = saved
         } else {
             spaces = BrowserSpace.defaults
+        }
+
+        // Keep built-in space names localized even for sessions created by older builds.
+        let localizedNames = ["personal": "Личное", "gaming": "Игры", "work": "Работа", "shopping": "Покупки"]
+        spaces = spaces.map { space in
+            guard let localizedName = localizedNames[space.id] else { return space }
+            var updated = space
+            updated.name = localizedName
+            return updated
         }
 
         var restoredTabs: [SavedBrowserTab] = []
