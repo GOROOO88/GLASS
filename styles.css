@@ -136,3 +136,13 @@ button:active,.space-card:active,.quick-link:active{transform:scale(.975)}
 .tab-add-row .tab-space-select{min-height:44px;max-width:112px;padding:0 8px;border:1px solid var(--line-soft);border-radius:13px;background:var(--surface-3);color:var(--text-primary);font-size:10px}
 .tab-add-row .tab-space-select option{background:#191722;color:#f7f5fc}
 @media(max-width:390px){.tab-add-row{flex-wrap:wrap}.tab-add-row .dialog-input{flex-basis:100%}.tab-add-row .tab-space-select{flex:1;max-width:none}}
+
+/* Custom workspace management */
+.workspace-row{display:flex;gap:7px;align-items:stretch}
+.workspace-row .workspace-select{flex:1;min-width:0}
+.workspace-edit{width:43px;flex:0 0 43px;border:1px solid var(--line-soft);border-radius:15px;background:var(--surface-1);color:var(--text-secondary);letter-spacing:2px}
+.workspace-edit:hover{background:var(--surface-2);color:var(--text-primary)}
+.space-color{display:block;width:100%;height:45px;padding:5px;border:1px solid var(--line-strong);border-radius:13px;background:var(--surface-3)}
+.danger-action{background:rgba(220,90,110,.13);border-color:rgba(220,90,110,.3);color:#f0a4b1}
+.danger-action:hover{background:rgba(220,90,110,.22);border-color:rgba(220,90,110,.5)}
+.workspace-select{border:0}
