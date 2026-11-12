@@ -65,11 +65,11 @@ function tabsPanel(filter=""){
  }).join("");
  show(panelHead("YOUR BROWSING","Tabs",tabs.length+" saved tab entries · grouped by space")+
  '<input class="dialog-input tab-search" id="tabFilter" placeholder="Search tabs and websites…" value="'+safe(filter)+'">'+
- '<div class="tab-add-row"><input class="dialog-input" id="newTabUrl" placeholder="Paste a website address"><button class="dialog-action" id="addTab">＋ Add</button></div>'+
+ '<div class="tab-add-row"><input class="dialog-input" id="newTabUrl" placeholder="Paste a website address"><select class="tab-space-select" id="newTabSpace" aria-label="Choose space">'+spaces.map(n=>'<option '+(n===activeSpace?"selected":"")+'>'+n+'</option>').join("")+'</select><button class="dialog-action" id="addTab">＋ Add</button></div>'+
  (cards||'<div class="empty-panel"><span>⌗</span><strong>'+(tabs.length?"No matching tabs":"No saved tabs yet")+'</strong><small>Add a website or search from the home screen.</small></div>')+
  (tabs.length?action("Close all tabs","closeAllTabs"):""));
  $("#tabFilter").addEventListener("input",e=>{const pos=e.target.selectionStart;tabsPanel(e.target.value);const el=$("#tabFilter");el.focus();el.setSelectionRange(pos,pos)});
- $("#addTab").addEventListener("click",()=>{const raw=$("#newTabUrl").value.trim();if(!raw)return;const url=normalizeUrl(raw);if(!/^https?:\/\//i.test(url))return;tabs.unshift({id:"t"+Date.now(),title:new URL(url).hostname,url,space:activeSpace,created:Date.now()});write("glass-tabs",tabs);tabsPanel(filter)});
+ $("#addTab").addEventListener("click",()=>{const raw=$("#newTabUrl").value.trim();if(!raw)return;const url=normalizeUrl(raw);if(!/^https?:\/\//i.test(url))return;tabs.unshift({id:"t"+Date.now(),title:new URL(url).hostname,url,space:$("#newTabSpace").value,created:Date.now()});write("glass-tabs",tabs);tabsPanel(filter)});
  content.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{const t=tabs.find(x=>x.id===b.dataset.open);if(t)window.location.assign(t.url)}));
  content.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>{write("glass-tabs",tabs.filter(x=>x.id!==b.dataset.close));tabsPanel(filter)}));
  content.querySelectorAll("[data-move]").forEach(b=>b.addEventListener("change",()=>{const t=tabs.find(x=>x.id===b.dataset.move);if(t)t.space=b.value;write("glass-tabs",tabs);tabsPanel(filter)}));
