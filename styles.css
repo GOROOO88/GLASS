@@ -110,3 +110,25 @@ button:active,.space-card:active,.quick-link:active{transform:scale(.975)}
 .preview-chip{padding:7px 10px;border:1px solid rgba(var(--accent-rgb),.3);border-radius:10px;background:rgba(var(--accent-rgb),.15);font-size:9px;letter-spacing:.12em;color:var(--text-primary)}
 .app-dialog .dialog-action{width:100%;margin-top:12px}
 @media(max-width:650px){.theme-grid{gap:6px}.theme-choice{padding:10px 3px}.panel-row{min-height:58px}}
+
+/* Tab manager */
+.tab-group{margin:18px 0 22px}
+.tab-group-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tab-group-head .eyebrow{margin:0 0 4px}
+.tab-group-head h3{font-size:15px;font-weight:600;margin:0}
+.tab-count{font-size:10px;color:var(--text-secondary);padding:5px 9px;border:1px solid var(--line-soft);border-radius:20px;background:var(--surface-1)}
+.tab-card-list{display:grid;gap:8px}
+.tab-card{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--line-soft);border-radius:17px;background:var(--surface-1);min-width:0}
+.tab-favicon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:12px;background:rgba(var(--accent-rgb),.16);color:var(--accent);font-weight:700}
+.tab-card-main{flex:1;min-width:0;display:grid;gap:5px}
+.tab-card-main strong{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-card-main small{font-size:9px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-move{width:max-content;max-width:100%;border:1px solid var(--line-soft);border-radius:8px;padding:4px 7px;background:var(--surface-3);color:var(--text-secondary);font-size:10px}
+.tab-card-actions{display:flex;gap:5px}
+.tab-card-actions button{width:31px;height:31px;border:1px solid var(--line-soft);border-radius:10px;background:var(--surface-2);color:var(--text-primary)}
+.tab-card-actions .tab-close{color:#d89aa8}
+.tab-add-row{display:flex;gap:8px;align-items:center;margin:8px 0 16px}
+.tab-add-row .dialog-input{margin:0;min-width:0;flex:1}
+.tab-add-row .dialog-action{width:auto;white-space:nowrap;margin:0;padding:0 12px}
+.tab-search{margin:8px 0 10px}
+@media(max-width:430px){.tab-card{gap:7px;padding:9px}.tab-card-actions button{width:29px;height:29px}.tab-favicon{width:32px;height:32px;flex-basis:32px}}
