@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-private enum GlassPalette {
+private struct AutomaticTabGroup: Identifiable {\n    let id: String\n    let title: String\n    let symbol: String\n    let tabs: [BrowserTab]\n}\n\nprivate enum GlassPalette {
     static let background = Color(red: 0.035, green: 0.035, blue: 0.065)
     static let line = Color.white.opacity(0.12)
     static let secondary = Color.white.opacity(0.58)
@@ -30,6 +30,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var confirmClearWebsiteData = false
     @State private var privacyActionMessage = ""
+    @State private var collapsedTabGroups: Set<String> = []
 
     var body: some View {
         ZStack {
@@ -613,7 +614,7 @@ struct ContentView: View {
                                         .accessibilityLabel("Cancel download")
                                     }
                                 }
-                                .listRowBackground(Color.white.opacity(themePanelOpacity))
+                                .listRowBackground(.ultraThinMaterial)
                             }
                             ForEach(browser.downloads) { download in
                                 HStack(spacing: 10) {
@@ -712,11 +713,42 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
     }
 
+    private var automaticTabGroups: [AutomaticTabGroup] {
+        let grouped = Dictionary(grouping: browser.visibleTabs) { tabGroupKey(for: $0) }
+        let order = ["private", "video", "social", "shopping", "work", "news", "other", "new"]
+        let metadata: [String: (String, String)] = [
+            "private": ("Private", "eye.slash.fill"),
+            "video": ("Video & streaming", "play.rectangle.fill"),
+            "social": ("Social", "bubble.left.and.bubble.right.fill"),
+            "shopping": ("Shopping", "bag.fill"),
+            "work": ("Work & productivity", "briefcase.fill"),
+            "news": ("News & reading", "newspaper.fill"),
+            "other": ("Other websites", "globe"),
+            "new": ("New tabs", "sparkle")
+        ]
+        return order.compactMap { key in
+            guard let tabs = grouped[key], !tabs.isEmpty, let info = metadata[key] else { return nil }
+            return AutomaticTabGroup(id: key, title: info.0, symbol: info.1, tabs: tabs)
+        }
+    }
+
+    private func tabGroupKey(for tab: BrowserTab) -> String {
+        if tab.isPrivate { return "private" }
+        guard let host = URL(string: tab.address)?.host?.lowercased() else { return "new" }
+        let domain = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+        if ["youtube.com", "youtu.be", "netflix.com", "twitch.tv", "vimeo.com", "disneyplus.com", "primevideo.com", "spotify.com", "open.spotify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "video" }
+        if ["reddit.com", "discord.com", "discord.gg", "x.com", "twitter.com", "instagram.com", "facebook.com", "threads.net", "tiktok.com", "linkedin.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "social" }
+        if ["amazon.com", "amazon.de", "ebay.com", "ebay.de", "etsy.com", "aliexpress.com", " temu.com", "shopify.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "shopping" }
+        if ["github.com", "gitlab.com", "notion.so", "figma.com", "slack.com", "microsoft.com", "office.com", "docs.google.com", "drive.google.com", "linear.app"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "work" }
+        if ["wikipedia.org", "medium.com", "bbc.com", "bbc.co.uk", "reuters.com", "theguardian.com", "nytimes.com", "apnews.com"].contains(where: { domain == $0 || domain.hasSuffix("." + $0) }) { return "news" }
+        return "other"
+    }
+
     private var tabsSheet: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 17) {
+                    HStack(alignment: .center) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("YOUR TABS")
                                 .font(.system(size: 10, weight: .bold)).tracking(1.6)
@@ -724,6 +756,8 @@ struct ContentView: View {
                             Text("\(browser.visibleTabs.count) open")
                                 .font(.system(size: 23, weight: .semibold, design: .rounded))
                                 .foregroundStyle(.white)
+                            Text("Automatically grouped by activity")
+                                .font(.system(size: 11)).foregroundStyle(GlassPalette.secondary)
                         }
                         Spacer()
                         Button {
@@ -733,60 +767,62 @@ struct ContentView: View {
                             Label("New tab", systemImage: "plus")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, 13).padding(.vertical, 9)
-                                .background(GlassAppearance.accent(for: themePreset), in: Capsule())
+                                .padding(.horizontal, 13).padding(.vertical, 10)
+                                .background(GlassAppearance.accent(for: themePreset).opacity(0.88), in: Capsule())
+                                .overlay(Capsule().stroke(.white.opacity(0.18)))
                         }
                         .buttonStyle(.plain)
                     }
+                    .padding(15)
+                    .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius + 2, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).fill(Color.white.opacity(themeCardOpacity)))
+                    .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).stroke(.white.opacity(0.12)))
 
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 11), GridItem(.flexible(), spacing: 11)], spacing: 11) {
-                        ForEach(browser.visibleTabs) { tab in
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    Image(systemName: tab.isPrivate ? "eye.slash.fill" : "globe")
-                                        .font(.system(size: 15, weight: .semibold))
+                    ForEach(automaticTabGroups) { group in
+                        VStack(alignment: .leading, spacing: 10) {
+                            Button {
+                                if collapsedTabGroups.contains(group.id) {
+                                    collapsedTabGroups.remove(group.id)
+                                } else {
+                                    collapsedTabGroups.insert(group.id)
+                                }
+                            } label: {
+                                HStack(spacing: 9) {
+                                    Image(systemName: group.symbol)
+                                        .font(.system(size: 13, weight: .semibold))
                                         .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                                        .frame(width: 34, height: 34)
-                                        .background(GlassAppearance.accent(for: themePreset).opacity(0.14), in: RoundedRectangle(cornerRadius: 11))
+                                        .frame(width: 30, height: 30)
+                                        .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: RoundedRectangle(cornerRadius: 10))
+                                    Text(group.title)
+                                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                                    Text("\(group.tabs.count)")
+                                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                                        .foregroundStyle(GlassPalette.secondary)
+                                        .padding(.horizontal, 7).padding(.vertical, 4)
+                                        .background(.ultraThinMaterial, in: Capsule())
                                     Spacer()
-                                    if browser.activeTabID == tab.id {
-                                        Text("ACTIVE")
-                                            .font(.system(size: 8, weight: .bold)).tracking(1)
-                                            .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                                    }
-                                    Button { browser.close(tab) } label: {
-                                        Image(systemName: "xmark")
-                                            .font(.system(size: 10, weight: .bold))
-                                            .foregroundStyle(GlassPalette.secondary)
-                                            .frame(width: 25, height: 25)
-                                            .background(Color.white.opacity(0.07), in: Circle())
-                                    }
-                                    .buttonStyle(.plain)
-                                    .accessibilityLabel("Close tab")
+                                    Image(systemName: collapsedTabGroups.contains(group.id) ? "chevron.down" : "chevron.up")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(GlassPalette.secondary)
                                 }
-                                Spacer(minLength: 3)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(tab.title.isEmpty ? "New tab" : tab.title)
-                                        .font(.system(size: 12, weight: .semibold))
-                                        .foregroundStyle(.white).lineLimit(2)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
-                                        .font(.system(size: 9))
-                                        .foregroundStyle(GlassPalette.secondary).lineLimit(1)
-                                }
+                                .contentShape(Rectangle())
                             }
-                            .padding(13)
-                            .frame(minHeight: 132, alignment: .topLeading)
-                            .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
-                            .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.55) : GlassPalette.line, lineWidth: browser.activeTabID == tab.id ? 1.4 : 1))
-                            .contentShape(RoundedRectangle(cornerRadius: themeCornerRadius))
-                            .onTapGesture {
-                                browser.select(tab)
-                                showTabs = false
+                            .buttonStyle(.plain)
+
+                            if !collapsedTabGroups.contains(group.id) {
+                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                    ForEach(group.tabs) { tab in
+                                        tabCard(tab)
+                                    }
+                                }
                             }
                         }
+                        .padding(13)
+                        .background(.ultraThinMaterial.opacity(themeBlur * 0.8), in: RoundedRectangle(cornerRadius: themeCornerRadius + 2, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).fill(Color.white.opacity(themePanelOpacity * 0.72)))
+                        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius + 2).stroke(.white.opacity(0.09)))
                     }
+
                     if browser.visibleTabs.isEmpty {
                         ContentUnavailableView("No open tabs", systemImage: "square.on.square", description: Text("Create a tab to start browsing."))
                             .frame(maxWidth: .infinity).padding(.top, 36)
@@ -805,6 +841,52 @@ struct ContentView: View {
         }
         .tint(GlassAppearance.accent(for: themePreset))
         .preferredColorScheme(.dark)
+    }
+
+    private func tabCard(_ tab: BrowserTab) -> some View {
+        VStack(alignment: .leading, spacing: 11) {
+            HStack {
+                Image(systemName: tab.isPrivate ? "eye.slash.fill" : "globe")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                    .frame(width: 32, height: 32)
+                    .background(GlassAppearance.accent(for: themePreset).opacity(0.14), in: RoundedRectangle(cornerRadius: 10))
+                Spacer()
+                if browser.activeTabID == tab.id {
+                    Text("ACTIVE")
+                        .font(.system(size: 8, weight: .bold)).tracking(1)
+                        .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                }
+                Button { browser.close(tab) } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(GlassPalette.secondary)
+                        .frame(width: 24, height: 24)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Close tab")
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(tab.title.isEmpty ? "New tab" : tab.title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white).lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(tab.address.isEmpty ? "GLASS start page" : tab.address)
+                    .font(.system(size: 9))
+                    .foregroundStyle(GlassPalette.secondary).lineLimit(1)
+            }
+        }
+        .padding(12)
+        .frame(minHeight: 116, alignment: .topLeading)
+        .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
+        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(browser.activeTabID == tab.id ? GlassAppearance.accent(for: themePreset).opacity(0.62) : .white.opacity(0.11), lineWidth: browser.activeTabID == tab.id ? 1.4 : 1))
+        .contentShape(RoundedRectangle(cornerRadius: themeCornerRadius))
+        .onTapGesture {
+            browser.select(tab)
+            showTabs = false
+        }
     }
 
     private var spacesSheet: some View {
