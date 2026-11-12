@@ -40,6 +40,7 @@ struct ContentView: View {
     @State private var privacyActionMessage = ""
     @State private var collapsedTabGroups: Set<String> = []
     @State private var tabsSearchText = ""
+    @State private var confirmCloseSpaceTabs = false
 
     var body: some View {
         ZStack {
@@ -768,6 +769,18 @@ of the web.")
                         }
                         Spacer()
                         Button {
+                            confirmCloseSpaceTabs = true
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.white.opacity(0.78))
+                                .frame(width: 36, height: 36)
+                                .background(.ultraThinMaterial, in: Circle())
+                                .overlay(Circle().stroke(.white.opacity(0.12)))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Close all tabs in this space")
+                        Button {
                             browser.addTab()
                             showTabs = false
                         } label: {
@@ -807,10 +820,12 @@ of the web.")
                     ForEach(automaticTabGroups) { group in
                         VStack(alignment: .leading, spacing: 10) {
                             Button {
-                                if collapsedTabGroups.contains(group.id) {
-                                    collapsedTabGroups.remove(group.id)
-                                } else {
-                                    collapsedTabGroups.insert(group.id)
+                                withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
+                                    if collapsedTabGroups.contains(group.id) {
+                                        collapsedTabGroups.remove(group.id)
+                                    } else {
+                                        collapsedTabGroups.insert(group.id)
+                                    }
                                 }
                             } label: {
                                 HStack(spacing: 9) {
@@ -876,6 +891,14 @@ of the web.")
                 .padding(16)
             }
             .background(GlassPalette.background.ignoresSafeArea())
+            .confirmationDialog("Close all tabs in this space?", isPresented: $confirmCloseSpaceTabs, titleVisibility: .visible) {
+                Button("Close all tabs", role: .destructive) {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                        browser.closeAllTabsInActiveSpace()
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            }
             .navigationTitle("Tabs")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
