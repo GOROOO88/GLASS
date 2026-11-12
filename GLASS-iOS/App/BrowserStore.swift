@@ -261,6 +261,20 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
+    func duplicate(_ tab: BrowserTab) {
+        let copy = makeTab(spaceID: tab.spaceID, isPrivate: tab.isPrivate)
+        tabs.append(copy)
+        activeSpaceID = tab.spaceID
+        activeTabID = copy.id
+        if let url = URL(string: tab.address),
+           ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+            copy.load(url)
+        }
+        copy.groupKind = tab.groupKind
+        copy.groupDetail = tab.groupDetail
+        saveSession()
+    }
+
     func close(_ tab: BrowserTab) {
         guard let index = tabs.firstIndex(where: { $0.id == tab.id }) else { return }
         let wasActive = activeTabID == tab.id
