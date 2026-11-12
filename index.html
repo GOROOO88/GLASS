@@ -1,80 +1,71 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#08070f">
-<meta name="description" content="GLASS — Browse differently.">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=cdecd5f">
-<title>GLASS — Browse differently.</title>
+<meta name="theme-color" content="#07030f">
+<meta name="description" content="Glass — Browse differently.">
+<title>Glass — Browse differently.</title>
+<style>
+:root{color-scheme:dark;--accent:#a879ff;--bg:#07030f;--glass:rgba(255,255,255,.06);--line:rgba(255,255,255,.14);--blur:16px;--opacity:.06;--motion:1}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;-webkit-font-smoothing:antialiased}body{overflow-x:hidden}button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}#w{width:100%;min-height:100dvh;overflow:hidden;position:relative}#st{width:852px;height:1846px;position:absolute;left:50%;top:0;transform-origin:top center;margin-left:-426px}.s{position:absolute;inset:0;display:none}.s.on{display:block}.s:before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(1200px 800px at 15% 8%,#3b1d6e 0%,transparent 55%),radial-gradient(1000px 700px at 88% 28%,#1b3a8a 0%,transparent 55%),radial-gradient(900px 900px at 50% 100%,#4a1b6b 0%,transparent 60%),#07030f}
+.h{position:absolute;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(255,255,255,.05);margin:0;padding:0 22px;background:var(--glass);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 28px rgba(0,0,0,.38);color:#fff;border-radius:var(--r,28px);font-weight:600;letter-spacing:.2px;transition:transform calc(.16s * var(--motion)),background .16s,box-shadow .16s;outline:0;z-index:1;text-align:left;white-space:nowrap}.h:hover{background:rgba(190,140,255,.14)}.h:active{transform:scale(.985);box-shadow:0 0 24px rgba(160,100,255,.6)}.h:focus-visible{box-shadow:0 0 0 3px #c9a4ff}.ghost{background:transparent;box-shadow:none;backdrop-filter:none}.card{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;padding:26px 34px}.row1{display:flex;align-items:center;gap:14px;font-size:32px;font-weight:700}.emoji{font-size:40px;filter:drop-shadow(0 4px 10px #0006)}.sub{font-size:22px;font-weight:500;color:#ffffffa8;white-space:normal}.app{flex-direction:column;justify-content:center;gap:12px;padding:0;font-size:20px;font-weight:600;color:#ffffffe6}.ic{font-size:44px;line-height:1;filter:drop-shadow(0 6px 14px #0006)}.add{background:#ffffff0a;border:1.5px dashed #ffffff38;box-shadow:none}.add .ic{font-size:40px;color:#c9a4ff}.search{justify-content:flex-start;padding:0 34px;gap:16px;font-weight:500;color:#ffffff99;font-size:26px}.search .ic{font-size:30px;opacity:.8}.logo{position:absolute;left:34px;top:116px;width:207px;height:68px;display:flex;align-items:center;padding:0 26px;font-size:32px;font-weight:800;letter-spacing:.5px;z-index:1;border-radius:34px;background:var(--glass);backdrop-filter:blur(var(--blur));box-shadow:inset 0 1px 0 #ffffff24,0 8px 28px #0006}.logo span{background:linear-gradient(90deg,#c9a4ff,#7fb0ff);-webkit-background-clip:text;background-clip:text;color:transparent}.bar{position:absolute;left:24px;right:24px;bottom:40px;height:120px;border-radius:60px;background:#120a208c;backdrop-filter:blur(22px);box-shadow:inset 0 1px 0 #ffffff1f,0 12px 40px #0008;z-index:0}
+.title{position:absolute;left:44px;top:210px;font-size:44px;font-weight:800;letter-spacing:.3px;z-index:1}.title small{display:block;margin-top:10px;font-size:22px;font-weight:500;color:#ffffff8c;letter-spacing:.2px}.mock{position:absolute;left:42px;top:336px;width:374px;height:241px;border-radius:24px;overflow:hidden;z-index:0;box-shadow:0 20px 50px #0008}.mock:before{content:"";position:absolute;inset:0;background:linear-gradient(160deg,#1a0f30,#2b1750 60%,#3a1d6b)}.bar-top{position:absolute;left:0;top:0;right:0;height:34px;background:#ffffff14;display:flex;align-items:center;gap:8px;padding:0 14px}.bar-top i{width:10px;height:10px;border-radius:50%;background:#ffffff59}.win{position:absolute;left:24px;right:24px;top:58px;height:150px;border-radius:16px;background:linear-gradient(135deg,#8b3cf0,#c9a4ff);box-shadow:0 10px 30px #8b3cf073}.win:after{content:"";position:absolute;left:22px;right:22px;top:26px;height:12px;border-radius:6px;background:#ffffff8c}.win:before{content:"";position:absolute;left:22px;top:52px;width:150px;height:10px;border-radius:5px;background:#ffffff59}.bd{position:absolute;pointer-events:none;border:1.5px solid #beaae647;border-radius:26px;z-index:2}#sel{position:absolute;pointer-events:none;border:3px solid #b98cff;border-radius:26px;box-shadow:0 0 22px #9b5cff,inset 0 0 14px #9b5cff8c;transition:all .3s cubic-bezier(.3,.8,.3,1);z-index:3}#sel i{position:absolute;right:20px;top:14px;width:52px;height:52px;border-radius:50%;background:#8b3cf0;box-shadow:0 0 16px #8b3cf0;display:grid;place-items:center}#sel svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.theme{flex-direction:column;justify-content:flex-end;align-items:flex-start;padding:22px 26px;font-size:26px;font-weight:700;gap:4px;overflow:hidden}.tag{font-size:18px;font-weight:500;opacity:.8;text-transform:uppercase;letter-spacing:1px}.t0{background:linear-gradient(135deg,#6a2de6,#b06bff)}.t1{background:linear-gradient(135deg,#1b6ef3,#22c8e6)}.t2{background:linear-gradient(135deg,#0f9d6b,#5be49b)}.t3{background:linear-gradient(135deg,#e0417a,#ff8fbf)}.row{justify-content:space-between;padding:0 30px;font-size:24px;font-weight:500}.val{color:#ffffff8c;font-weight:500;font-size:22px}#tg{position:absolute;left:708px;top:1557px;width:72px;height:40px;border-radius:20px;background:linear-gradient(90deg,#6a2de6,#8a3ff5);box-shadow:0 0 14px #8c46f580;transition:.25s;cursor:pointer;border:0;padding:0;z-index:1}#tg:after{content:"";position:absolute;top:5px;right:5px;width:30px;height:30px;border-radius:50%;background:#dcc8ff;transition:.25s}#tg.off{background:#6e5a968c;box-shadow:none}#tg.off:after{right:37px;background:#bfb4d8}.apply{position:absolute;left:38px;top:1654px;width:776px;height:94px;border-radius:47px;border:0;cursor:pointer;font-weight:800;font-size:30px;letter-spacing:.4px;color:#fff;background:linear-gradient(90deg,#6a2de6,#8a3ff5 55%,#b06bff);box-shadow:0 18px 44px #783cf08c,inset 0 1px 0 #ffffff40;transition:.2s;z-index:1}.apply:active{transform:scale(.99)}
+@media(prefers-reduced-motion:reduce){:root{--motion:0}*{scroll-behavior:auto!important;transition:none!important}}
+</style>
 </head>
-<body class="reference-home">
-<div id="appFrame" class="phone-frame">
-<div class="liquid-scene" aria-hidden="true">
-  <div class="liquid-halo halo-one"></div><div class="liquid-halo halo-two"></div>
-  <svg class="liquid-ribbons" viewBox="0 0 1440 1100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <defs>
-      <linearGradient id="ribbonA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6d8ff" stop-opacity=".03"/><stop offset=".38" stop-color="#a879ff" stop-opacity=".34"/><stop offset=".7" stop-color="#7041cf" stop-opacity=".16"/><stop offset="1" stop-color="#f2eaff" stop-opacity=".08"/></linearGradient>
-      <linearGradient id="ribbonB" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#31145f" stop-opacity=".1"/><stop offset=".52" stop-color="#9c6bff" stop-opacity=".28"/><stop offset="1" stop-color="#f3eaff" stop-opacity=".1"/></linearGradient>
-      <filter id="soft"><feGaussianBlur stdDeviation="19"/></filter>
-    </defs>
-    <path d="M-180 690 C80 390 240 300 475 420 S830 790 1070 610 S1360 230 1610 340" fill="none" stroke="url(#ribbonA)" stroke-width="150" filter="url(#soft)"/>
-    <path d="M-190 760 C70 460 255 345 490 460 S840 830 1080 655 S1380 285 1630 400" fill="none" stroke="url(#ribbonA)" stroke-width="82"/>
-    <path d="M-150 830 C100 530 270 420 500 525 S850 880 1100 720 S1400 365 1600 470" fill="none" stroke="#c5a3ff" stroke-opacity=".22" stroke-width="2"/>
-    <path d="M-140 590 C100 330 260 230 475 340 S820 680 1050 520 S1350 170 1610 275" fill="none" stroke="url(#ribbonB)" stroke-width="105"/>
-    <path d="M-150 590 C100 330 260 230 475 340 S820 680 1050 520 S1350 170 1610 275" fill="none" stroke="#e5d5ff" stroke-opacity=".19" stroke-width="1.5"/>
-  </svg>
-</div>
-<main class="app-shell glass-home reference-shell">
-  <header class="topbar reference-topbar">
-    <button class="space-switch glass" id="spaceButton"><span class="space-dot"></span><span>Personal</span><span class="chevron">⌄</span></button>
-    <div class="top-actions">
-      <button class="icon-button glass" id="voiceButton" aria-label="Sound and voice">≋</button>
-      <button class="icon-button glass" id="menuButton" aria-label="Open menu">•••</button>
-    </div>
-  </header>
-  <section class="hero reference-hero">
-    <div class="brand-lockup"><h1>GLASS</h1><p class="tagline">Browse differently.</p></div>
-    <form class="search glass reference-search" id="searchForm">
-      <span class="search-icon">⌕</span>
-      <input id="searchInput" type="search" autocomplete="off" placeholder="Search the web or ask anything..." aria-label="Search the web or ask anything">
-      <button type="button" id="searchVoice" aria-label="Voice search">⌁</button>
-      <button class="search-submit" type="submit" aria-label="Search">✳</button>
-    </form>
-    <div class="quick-links reference-shortcuts" id="quickLinks">
-      <a class="quick-link" href="https://youtube.com"><span class="quick-icon youtube">▶</span><span>YouTube</span></a>
-      <a class="quick-link" href="https://discord.com"><span class="quick-icon discord">◉</span><span>Discord</span></a>
-      <a class="quick-link" href="https://google.com"><span class="quick-icon google">G</span><span>Google</span></a>
-      <a class="quick-link" href="https://notion.so"><span class="quick-icon notion">N</span><span>Notion</span></a>
-      <button class="quick-link add-link" id="addShortcut"><span class="quick-icon">＋</span><span>Add</span></button>
-    </div>
-  </section>
-  <section class="tabs-home reference-tabs">
-    <div class="section-heading">
-      <div><p class="eyebrow">YOUR WORKSPACE</p><h2>Tabs</h2></div>
-      <button class="text-button" id="manageSpaces">View all <span>→</span></button>
-    </div>
-    <div class="home-tab-groups">
-      <button class="space-card gaming" data-space="Gaming"><span class="card-top"><span class="card-icon">⌘</span><span class="card-arrow">↗</span></span><strong>Gaming</strong><span class="card-meta">Games & entertainment</span><span class="mini-tabs"><i></i><i></i><i></i><i></i></span><span class="card-count">05</span><span class="card-orb"></span></button>
-      <button class="space-card work" data-space="Work"><span class="card-top"><span class="card-icon">▤</span><span class="card-arrow">↗</span></span><strong>Work</strong><span class="card-meta">Projects & productivity</span><span class="mini-tabs"><i></i><i></i><i></i></span><span class="card-count">04</span><span class="card-orb"></span></button>
-      <button class="space-card shopping" data-space="Shopping"><span class="card-top"><span class="card-icon">◇</span><span class="card-arrow">↗</span></span><strong>Shopping</strong><span class="card-meta">Things on your wishlist</span><span class="mini-tabs"><i></i><i></i></span><span class="card-count">03</span><span class="card-orb"></span></button>
-    </div>
-  </section>
-  <section class="recent-block reference-recent">
-    <div class="section-heading"><div><p class="eyebrow">PICK UP WHERE YOU LEFT OFF</p><h2>Recently closed</h2></div><button class="text-button" id="clearRecent">Clear</button></div>
-    <div class="empty-state glass" id="recentList"><span class="empty-symbol">◷</span><span>Recently closed tabs will appear here</span></div>
-  </section>
-</main>
-<nav class="bottom-dock reference-dock">
-  <div class="dock-group glass">
-    <button class="dock-button" id="bookmarksButton" aria-label="Bookmarks"><span>☆</span><small>Saved</small></button>
-    <button class="dock-button" id="historyButton" aria-label="History"><span>◷</span><small>History</small></button>
-  </div>
-  <button class="ask-button glass" id="askButton"><span class="ask-spark">✳</span><span>Ask</span></button>
-  <div class="dock-group glass nav-group"><button class="nav-button" id="backButton" aria-label="Back">‹</button><button class="nav-button" id="forwardButton" aria-label="Forward">›</button></div>
-</nav>
-<dialog id="appDialog" class="app-dialog glass"><button class="dialog-close" id="closeDialog">×</button><div id="dialogContent"></div></dialog>
-</div>
-<script src="./app.js?v=cdecd5f"></script>
-</body></html>
+<body><div id="w"><div id="st">
+<section class="s on" id="home">
+<div class="logo"><span>Glass</span></div>
+<button class="h" style="left:34px;top:116px;width:207px;height:68px;--r:34px" aria-label="Personal">Personal</button>
+<button class="h" style="left:638px;top:116px;width:70px;height:68px;--r:34px" aria-label="Звук">🔔</button>
+<button class="h" style="left:738px;top:116px;width:68px;height:68px;--r:34px;font-size:28px" onclick="go('themes')" aria-label="Меню">☰</button>
+<button class="h search" style="left:34px;top:484px;width:780px;height:106px;--r:53px" aria-label="Поиск"><span class="ic">🔍</span><span>Search the web…</span></button>
+<button class="h app" style="left:76px;top:646px;width:100px;height:122px;--r:24px"><span class="ic">▶️</span>YouTube</button>
+<button class="h app" style="left:228px;top:646px;width:98px;height:122px;--r:24px"><span class="ic">💬</span>Discord</button>
+<button class="h app" style="left:378px;top:646px;width:96px;height:122px;--r:24px"><span class="ic">🔎</span>Google</button>
+<button class="h app" style="left:527px;top:646px;width:96px;height:122px;--r:24px"><span class="ic">📝</span>Notion</button>
+<button class="h app add" style="left:676px;top:646px;width:100px;height:122px;--r:24px"><span class="ic">＋</span>Add</button>
+<button class="h ghost" style="left:660px;top:850px;width:130px;height:50px;--r:20px;font-size:20px;color:#c9a4ff" onclick="go('themes')">Все вкладки →</button>
+<button class="h card" style="left:52px;top:922px;width:748px;height:180px;--r:34px"><div class="row1"><span class="emoji">🎮</span>Gaming</div><div class="sub">12 tabs · 3 windows · Synced</div></button>
+<button class="h card" style="left:52px;top:1124px;width:748px;height:172px;--r:34px"><div class="row1"><span class="emoji">💼</span>Work</div><div class="sub">8 tabs · 2 windows · Notion, Gmail</div></button>
+<button class="h card" style="left:52px;top:1316px;width:748px;height:150px;--r:34px"><div class="row1"><span class="emoji">🛍️</span>Shopping</div><div class="sub">5 tabs · 1 window</div></button>
+<div class="bar"></div>
+<button class="h ghost" style="left:36px;top:1566px;width:252px;height:106px;--r:53px;font-size:24px">🔖 Закладки</button>
+<button class="h ghost" style="left:308px;top:1568px;width:248px;height:102px;--r:51px;font-size:24px;background:linear-gradient(90deg,#8a3ff559,#b06bff40);box-shadow:inset 0 1px 0 #ffffff2e">✨ Ask</button>
+<button class="h ghost" style="left:576px;top:1566px;width:242px;height:106px;--r:53px;font-size:30px">← →</button>
+</section>
+<section class="s" id="themes">
+<button class="h" style="left:36px;top:104px;width:86px;height:74px;--r:37px;font-size:32px" onclick="go('home')" aria-label="Назад">←</button>
+<button class="h" style="left:730px;top:104px;width:86px;height:74px;--r:37px;font-size:28px" aria-label="Меню">⋯</button>
+<div class="title">Темы<small>Выбери настроение для Glass</small></div>
+<div class="mock"><div class="bar-top"><i></i><i></i><i></i></div><div class="win"></div></div>
+<div class="bd" style="left:42px;top:336px;width:374px;height:240px"></div><div id="sel"><i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></svg></i></div>
+<button class="h theme t0" id="c0" style="left:42px;top:596px;width:373px;height:66px;--r:0;padding:14px 22px" onclick="pick(0)">Violet</button>
+<button class="h theme t1" id="c1" style="left:439px;top:335px;width:372px;height:326px" onclick="pick(1)"><span class="tag">Theme</span>Ocean</button>
+<button class="h theme t2" id="c2" style="left:42px;top:691px;width:373px;height:306px" onclick="pick(2)"><span class="tag">Theme</span>Emerald</button>
+<button class="h theme t3" id="c3" style="left:439px;top:691px;width:372px;height:306px" onclick="pick(3)"><span class="tag">Theme</span>Rose</button>
+<button class="h row" style="left:42px;top:1135px;width:770px;height:72px;--r:24px">Тёмная тема<span class="val">Вкл</span></button>
+<button class="h row" style="left:42px;top:1207px;width:770px;height:72px;--r:0">Автоматически<span class="val">По системе</span></button>
+<button class="h row" style="left:42px;top:1279px;width:770px;height:72px;--r:0">Стекло<span class="val">Матовое</span></button>
+<button class="h row" style="left:42px;top:1351px;width:770px;height:66px;--r:0">Прозрачность<span class="val" id="opacityValue">72%</span></button>
+<button class="h row" style="left:42px;top:1417px;width:770px;height:66px;--r:0">Размытие<span class="val" id="blurValue">16 px</span></button>
+<button class="h row" style="left:42px;top:1483px;width:770px;height:62px;--r:0">Звуки интерфейса<span class="val">Мягкие</span></button>
+<button id="tg" aria-label="Анимации" onclick="toggleMotion()"></button>
+<button class="apply" onclick="applyTheme()">Применить</button>
+</section></div></div>
+<script>
+const W=document.getElementById('w'),S=document.getElementById('st');
+const rects=[[42,335,373,242],[440,336,370,238],[44,690,370,222],[440,690,370,222]];
+const palettes=[['#6a2de6','#b06bff'],['#1b6ef3','#22c8e6'],['#0f9d6b','#5be49b'],['#e0417a','#ff8fbf']];
+let selected=0,motion=true,opacity=72,blur=16;
+function fit(){const k=innerWidth<innerHeight?innerWidth/852:Math.min(innerWidth/852,innerHeight/1846);S.style.transform='translateX(-50%) scale('+k+')';W.style.height=(1846*k)+'px'}
+function pick(i){selected=i;const r=rects[i],e=document.getElementById('sel');e.style.cssText='left:'+(r[0]-2)+'px;top:'+(r[1]-2)+'px;width:'+(r[2]+4)+'px;height:'+(r[3]+4)+'px'}
+function go(id){['home','themes'].forEach(x=>document.getElementById(x).classList.toggle('on',x===id));window.scrollTo(0,0);try{history.replaceState(null,'','#'+id)}catch(e){}}
+function toggleMotion(){motion=!motion;document.getElementById('tg').classList.toggle('off',!motion);document.documentElement.style.setProperty('--motion',motion?1:0)}
+function applyTheme(){const p=palettes[selected];document.documentElement.style.setProperty('--accent',p[0]);document.documentElement.style.setProperty('--glass','rgba(255,255,255,'+(opacity/100)+')');document.documentElement.style.setProperty('--blur',blur+'px');try{localStorage.setItem('glass-reference-theme',JSON.stringify({selected,opacity,blur,motion}))}catch(e){}go('home')}
+addEventListener('resize',fit);fit();pick(0);
+try{const saved=JSON.parse(localStorage.getItem('glass-reference-theme')||'null');if(saved){selected=saved.selected??0;opacity=saved.opacity??72;blur=saved.blur??16;motion=saved.motion??true;pick(selected);toggleMotion();if(!motion)toggleMotion();}}catch(e){}
+if(location.hash==='#themes')go('themes');
+</script></body></html>
