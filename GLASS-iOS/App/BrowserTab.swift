@@ -177,7 +177,6 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
             completionHandler(destination)
         } catch {
             completionHandler(nil)
-            onDownloadFailure?(error.localizedDescription)
         }
     }
 
