@@ -457,6 +457,45 @@ of the web.")
                                 .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
                             }
                         }
+
+                        if !browser.recentlyClosed.isEmpty {
+                            VStack(alignment: .leading, spacing: 11) {
+                                HStack {
+                                    sectionHeading("RECENTLY CLOSED", subtitle: "Bring a closed page back")
+                                    Spacer()
+                                    Button("Clear") { browser.clearRecentlyClosed() }
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundStyle(GlassPalette.secondary)
+                                }
+                                VStack(spacing: 0) {
+                                    ForEach(Array(browser.recentlyClosed.prefix(3))) { item in
+                                        Button { browser.reopen(item) } label: {
+                                            HStack(spacing: 11) {
+                                                Image(systemName: "arrow.uturn.backward")
+                                                    .font(.system(size: 13, weight: .semibold))
+                                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                                    .frame(width: 30, height: 30)
+                                                    .background(GlassAppearance.accent(for: themePreset).opacity(0.13), in: Circle())
+                                                VStack(alignment: .leading, spacing: 3) {
+                                                    Text(item.title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                                                    Text(URL(string: item.url)?.host ?? item.url).font(.system(size: 10)).foregroundStyle(GlassPalette.secondary).lineLimit(1)
+                                                }
+                                                Spacer()
+                                                Image(systemName: "arrow.clockwise").font(.system(size: 10, weight: .semibold)).foregroundStyle(GlassPalette.secondary)
+                                            }
+                                            .padding(.vertical, 10).padding(.horizontal, 12)
+                                        }
+                                        .buttonStyle(.plain)
+                                        if item.id != browser.recentlyClosed.prefix(3).last?.id {
+                                            Divider().overlay(Color.white.opacity(0.07)).padding(.leading, 52)
+                                        }
+                                    }
+                                }
+                                .background(.ultraThinMaterial.opacity(themeBlur), in: RoundedRectangle(cornerRadius: themeCornerRadius))
+                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themeCardOpacity)))
+                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(GlassPalette.line))
+                            }
+                        }
                     }
                     .padding(.vertical, 8)
                 }
