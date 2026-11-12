@@ -240,6 +240,11 @@ final class BrowserStore: ObservableObject {
         guard let index = tabs.firstIndex(where: { $0.id == tab.id }) else { return }
         let wasActive = activeTabID == tab.id
         let oldSpaceID = tab.spaceID
+        if !tab.isPrivate, !tab.address.isEmpty, URL(string: tab.address)?.scheme != nil {
+            recentlyClosed.insert(RecentlyClosedTab(tab: tab), at: 0)
+            recentlyClosed = Array(recentlyClosed.prefix(8))
+            saveRecentlyClosed()
+        }
         if tab.isPrivate && settings.clearPrivateDataOnClose {
             tab.webView.stopLoading()
             tab.webView.configuration.websiteDataStore.removeData(
@@ -261,6 +266,28 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
+    func reopen(_ item: RecentlyClosedTab) {
+        guard let url = URL(string: item.url) else { return }
+        let destination = spaces.contains(where: { $0.id == item.spaceID }) ? item.spaceID : activeSpaceID
+        addTab(spaceID: destination)
+        guard let tab = activeTab else { return }
+        tab.groupKind = item.groupKind
+        tab.groupDetail = item.groupDetail
+        tab.load(url)
+        recentlyClosed.removeAll { $0.id == item.id }
+        saveRecentlyClosed()
+    }
+
+    func clearRecentlyClosed() {
+        recentlyClosed.removeAll()
+        saveRecentlyClosed()
+    }
+
+    private func saveRecentlyClosed() {
+        if let data = try? JSONEncoder().encode(recentlyClosed) {
+            UserDefaults.standard.set(data, forKey: recentlyClosedKey)
+        }
+    }
     func closeAllTabsInActiveSpace() {
         let closing = tabs.filter { $0.spaceID == activeSpaceID }
         guard !closing.isEmpty else { return }
