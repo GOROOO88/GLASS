@@ -296,9 +296,9 @@ final class BrowserStore: ObservableObject {
         let destination = spaces.contains(where: { $0.id == item.spaceID }) ? item.spaceID : activeSpaceID
         addTab(spaceID: destination)
         guard let tab = activeTab else { return }
+        tab.load(url)
         tab.groupKind = item.groupKind
         tab.groupDetail = item.groupDetail
-        tab.load(url)
         recentlyClosed.removeAll { $0.id == item.id }
         saveRecentlyClosed()
     }
