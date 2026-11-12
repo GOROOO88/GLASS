@@ -76,6 +76,7 @@ final class BrowserStore: ObservableObject {
     @Published private(set) var downloads: [BrowserDownload] = []
     @Published private(set) var activeDownloads: [ActiveBrowserDownload] = []
     private var downloadOwners: [UUID: BrowserTab] = [:]
+    private var tabStateObservers: [UUID: AnyCancellable] = [:]
     @Published private(set) var spaces: [BrowserSpace] = []
     @Published var activeSpaceID = "personal"
     @Published private(set) var settings = GlassBrowserSettings()
@@ -249,6 +250,7 @@ final class BrowserStore: ObservableObject {
             tab.webView.loadHTMLString("", baseURL: nil)
         }
         tabs.remove(at: index)
+        tabStateObservers.removeValue(forKey: tab.id)?.cancel()
 
         if tabs.isEmpty {
             addTab(spaceID: oldSpaceID)
@@ -306,6 +308,15 @@ final class BrowserStore: ObservableObject {
 
     private func makeTab(id: UUID = UUID(), spaceID: String, isPrivate: Bool = false) -> BrowserTab {
         let tab = BrowserTab(id: id, spaceID: spaceID, isPrivate: isPrivate)
+        tabStateObservers[id] = Publishers.CombineLatest(tab.$groupKind, tab.$groupDetail)
+            .dropFirst()
+            .sink { [weak self] _, _ in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.saveSession()
+                    self.objectWillChange.send()
+                }
+            }
         tab.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled)
         if !isPrivate {
             tab.onVisit = { [weak self] url, title in
