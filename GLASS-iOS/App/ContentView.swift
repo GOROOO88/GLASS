@@ -318,10 +318,40 @@ struct ContentView: View {
                         }.listStyle(.plain)
                     }
                 } else {
-                    if browser.downloads.isEmpty {
+                    if browser.downloads.isEmpty && browser.activeDownloads.isEmpty {
                         ContentUnavailableView("No downloads yet", systemImage: "arrow.down.circle", description: Text("Files you download from websites will appear here."))
                     } else {
                         List {
+                            ForEach(browser.activeDownloads) { download in
+                                HStack(spacing: 10) {
+                                    Image(systemName: download.failure == nil ? "arrow.down.circle.fill" : "exclamationmark.triangle.fill")
+                                        .foregroundStyle(download.failure == nil ? GlassPalette.accent : .orange)
+                                        .frame(width: 28)
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text(download.filename).font(.system(size: 13, weight: .medium)).foregroundStyle(.white).lineLimit(1)
+                                        if let failure = download.failure {
+                                            Text(failure).font(.system(size: 10)).foregroundStyle(.orange).lineLimit(2)
+                                        } else {
+                                            ProgressView(value: download.progress).tint(GlassPalette.accent)
+                                            Text("\(Int(download.progress * 100))%")
+                                                .font(.system(size: 10, weight: .medium, design: .rounded)).foregroundStyle(GlassPalette.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    if download.failure != nil {
+                                        Button { browser.retryDownload(download) } label: {
+                                            Image(systemName: "arrow.clockwise").foregroundStyle(GlassPalette.accent)
+                                        }
+                                        .accessibilityLabel("Retry download")
+                                    } else {
+                                        Button(role: .destructive) { browser.cancelDownload(download) } label: {
+                                            Image(systemName: "xmark.circle.fill").foregroundStyle(.orange)
+                                        }
+                                        .accessibilityLabel("Cancel download")
+                                    }
+                                }
+                                .listRowBackground(GlassPalette.panel)
+                            }
                             ForEach(browser.downloads) { download in
                                 HStack(spacing: 10) {
                                     Image(systemName: "doc.fill").foregroundStyle(GlassPalette.accent).frame(width: 28)
