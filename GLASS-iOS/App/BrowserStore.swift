@@ -70,15 +70,21 @@ final class BrowserStore: ObservableObject {
     private var downloadOwners: [UUID: BrowserTab] = [:]
     @Published private(set) var spaces: [BrowserSpace] = []
     @Published var activeSpaceID = "personal"
+    @Published private(set) var settings = GlassBrowserSettings()
 
     private let historyKey = "glass.ios.history.v1"
     private let bookmarksKey = "glass.ios.bookmarks.v1"
     private let downloadsKey = "glass.ios.downloads.v1"
     private let spacesKey = "glass.ios.spaces.v1"
     private let sessionKey = "glass.ios.session.v1"
+    private let settingsKey = "glass.ios.settings.v1"
 
     init() {
         let defaults = UserDefaults.standard
+        if let data = defaults.data(forKey: settingsKey),
+           let savedSettings = try? JSONDecoder().decode(GlassBrowserSettings.self, from: data) {
+            settings = savedSettings
+        }
         history = defaults.stringArray(forKey: historyKey) ?? []
         if let data = defaults.data(forKey: bookmarksKey),
            let saved = try? JSONDecoder().decode([BrowserBookmark].self, from: data) {
@@ -223,6 +229,15 @@ final class BrowserStore: ObservableObject {
         guard let index = tabs.firstIndex(where: { $0.id == tab.id }) else { return }
         let wasActive = activeTabID == tab.id
         let oldSpaceID = tab.spaceID
+        if tab.isPrivate && settings.clearPrivateDataOnClose {
+            tab.webView.stopLoading()
+            tab.webView.configuration.websiteDataStore.removeData(
+                ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+                modifiedSince: Date(timeIntervalSince1970: 0),
+                completionHandler: {}
+            )
+            tab.webView.loadHTMLString("", baseURL: nil)
+        }
         tabs.remove(at: index)
 
         if tabs.isEmpty {
@@ -234,8 +249,8 @@ final class BrowserStore: ObservableObject {
         saveSession()
     }
 
-    private func makeTab(id: UUID = UUID(), spaceID: String, isPrivate: Bool = false) -> BrowserTab {
-        let tab = BrowserTab(id: id, spaceID: spaceID, isPrivate: isPrivate)
+    func closeAllPrivateTabs() {\n        let privateTabs = tabs.filter { $0.isPrivate }\n        privateTabs.forEach { close($0) }\n    }\n\n    func searchURL(for query: String) -> URL? {\n        settings.searchEngine.searchURL(for: query)\n    }\n\n    func updateSetting<Value>(_ keyPath: WritableKeyPath<GlassBrowserSettings, Value>, value: Value) {\n        settings[keyPath: keyPath] = value\n        saveSettings()\n        if keyPath == \\GlassBrowserSettings.adBlockingEnabled || keyPath == \\GlassBrowserSettings.trackerBlockingEnabled {\n            tabs.forEach { $0.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled) }\n        }\n    }\n\n    func updateCustomStartPage(_ value: String) {\n        settings.customStartPageURL = value\n        saveSettings()\n    }\n\n    var resolvedStartPageURL: URL? {\n        guard settings.startPage == "custom" else { return nil }\n        let value = settings.customStartPageURL.trimmingCharacters(in: .whitespacesAndNewlines)\n        guard !value.isEmpty else { return nil }\n        if let url = URL(string: value), ["http", "https"].contains(url.scheme?.lowercased() ?? "") { return url }\n        return URL(string: "https://" + value)\n    }\n\n    private func saveSettings() {\n        guard let data = try? JSONEncoder().encode(settings) else { return }\n        UserDefaults.standard.set(data, forKey: settingsKey)\n    }\n\n    private func makeTab(id: UUID = UUID(), spaceID: String, isPrivate: Bool = false) -> BrowserTab {
+        let tab = BrowserTab(id: id, spaceID: spaceID, isPrivate: isPrivate)\n        tab.applyContentBlocking(adBlocking: settings.adBlockingEnabled, trackerBlocking: settings.trackerBlockingEnabled)
         if !isPrivate {
             tab.onVisit = { [weak self] url, title in
                 self?.recordVisit(url, title: title)
