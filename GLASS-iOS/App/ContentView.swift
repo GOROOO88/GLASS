@@ -54,7 +54,7 @@ struct ContentView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 8)
+            .padding(.bottom, 12)
         }
         .onChange(of: browser.activeTabID) { _, _ in
             addressText = browser.activeTab?.address ?? ""
@@ -178,9 +178,11 @@ struct ContentView: View {
                 .accessibilityLabel(browser.isBookmarked(tab.address) ? "Remove bookmark" : "Add bookmark")
             }
         }
-        .padding(.horizontal, 15).frame(height: 52)
-        .background(Color.white.opacity(themePanelOpacity), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(GlassPalette.line))
+        .padding(.horizontal, 15).frame(height: 54)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).fill(Color.white.opacity(themePanelOpacity)))
+        .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(Color.white.opacity(0.15)))
+        .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow * 0.12), radius: 16, y: 5)
     }
 
     private var spacesBar: some View {
@@ -441,24 +443,63 @@ struct ContentView: View {
 
     private var navigationBar: some View {
         HStack(spacing: 0) {
-            navigationButton("chevron.left", enabled: browser.activeTab?.canGoBack == true) { browser.activeTab?.goBack() }
-            Spacer()
-            navigationButton("chevron.right", enabled: browser.activeTab?.canGoForward == true) { browser.activeTab?.goForward() }
-            Spacer()
-            navigationButton("clock.arrow.circlepath", enabled: true) { librarySection = 0; showLibrary = true }
-            Spacer()
-            navigationButton("arrow.clockwise", enabled: browser.activeTab?.address.isEmpty == false) { browser.activeTab?.reload() }
-            Spacer()
-            navigationButton(browser.activeTab?.isPrivate == true ? "eye.slash.fill" : "eye.slash", enabled: true) {
-                browser.addPrivateTab()
+            dockButton("chevron.left", title: "Back", enabled: browser.activeTab?.canGoBack == true) {
+                browser.activeTab?.goBack()
             }
-            Spacer()
-            navigationButton("square.on.square", enabled: true) { browser.addTab() }
-            Text("\(browser.tabs.count)").font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundStyle(GlassPalette.secondary).padding(.leading, 4)
+            Spacer(minLength: 2)
+            dockButton("chevron.right", title: "Forward", enabled: browser.activeTab?.canGoForward == true) {
+                browser.activeTab?.goForward()
+            }
+            Spacer(minLength: 2)
+            dockButton("books.vertical", title: "Library", enabled: true) {
+                librarySection = 1
+                showLibrary = true
+            }
+            Spacer(minLength: 2)
+            dockButton("clock.arrow.circlepath", title: "History", enabled: true) {
+                librarySection = 0
+                showLibrary = true
+            }
+            Spacer(minLength: 2)
+            dockButton("square.on.square", title: "Tabs", enabled: true) {
+                showSpaces = true
+            }
+            Spacer(minLength: 2)
+            Button {
+                browser.addTab()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 38, height: 38)
+                    .background(GlassAppearance.accent(for: themePreset), in: Circle())
+                    .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow), radius: 12, y: 3)
+            }
+            .accessibilityLabel("New tab")
         }
-        .padding(.horizontal, 10).frame(height: 48)
-        .background(Color.white.opacity(themePanelOpacity), in: Capsule()).overlay(Capsule().stroke(GlassPalette.line))
+        .padding(.horizontal, 13)
+        .frame(height: 62)
+        .background(.ultraThinMaterial, in: Capsule())
+        .overlay(Capsule().fill(Color.white.opacity(themePanelOpacity * 0.7)))
+        .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1))
+        .shadow(color: .black.opacity(0.24), radius: 18, y: 7)
+        .padding(.horizontal, 2)
+    }
+
+    private func dockButton(_ symbol: String, title: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.system(size: 16, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 8, weight: .medium))
+            }
+            .foregroundStyle(enabled ? .white : GlassPalette.secondary.opacity(0.32))
+            .frame(minWidth: 37, minHeight: 46)
+            .contentShape(Rectangle())
+        }
+        .disabled(!enabled)
+        .buttonStyle(.plain)
     }
 
     private var librarySheet: some View {
