@@ -5,6 +5,11 @@ struct BrowserSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var customURL = ""
     @State private var permissionDomain = ""
+    @State private var appearanceApplied = false
+    @AppStorage("glass.theme.backgroundStyle") private var themeBackgroundStyle = "aurora"
+    @AppStorage("glass.theme.addressOpacity") private var themeAddressOpacity = 0.075
+    @AppStorage("glass.theme.cardOpacity") private var themeCardOpacity = 0.075
+    @AppStorage("glass.theme.dockOpacity") private var themeDockOpacity = 0.052
     @AppStorage("glass.theme.preset") private var themePreset = "violet"
     @AppStorage("glass.theme.panelOpacity") private var themePanelOpacity = 0.075
     @AppStorage("glass.theme.glow") private var themeGlow = 0.55
@@ -108,14 +113,37 @@ struct BrowserSettingsView: View {
                             }
                             .padding(.top, 5)
 
-                            VStack(spacing: 15) {
+                            VStack(alignment: .leading, spacing: 13) {
+                                Text("BACKGROUND")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .tracking(1.4)
+                                    .foregroundStyle(.white.opacity(0.45))
+                                HStack(spacing: 7) {
+                                    backgroundChoice("Aurora", value: "aurora", symbol: "sparkles")
+                                    backgroundChoice("Gradient", value: "gradient", symbol: "circle.lefthalf.filled")
+                                    backgroundChoice("Deep", value: "deep", symbol: "moon.fill")
+                                }
+                                Divider().overlay(.white.opacity(0.08))
+                                Text("GLASS & LIGHT")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .tracking(1.4)
+                                    .foregroundStyle(.white.opacity(0.45))
                                 appearanceSlider("Transparency", value: $themePanelOpacity, range: 0.035...0.16)
                                 appearanceSlider("Glass blur", value: $themeBlur, range: 0.15...1.0)
-                                appearanceSlider("Accent glow", value: $themeGlow, range: 0...1)
+                                appearanceSlider("Glow intensity", value: $themeGlow, range: 0...1)
                                 appearanceSlider("Corner radius", value: $themeCornerRadius, range: 12...30)
+                                Divider().overlay(.white.opacity(0.08))
+                                Text("ELEMENT TRANSPARENCY")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .tracking(1.4)
+                                    .foregroundStyle(.white.opacity(0.45))
+                                appearanceSlider("Address bar", value: $themeAddressOpacity, range: 0.02...0.20)
+                                appearanceSlider("Cards & panels", value: $themeCardOpacity, range: 0.02...0.20)
+                                appearanceSlider("Bottom dock", value: $themeDockOpacity, range: 0.02...0.20)
                             }
                             .padding(14)
-                            .background(Color.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+                            .background(Color.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 17).stroke(.white.opacity(0.09)))
 
                             RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous)
                                 .fill(LinearGradient(
@@ -139,6 +167,26 @@ struct BrowserSettingsView: View {
                                 }
                                 .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(.white.opacity(0.18)))
                                 .frame(height: 62)
+
+                            Button {
+                                appearanceApplied = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: appearanceApplied ? "checkmark" : "checkmark.circle.fill")
+                                    Text(appearanceApplied ? "Применено" : "Применить")
+                                }
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .background(LinearGradient(
+                                    colors: [GlassAppearance.accent(for: themePreset), GlassAppearance.accent(for: themePreset).opacity(0.68)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .shadow(color: GlassAppearance.accent(for: themePreset).opacity(0.24), radius: 12, y: 4)
+                            }
+                            .buttonStyle(.plain)
                         }
                         .padding(.vertical, 10)
                         .listRowBackground(Color.clear)
@@ -146,7 +194,7 @@ struct BrowserSettingsView: View {
                     } header: {
                         Text("GLASS THEMES")
                     } footer: {
-                        Text("The four base themes remain available at all times. Manual adjustments are saved automatically on this device.")
+                        Text("The four approved themes stay fixed. Every slider updates the browser immediately and is saved on this device.")
                     }
 
                     Section {
@@ -274,11 +322,31 @@ struct BrowserSettingsView: View {
                 .scrollContentBackground(.hidden)
                 .foregroundStyle(.white)
             }
-            .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { dismiss() } label: { Image(systemName: "chevron.left").font(.system(size: 15, weight: .semibold)) }
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("Темы").font(.system(size: 16, weight: .semibold))
+                }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Menu {
+                        Button("Сбросить оформление", systemImage: "arrow.counterclockwise") {
+                            themePreset = "violet"
+                            themePanelOpacity = 0.075
+                            themeBlur = 0.65
+                            themeGlow = 0.55
+                            themeCornerRadius = 20
+                            themeBackgroundStyle = "aurora"
+                            themeAddressOpacity = 0.075
+                            themeCardOpacity = 0.075
+                            themeDockOpacity = 0.052
+                            appearanceApplied = false
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis").font(.system(size: 16, weight: .semibold))
+                    }
                 }
             }
             .onAppear {
@@ -287,6 +355,33 @@ struct BrowserSettingsView: View {
         }
         .tint(Color(red: 0.68, green: 0.53, blue: 1.0))
         .preferredColorScheme(.dark)
+    }
+
+    private func backgroundChoice(_ title: String, value: String, symbol: String) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                themeBackgroundStyle = value
+                appearanceApplied = false
+            }
+        } label: {
+            VStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 13, weight: .semibold))
+                Text(title).font(.system(size: 10, weight: .semibold))
+            }
+            .foregroundStyle(themeBackgroundStyle == value ? .white : .white.opacity(0.55))
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(
+                themeBackgroundStyle == value
+                    ? GlassAppearance.accent(for: themePreset).opacity(0.26)
+                    : Color.white.opacity(0.045),
+                in: RoundedRectangle(cornerRadius: 11, style: .continuous)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 11).stroke(
+                themeBackgroundStyle == value ? GlassAppearance.accent(for: themePreset).opacity(0.65) : .white.opacity(0.08)
+            ))
+        }
+        .buttonStyle(.plain)
     }
 
     private func appearanceSlider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
