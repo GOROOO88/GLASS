@@ -1099,6 +1099,32 @@ of the web.")
             browser.select(tab)
             showTabs = false
         }
+        .contextMenu {
+            Button {
+                browser.duplicate(tab)
+                showTabs = false
+            } label: {
+                Label("Duplicate tab", systemImage: "plus.square.on.square")
+            }
+
+            Menu {
+                ForEach(browser.spaces.filter { $0.id != tab.spaceID }) { space in
+                    Button {
+                        browser.move(tab, to: space)
+                    } label: {
+                        Label(space.name, systemImage: space.symbol)
+                    }
+                }
+            } label: {
+                Label("Move to space", systemImage: "square.grid.2x2")
+            }
+
+            Button(role: .destructive) {
+                browser.close(tab)
+            } label: {
+                Label("Close tab", systemImage: "xmark")
+            }
+        }
     }
 
     private var spacesSheet: some View {
