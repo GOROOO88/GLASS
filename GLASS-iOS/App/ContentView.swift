@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 private enum GlassPalette {
     static let background = Color(red: 0.055, green: 0.05, blue: 0.085)
