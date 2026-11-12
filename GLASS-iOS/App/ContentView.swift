@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var showLibrary = false
     @State private var librarySection = 0
     @State private var showSpaces = false
+    @State private var showTabs = false
     @State private var newSpaceName = ""
     @State private var showPrivacy = false
     @State private var showSettings = false
@@ -70,6 +71,12 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showSpaces) {
             spacesSheet
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .preferredColorScheme(.dark)
+        }
+        .sheet(isPresented: $showTabs) {
+            tabsSheet
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
                 .preferredColorScheme(.dark)
@@ -462,7 +469,7 @@ struct ContentView: View {
             }
             Spacer(minLength: 2)
             dockButton("square.on.square", title: "Tabs", enabled: true) {
-                showSpaces = true
+                showTabs = true
             }
             Spacer(minLength: 2)
             Button {
@@ -661,6 +668,67 @@ struct ContentView: View {
             .navigationTitle("Privacy").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { Button("Done") { showPrivacy = false } }
+            }
+        }
+        .tint(GlassAppearance.accent(for: themePreset))
+    }
+
+    private var tabsSheet: some View {
+        NavigationStack {
+            List {
+                ForEach(browser.visibleTabs) { tab in
+                    HStack(spacing: 11) {
+                        Image(systemName: tab.isPrivate ? "eye.slash.fill" : "globe")
+                            .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(tab.title.isEmpty ? "New tab" : tab.title)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            Text(tab.address.isEmpty ? "Start page" : tab.address)
+                                .font(.system(size: 10))
+                                .foregroundStyle(GlassPalette.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        if browser.activeTabID == tab.id {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        }
+                        Button {
+                            browser.close(tab)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(GlassPalette.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Close tab")
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        browser.select(tab)
+                        showTabs = false
+                    }
+                    .listRowBackground(Color.white.opacity(themePanelOpacity))
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(GlassPalette.background)
+            .navigationTitle("Tabs")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Done") { showTabs = false }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        browser.addTab()
+                        showTabs = false
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
             }
         }
         .tint(GlassAppearance.accent(for: themePreset))
