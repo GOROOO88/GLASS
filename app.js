@@ -144,3 +144,83 @@ $("#clearRecent").addEventListener("click",()=>{$("#recentList").innerHTML='<spa
 $("#addShortcut").addEventListener("click",()=>show(panelHead("QUICK ACCESS","Add shortcut","Add a site to your home screen.")+'<input class="dialog-input" id="shortcutName" placeholder="Name"><input class="dialog-input" id="shortcutUrl" placeholder="https://example.com">'+action("Add shortcut","saveShortcut")));
 $("#dialogContent").addEventListener("click",e=>{if(e.target.id==="saveShortcut"){const name=$("#shortcutName").value.trim(),url=$("#shortcutUrl").value.trim();if(!name||!url)return;const href=/^https?:\/\//i.test(url)?url:"https://"+url;const a=document.createElement("a");a.className="quick-link";a.href=href;a.innerHTML='<span class="quick-icon">↗</span><span></span>';a.lastElementChild.textContent=name;$("#quickLinks").insertBefore(a,$("#addShortcut"));close()}});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+
+/* Appearance Studio: presets, granular controls, wallpaper and saved profiles */
+const customThemesKey="glass-custom-themes";
+function applyAppearance(patch={}){
+  appearance={...appearance,...patch};
+  write("glass-appearance",appearance);
+  const preset=themes[appearance.theme]||themes.Violet;
+  const color=appearance.customAccent||preset[0];
+  const rgb=hexToRgb(color);
+  const root=document.documentElement;
+  root.style.setProperty("--accent",color);
+  root.style.setProperty("--accent-rgb",rgb);
+  root.style.setProperty("--opacity",Number(appearance.opacity??7.5)/100);
+  root.style.setProperty("--blur",Number(appearance.blur??24)+"px");
+  root.style.setProperty("--radius",Number(appearance.radius??24)+"px");
+  root.style.setProperty("--glow",Number(appearance.glow??34)/100);
+  root.style.setProperty("--user-bg",appearance.background||"#111019");
+  root.style.setProperty("--user-wallpaper",appearance.wallpaper?"url('"+appearance.wallpaper+"')":"none");
+}
+function hexToRgb(hex){
+  const h=String(hex||"#a94bff").replace("#","");
+  const full=h.length===3?h.split("").map(x=>x+x).join(""):h;
+  const n=parseInt(full,16);
+  return Number.isFinite(n)?[(n>>16)&255,(n>>8)&255,n&255].join(","):"169,75,255";
+}
+function appearancePanel(){
+  const p=appearance;
+  const saved=read(customThemesKey,[]);
+  const color=p.customAccent||((themes[p.theme]||themes.Violet)[0]);
+  show(panelHead("GLASS DESIGN SYSTEM","Appearance","Choose a preset, then tune every surface. Your settings are saved on this device.")+
+  '<div class="appearance-studio">'+
+    '<section class="studio-section"><h3>Color presets</h3><div class="studio-grid">'+
+      Object.entries(themes).map(([n,v])=>'<button class="studio-theme '+(p.theme===n&&!p.customAccent?"selected":"")+'" data-studio-theme="'+n+'"><i style="--swatch:'+v[0]+'"></i><span>'+n+'</span></button>').join("")+
+    '</div></section>'+
+    '<section class="studio-section"><h3>Fine tuning</h3>'+
+      '<label class="studio-color-row">Accent color <input type="color" id="studioAccent" value="'+color+'"></label>'+
+      '<label class="studio-color-row">Background color <input type="color" id="studioBackground" value="'+(p.background||"#111019")+'"></label>'+
+      '<label class="studio-control">Glass transparency <output id="studioOpacityValue">'+(p.opacity??7.5)+'%</output><input id="studioOpacity" type="range" min="3" max="22" step=".5" value="'+(p.opacity??7.5)+'"></label>'+
+      '<label class="studio-control">Background blur <output id="studioBlurValue">'+(p.blur??24)+' px</output><input id="studioBlur" type="range" min="4" max="48" value="'+(p.blur??24)+'"></label>'+
+      '<label class="studio-control">Corner radius <output id="studioRadiusValue">'+(p.radius??24)+' px</output><input id="studioRadius" type="range" min="10" max="36" value="'+(p.radius??24)+'"></label>'+
+      '<label class="studio-control">Glow intensity <output id="studioGlowValue">'+(p.glow??34)+'%</output><input id="studioGlow" type="range" min="0" max="100" value="'+(p.glow??34)+'"></label>'+
+    '</section>'+
+    '<section class="studio-section"><h3>Background image</h3><div class="studio-wallpaper">'+
+      '<label for="studioWallpaper">＋ Choose image<input id="studioWallpaper" type="file" accept="image/*"></label>'+
+      '<button type="button" id="studioClearWallpaper">Remove image</button>'+
+    '</div><p class="studio-note">Image stays in this browser on this device. Use a reasonably sized image (up to 1.5 MB) to avoid filling local storage.</p></section>'+
+    '<section class="studio-section"><h3>My themes</h3><div class="studio-save"><input id="studioThemeName" maxlength="24" placeholder="Theme name"><button type="button" id="studioSaveTheme">Save theme</button></div>'+
+      '<div class="studio-saved">'+(saved.length?saved.map((t,i)=>'<div class="studio-saved-row"><button type="button" data-load-theme="'+i+'">'+safe(t.name)+'</button><button type="button" data-delete-theme="'+i+'" aria-label="Delete '+safe(t.name)+'">×</button></div>').join(""):'<p class="studio-note">Saved themes will appear here.</p>')+'</div>'+
+    '</section>'+
+  '</div>'+action("Done","doneAppearance"));
+  content.querySelectorAll("[data-studio-theme]").forEach(b=>b.addEventListener("click",()=>{
+    applyAppearance({theme:b.dataset.studioTheme,customAccent:null});appearancePanel();
+  }));
+  [["studioOpacity","opacity","studioOpacityValue","%"],["studioBlur","blur","studioBlurValue"," px"],["studioRadius","radius","studioRadiusValue"," px"],["studioGlow","glow","studioGlowValue","%"]].forEach(([id,key,out,suffix])=>{
+    $("#"+id).addEventListener("input",e=>{const val=Number(e.target.value);applyAppearance({[key]:val});$("#"+out).textContent=val+suffix});
+  });
+  $("#studioAccent").addEventListener("input",e=>applyAppearance({customAccent:e.target.value}));
+  $("#studioBackground").addEventListener("input",e=>applyAppearance({background:e.target.value}));
+  $("#studioWallpaper").addEventListener("change",e=>{
+    const file=e.target.files&&e.target.files[0];if(!file)return;
+    if(file.size>1.5*1024*1024){show(panelHead("IMAGE TOO LARGE","Choose a smaller image","The wallpaper must be 1.5 MB or smaller so browser storage remains reliable." )+action("Back to appearance","backToAppearance"));$("#backToAppearance").addEventListener("click",appearancePanel);return}
+    const reader=new FileReader();reader.onload=()=>{applyAppearance({wallpaper:String(reader.result)});appearancePanel()};reader.readAsDataURL(file);
+  });
+  $("#studioClearWallpaper").addEventListener("click",()=>{applyAppearance({wallpaper:null});appearancePanel()});
+  $("#studioSaveTheme").addEventListener("click",()=>{
+    const name=$("#studioThemeName").value.trim();if(!name)return;
+    const list=read(customThemesKey,[]);const item={name,appearance:{...appearance}};
+    const idx=list.findIndex(x=>x.name.toLowerCase()===name.toLowerCase());
+    if(idx>=0)list[idx]=item;else list.unshift(item);
+    write(customThemesKey,list.slice(0,20));appearancePanel();
+  });
+  content.querySelectorAll("[data-load-theme]").forEach(b=>b.addEventListener("click",()=>{
+    const item=read(customThemesKey,[])[Number(b.dataset.loadTheme)];if(item)applyAppearance(item.appearance||{});appearancePanel();
+  }));
+  content.querySelectorAll("[data-delete-theme]").forEach(b=>b.addEventListener("click",()=>{
+    const list=read(customThemesKey,[]);list.splice(Number(b.dataset.deleteTheme),1);write(customThemesKey,list);appearancePanel();
+  }));
+  $("#doneAppearance").addEventListener("click",close);
+}
