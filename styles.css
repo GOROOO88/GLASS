@@ -275,3 +275,76 @@ body{
  background-position:center,center,center,center,center;
  background-attachment:fixed;
 }
+
+/* GLASS reference layout refresh */
+:root{--accent:#a98aff;--accent-rgb:169,138,255;--opacity:.075;--blur:30px;--radius:26px}
+body.reference-home{min-height:100svh;background:#08070f;overflow-x:hidden}
+body.reference-home:before{opacity:.08}
+.liquid-scene{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(67,35,112,.25),transparent 52%),radial-gradient(ellipse at 15% 80%,rgba(93,45,155,.13),transparent 40%),#08070f}
+.liquid-halo{position:absolute;border-radius:50%;filter:blur(100px);opacity:.34}
+.halo-one{width:40vw;height:36vw;left:24%;top:32%;background:#6c3bb4}
+.halo-two{width:34vw;height:30vw;right:-12%;top:4%;background:#332064;opacity:.45}
+.liquid-ribbons{position:absolute;width:100%;height:100%;inset:0;opacity:.9}
+.reference-shell{width:min(100% - 44px,850px);padding:25px 0 170px}
+.reference-topbar .space-switch{height:42px;padding:0 15px;border-radius:999px;background:rgba(255,255,255,.065);backdrop-filter:blur(28px) saturate(170%)}
+.reference-topbar .icon-button{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.065);backdrop-filter:blur(28px)}
+.reference-hero{padding:clamp(66px,10vh,112px) 0 66px}
+.brand-lockup h1{font-size:clamp(38px,6vw,54px);font-weight:430;letter-spacing:.48em;margin:0 0 12px 0;padding-left:.48em;background:linear-gradient(180deg,#fff 0%,#d9d1e8 100%);background-clip:text;-webkit-background-clip:text;color:transparent}
+.brand-lockup .tagline{font-size:12px;letter-spacing:.12em;text-transform:none;color:#a9a1b8;margin:0 0 40px}
+.reference-search{width:min(100%,690px);height:64px;border-radius:22px;padding:0 14px 0 22px;background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.14);box-shadow:0 18px 60px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.12),0 0 50px rgba(147,102,255,.08)}
+.reference-search input{font-size:14px;letter-spacing:0}
+.reference-search input::placeholder{color:#9992a9}
+.reference-search button{font-size:19px}
+.reference-search .search-submit{width:39px;height:39px;border-radius:14px;background:rgba(174,143,255,.18);color:#e6d9ff;border:1px solid rgba(196,171,255,.22);box-shadow:0 0 25px rgba(164,124,255,.12)}
+.reference-shortcuts{gap:clamp(17px,3vw,35px);margin-top:30px}
+.reference-shortcuts .quick-link{font-size:10px;color:#b4aec2;gap:9px}
+.reference-shortcuts .quick-icon{width:47px;height:47px;border-radius:17px;background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.12);box-shadow:inset 0 1px rgba(255,255,255,.1),0 10px 24px rgba(0,0,0,.12)}
+.reference-tabs{margin-top:8px;padding:22px 22px 20px;border:1px solid rgba(255,255,255,.11);border-radius:27px;background:rgba(255,255,255,.035);backdrop-filter:blur(24px);box-shadow:inset 0 1px rgba(255,255,255,.06),0 18px 50px rgba(0,0,0,.14)}
+.reference-tabs .section-heading{margin-bottom:17px}
+.reference-tabs .section-heading h2,.reference-recent .section-heading h2{font-size:19px;font-weight:520;letter-spacing:-.025em}
+.reference-tabs .eyebrow,.reference-recent .eyebrow{letter-spacing:.16em;font-size:9px;color:#898197}
+.reference-tabs .text-button,.reference-recent .text-button{border:0;background:transparent;padding:8px 2px;color:#b5a9d0}
+.reference-tabs .home-tab-groups{gap:11px}
+.reference-tabs .space-card{min-height:153px;padding:15px 16px;border-radius:20px;background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025));border-color:rgba(255,255,255,.11);box-shadow:inset 0 1px rgba(255,255,255,.08),0 12px 30px rgba(0,0,0,.12)}
+.reference-tabs .space-card strong{font-size:16px}
+.reference-tabs .card-meta{font-size:9px;color:#9a93a9}
+.reference-tabs .card-icon{background:rgba(255,255,255,.075);border-radius:12px}
+.reference-recent{margin-top:30px}
+.reference-recent .empty-state{border-radius:17px;background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.08);min-height:59px}
+.reference-dock{gap:10px;bottom:max(18px,env(safe-area-inset-bottom))}
+.reference-dock .dock-group{height:63px;border-radius:22px;background:rgba(25,22,35,.76);border-color:rgba(255,255,255,.14);backdrop-filter:blur(34px) saturate(180%)}
+.reference-dock .dock-button{width:58px;height:51px}
+.reference-dock .dock-button span{font-size:20px}
+.reference-dock .dock-button small{font-size:8px}
+.reference-dock .ask-button{height:63px;border-radius:22px;padding:0 22px;background:linear-gradient(135deg,rgba(168,132,255,.26),rgba(120,86,196,.14));border-color:rgba(192,164,255,.28);box-shadow:inset 0 1px rgba(255,255,255,.14),0 10px 30px rgba(0,0,0,.2),0 0 28px rgba(150,110,255,.08)}
+.reference-dock .nav-button{width:36px}
+.app-dialog{background:rgba(18,16,27,.91)}
+@media(max-width:620px){
+ .reference-shell{width:calc(100% - 32px);padding-top:18px;padding-bottom:155px}
+ .reference-hero{padding:clamp(72px,11vh,100px) 0 53px}
+ .brand-lockup h1{font-size:39px;letter-spacing:.38em;padding-left:.38em}
+ .brand-lockup .tagline{margin-bottom:33px;font-size:11px}
+ .reference-search{height:58px;padding-left:16px;gap:9px;border-radius:19px}
+ .reference-search input{font-size:13px}
+ .reference-shortcuts{gap:9px;justify-content:space-between;margin-top:24px}
+ .reference-shortcuts .quick-link{min-width:0;padding:4px 2px;font-size:9px}
+ .reference-shortcuts .quick-icon{width:43px;height:43px;border-radius:15px}
+ .reference-tabs{padding:18px 14px 15px;border-radius:23px}
+ .reference-tabs .home-tab-groups{gap:8px}
+ .reference-tabs .space-card{min-height:137px;padding:12px 10px;border-radius:17px}
+ .reference-tabs .card-top{margin-bottom:13px}
+ .reference-tabs .card-icon{width:28px;height:28px}
+ .reference-tabs .space-card strong{font-size:14px}
+ .reference-tabs .card-meta{font-size:8px;line-height:1.35}
+ .reference-tabs .card-count{right:10px;bottom:12px;font-size:8px}
+ .reference-tabs .mini-tabs{padding-top:13px;gap:3px}
+ .reference-tabs .mini-tabs i{width:13px}
+ .reference-recent{margin-top:25px}
+ .reference-dock{gap:7px;max-width:calc(100% - 18px)}
+ .reference-dock .dock-group{height:58px;padding:4px;border-radius:19px}
+ .reference-dock .dock-button{width:48px;height:48px}
+ .reference-dock .dock-button small{font-size:7px}
+ .reference-dock .ask-button{height:58px;padding:0 16px;border-radius:19px}
+ .reference-dock .nav-button{width:29px;height:46px}
+}
+@media(prefers-reduced-motion:reduce){.reference-home *{scroll-behavior:auto!important;transition:none!important}}
