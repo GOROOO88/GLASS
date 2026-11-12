@@ -231,9 +231,9 @@ struct BrowserSettingsView: View {
 
                     Section {
                         Toggle("Block ads", isOn: setting(\.adBlockingEnabled))
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                         Toggle("Block known trackers", isOn: setting(\.trackerBlockingEnabled))
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                     } header: {
                         Text("Protection")
                     } footer: {
@@ -242,9 +242,9 @@ struct BrowserSettingsView: View {
 
                     Section {
                         Toggle("Allow camera requests", isOn: setting(\.cameraAllowed))
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                         Toggle("Allow microphone requests", isOn: setting(\.microphoneAllowed))
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                         HStack(spacing: 8) {
                             TextField("example.com", text: $permissionDomain)
                                 .textInputAutocapitalization(.never)
@@ -255,7 +255,7 @@ struct BrowserSettingsView: View {
                             }
                             .disabled(permissionDomain.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
-                        .listRowBackground(Color.white.opacity(0.075))
+                        .listRowBackground(.ultraThinMaterial)
                         ForEach(browser.settings.sitePermissions.values.sorted { $0.domain < $1.domain }) { site in
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
@@ -274,12 +274,12 @@ struct BrowserSettingsView: View {
                                     set: { browser.setSitePermission(domain: site.domain, camera: browser.settings.sitePermissions[site.domain]?.cameraAllowed ?? true, microphone: $0) }
                                 ))
                             }
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                         }
                         Label("Location access is controlled by iOS site and app permission prompts.", systemImage: "location")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                     } header: {
                         Text("Site permissions")
                     } footer: {
@@ -291,13 +291,13 @@ struct BrowserSettingsView: View {
                             Text("GLASS start page").tag("glass")
                             Text("Custom website").tag("custom")
                         }
-                        .listRowBackground(Color.white.opacity(0.075))
+                        .listRowBackground(.ultraThinMaterial)
                         if browser.settings.startPage == "custom" {
                             TextField("https://example.com", text: $customURL)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                                 .keyboardType(.URL)
-                                .listRowBackground(Color.white.opacity(0.075))
+                                .listRowBackground(.ultraThinMaterial)
                                 .onChange(of: customURL) { _, value in
                                     browser.updateCustomStartPage(value)
                                 }
@@ -308,13 +308,13 @@ struct BrowserSettingsView: View {
 
                     Section {
                         Toggle("Clear private data when tabs close", isOn: setting(\.clearPrivateDataOnClose))
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                         Button(role: .destructive) {
                             browser.closeAllPrivateTabs()
                         } label: {
                             Label("Close all private tabs now", systemImage: "eye.slash")
                         }
-                        .listRowBackground(Color.white.opacity(0.075))
+                        .listRowBackground(.ultraThinMaterial)
                     } header: {
                         Text("Private browsing")
                     } footer: {
@@ -329,11 +329,11 @@ struct BrowserSettingsView: View {
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.secondary)
                         }
-                        .listRowBackground(Color.white.opacity(0.075))
+                        .listRowBackground(.ultraThinMaterial)
                         Text("Local AES-GCM encryption and Keychain key storage are implemented. Cross-device sync remains off until secure device pairing, account authentication, and the Cloudflare service are connected.")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
-                            .listRowBackground(Color.white.opacity(0.075))
+                            .listRowBackground(.ultraThinMaterial)
                     } header: {
                         Text("Sync")
                     }
