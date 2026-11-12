@@ -17,68 +17,136 @@ struct BrowserSettingsView: View {
                 Color(red: 0.055, green: 0.05, blue: 0.085).ignoresSafeArea()
                 List {
                     Section {
-                        VStack(alignment: .leading, spacing: 14) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("GLASS appearance").font(.system(size: 15, weight: .semibold))
-                                    Text("One visual language across the browser").font(.system(size: 11)).foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                Image(systemName: GlassAppearance.symbol(for: themePreset))
-                                    .font(.system(size: 22, weight: .medium))
-                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                        VStack(alignment: .leading, spacing: 17) {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("Choose your atmosphere")
+                                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                Text("Four signature GLASS themes. The layout stays consistent; the atmosphere changes.")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.white.opacity(0.55))
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
+
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                 ForEach(GlassAppearance.presets, id: \.self) { preset in
                                     Button {
-                                        themePreset = preset
+                                        withAnimation(.easeInOut(duration: 0.25)) {
+                                            themePreset = preset
+                                        }
                                     } label: {
-                                        HStack(spacing: 8) {
-                                            Circle().fill(GlassAppearance.accent(for: preset)).frame(width: 12, height: 12)
-                                            Text(GlassAppearance.title(for: preset)).font(.system(size: 12, weight: .semibold))
-                                            Spacer()
-                                            if themePreset == preset {
-                                                Image(systemName: "checkmark.circle.fill").font(.system(size: 13))
+                                        VStack(alignment: .leading, spacing: 9) {
+                                            ZStack(alignment: .bottomLeading) {
+                                                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                                                    .fill(LinearGradient(
+                                                        colors: GlassAppearance.previewColors(for: preset),
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    ))
+                                                VStack(alignment: .leading, spacing: 7) {
+                                                    HStack(spacing: 4) {
+                                                        Circle().fill(.white.opacity(0.85)).frame(width: 5, height: 5)
+                                                        Circle().fill(.white.opacity(0.45)).frame(width: 5, height: 5)
+                                                        Circle().fill(.white.opacity(0.25)).frame(width: 5, height: 5)
+                                                        Spacer()
+                                                        Image(systemName: GlassAppearance.symbol(for: preset))
+                                                            .font(.system(size: 10, weight: .semibold))
+                                                    }
+                                                    RoundedRectangle(cornerRadius: 5).fill(.white.opacity(0.20)).frame(width: 54, height: 5)
+                                                    RoundedRectangle(cornerRadius: 5).fill(.white.opacity(0.11)).frame(width: 78, height: 4)
+                                                    HStack(spacing: 4) {
+                                                        RoundedRectangle(cornerRadius: 5).fill(.white.opacity(0.20)).frame(height: 18)
+                                                        RoundedRectangle(cornerRadius: 5).fill(.white.opacity(0.12)).frame(height: 18)
+                                                    }
+                                                }
+                                                .foregroundStyle(.white.opacity(0.9))
+                                                .padding(10)
+                                            }
+                                            .frame(height: 88)
+                                            HStack(spacing: 6) {
+                                                Circle().fill(GlassAppearance.accent(for: preset)).frame(width: 8, height: 8)
+                                                Text(GlassAppearance.title(for: preset))
+                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .foregroundStyle(.white)
+                                                Spacer(minLength: 0)
+                                                if themePreset == preset {
+                                                    Image(systemName: "checkmark.circle.fill")
+                                                        .font(.system(size: 14))
+                                                        .foregroundStyle(GlassAppearance.accent(for: preset))
+                                                }
                                             }
                                         }
-                                        .foregroundStyle(.white)
-                                        .padding(11)
-                                        .background(GlassAppearance.accent(for: preset).opacity(themePreset == preset ? 0.22 : 0.09), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(GlassAppearance.accent(for: preset).opacity(themePreset == preset ? 0.65 : 0.20)))
+                                        .padding(9)
+                                        .background(Color.white.opacity(themePreset == preset ? 0.105 : 0.045), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                                        .overlay(RoundedRectangle(cornerRadius: 17).stroke(
+                                            GlassAppearance.accent(for: preset).opacity(themePreset == preset ? 0.75 : 0.16),
+                                            lineWidth: themePreset == preset ? 1.4 : 1
+                                        ))
+                                        .shadow(color: GlassAppearance.accent(for: preset).opacity(themePreset == preset ? 0.18 : 0), radius: 12, y: 3)
                                     }
                                     .buttonStyle(.plain)
                                 }
                             }
-                            VStack(spacing: 12) {
+
+                            HStack(spacing: 8) {
+                                Image(systemName: "slider.horizontal.3")
+                                    .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                                Text("Fine-tune your theme")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                Spacer()
+                                Button("Reset") {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        themePanelOpacity = 0.075
+                                        themeBlur = 0.65
+                                        themeGlow = 0.55
+                                        themeCornerRadius = 20
+                                    }
+                                }
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(GlassAppearance.accent(for: themePreset))
+                            }
+                            .padding(.top, 5)
+
+                            VStack(spacing: 15) {
                                 appearanceSlider("Transparency", value: $themePanelOpacity, range: 0.035...0.16)
-                                appearanceSlider("Blur", value: $themeBlur, range: 0.15...1.0)
-                                appearanceSlider("Glow", value: $themeGlow, range: 0...1)
+                                appearanceSlider("Glass blur", value: $themeBlur, range: 0.15...1.0)
+                                appearanceSlider("Accent glow", value: $themeGlow, range: 0...1)
                                 appearanceSlider("Corner radius", value: $themeCornerRadius, range: 12...30)
                             }
-                            .padding(.top, 3)
+                            .padding(14)
+                            .background(Color.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+
                             RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous)
-                                .fill(GlassAppearance.accent(for: themePreset).opacity(0.15))
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: themeCornerRadius, style: .continuous))
+                                .fill(LinearGradient(
+                                    colors: GlassAppearance.previewColors(for: themePreset),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
                                 .overlay {
-                                    HStack {
+                                    HStack(spacing: 10) {
                                         Image(systemName: "circle.hexagongrid.fill")
-                                            .foregroundStyle(GlassAppearance.accent(for: themePreset))
-                                            .shadow(color: GlassAppearance.accent(for: themePreset).opacity(themeGlow), radius: 10)
-                                        Text("Live GLASS preview").font(.system(size: 12, weight: .semibold))
+                                            .foregroundStyle(.white)
+                                            .shadow(color: .white.opacity(themeGlow), radius: 9)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("GLASS").font(.system(size: 11, weight: .bold)).tracking(1.4)
+                                            Text("Live appearance preview").font(.system(size: 9)).foregroundStyle(.white.opacity(0.65))
+                                        }
                                         Spacer()
-                                        Image(systemName: "arrow.up.right").font(.system(size: 10))
+                                        Image(systemName: "sparkles").foregroundStyle(.white.opacity(0.8))
                                     }
-                                    .foregroundStyle(.white)
                                     .padding(14)
                                 }
-                                .frame(height: 54)
+                                .overlay(RoundedRectangle(cornerRadius: themeCornerRadius).stroke(.white.opacity(0.18)))
+                                .frame(height: 62)
                         }
-                        .padding(.vertical, 7)
-                        .listRowBackground(Color.white.opacity(0.045))
+                        .padding(.vertical, 10)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
                     } header: {
-                        Text("Appearance")
+                        Text("GLASS THEMES")
                     } footer: {
-                        Text("Your appearance is saved on this device. The same preset and controls will be included in secure sync once device pairing is connected.")
+                        Text("The four base themes remain available at all times. Manual adjustments are saved automatically on this device.")
                     }
 
                     Section {
