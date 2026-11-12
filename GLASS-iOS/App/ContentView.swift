@@ -16,7 +16,8 @@ struct ContentView: View {
     @State private var librarySection = 0
     @State private var showSpaces = false
     @State private var newSpaceName = ""
-    @State private var showPrivacy = false\n    @State private var showSettings = false
+    @State private var showPrivacy = false
+    @State private var showSettings = false
     @State private var confirmClearWebsiteData = false
     @State private var privacyActionMessage = ""
 
@@ -70,7 +71,13 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
                 .preferredColorScheme(.dark)
         }
-        .sheet(isPresented: $showSettings) {\n            BrowserSettingsView()\n                .environmentObject(browser)\n                .presentationDetents([.large])\n                .presentationDragIndicator(.visible)\n        }\n        .sheet(isPresented: $showPrivacy) {
+        .sheet(isPresented: $showSettings) {
+            BrowserSettingsView()
+                .environmentObject(browser)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showPrivacy) {
             privacySheet
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
@@ -121,6 +128,14 @@ struct ContentView: View {
                     .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
             }
             .accessibilityLabel("Downloads")
+            Button {
+                showSettings = true
+            } label: {
+                Image(systemName: "slider.horizontal.3").font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white).frame(width: 42, height: 42)
+                    .background(GlassPalette.panel, in: Circle()).overlay(Circle().stroke(GlassPalette.line))
+            }
+            .accessibilityLabel("Browser settings")
             Button {
                 showPrivacy = true
             } label: {
@@ -247,8 +262,12 @@ struct ContentView: View {
             Text(browser.activeTab?.isPrivate == true ? "Your private session is not saved." : browser.activeSpace.name)
                 .font(.system(size: 14)).foregroundStyle(GlassPalette.secondary)
             Button {
-                addressText = "https://www.google.com"
-                openAddress()
+                if let custom = browser.resolvedStartPageURL {
+                    browser.activeTab?.load(custom)
+                } else {
+                    addressText = "https://www.google.com"
+                    openAddress()
+                }
             } label: {
                 Label("Start browsing", systemImage: "arrow.up.right")
                     .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
@@ -551,9 +570,7 @@ struct ContentView: View {
         } else if input.contains(".") && !input.contains(" ") {
             destination = URL(string: "https://" + input)
         } else {
-            var components = URLComponents(string: "https://www.google.com/search")
-            components?.queryItems = [URLQueryItem(name: "q", value: input)]
-            destination = components?.url
+            destination = browser.searchURL(for: input)
         }
         guard let destination else { return }
         tab.load(destination)
