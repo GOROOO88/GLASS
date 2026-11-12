@@ -4,8 +4,9 @@ import Combine
 
 @MainActor
 final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDelegate {
-    let id = UUID()
+    let id: UUID
     let webView: WKWebView
+    @Published var spaceID: String
     var onVisit: ((URL, String) -> Void)?
 
     @Published var title = "New Tab"
@@ -14,7 +15,9 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable, WKNavigationDe
     @Published var canGoBack = false
     @Published var canGoForward = false
 
-    init() {
+    init(id: UUID = UUID(), spaceID: String = "personal") {
+        self.id = id
+        self.spaceID = spaceID
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .default()
         webView = WKWebView(frame: .zero, configuration: configuration)
