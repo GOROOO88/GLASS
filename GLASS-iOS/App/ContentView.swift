@@ -399,8 +399,7 @@ struct ContentView: View {
                                     .font(.system(size: 9, weight: .bold)).tracking(1.6)
                                     .foregroundStyle(GlassPalette.secondary)
                             }
-                            Text("Ваше личное
-пространство в сети.")
+                            Text("Ваше личное\nпространство в сети.")
                                 .font(.system(size: 34, weight: .semibold, design: .rounded))
                                 .tracking(-0.8).foregroundStyle(.white)
                                 .fixedSize(horizontal: false, vertical: true)
